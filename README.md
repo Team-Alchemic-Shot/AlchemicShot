@@ -69,7 +69,8 @@ We use Trello as the source of truth for work tracking (required for class).
 - **Build Storage:** If you are building for testing, place in [builds](Builds/), if building a deliverable, create a release on [Github](https://github.com/Team-Alchemic-Shot/AlchemicShot/releases)
 
 ## Assets & Credits
-- **Third-party assets:** [CREDITS](CREDITS.md)
+- **Third-party assets:** [Unity Store List](https://assetstore.unity.com/lists/alchemic-shot-2475922618331)
+- **Third-party credits:** [CREDITS](CREDITS.md)
 - **Licenses:** see [LICENSE](LICENSE)
 
 ## Contact / Help

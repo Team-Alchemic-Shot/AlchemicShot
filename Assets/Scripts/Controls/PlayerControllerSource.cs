@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerControllerSource : MonoBehaviour
@@ -6,6 +7,24 @@ public class PlayerControllerSource : MonoBehaviour
     [Header("General Settings")]
     [SerializeField]
     private float moveSpeed = 5f;
+    [Header("Sprint")]
+    [SerializeField]
+    private float sprintMultiplier = 1.5f;
+    [SerializeField]
+    private bool sprintOnlyOnGround = true;
+
+    [Header("Input Actions (Project-wide)")]
+    [SerializeField]
+    private string moveActionName = "Move";
+    [SerializeField]
+    private string lookActionName = "Look";
+    [SerializeField]
+    private string jumpActionName = "Jump";
+    [SerializeField]
+    private string sprintActionName = "Sprint";
+    [SerializeField]
+    private string restartActionName = "Restart";
+
     [SerializeField]
     private float jumpForce = 3f;
     [SerializeField]
@@ -54,6 +73,13 @@ public class PlayerControllerSource : MonoBehaviour
     private float lastLandedAt;
     private bool jumpHeld;
     private bool jumpedSinceGrounded;
+    private bool sprintHeld;
+
+    private InputAction moveAction;
+    private InputAction lookAction;
+    private InputAction jumpAction;
+    private InputAction sprintAction;
+    private InputAction restartAction;
 
     // Cached components
     private new Camera camera;
@@ -66,22 +92,33 @@ public class PlayerControllerSource : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
     }
 
+    void OnEnable()
+    {
+        BindActions();
+    }
+
     void Update()
     {
         Look();
         ReadMovementInput();
+        ReadSprintInput();
         QueueJump();
 
-        Debug.Log($"Speed: {rb.velocity.magnitude:F2}");
+        // Debug.Log($"Speed: {rb.velocity.magnitude:F2}");
 
         #if UNITY_EDITOR // strictly debug 'r' restart
-        if (Input.GetKeyDown(KeyCode.R))
+        if (restartAction != null && restartAction.WasPressedThisFrame())
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
             );
         }
         #endif
+    }
+
+    private void ReadSprintInput()
+    {
+        sprintHeld = sprintAction != null && sprintAction.IsPressed();
     }
 
     void FixedUpdate() // Unity physics updates here at a fixed interval
@@ -109,8 +146,10 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void ReadMovementInput()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveZ = Input.GetAxisRaw("Vertical");
+        Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        input = Vector2.ClampMagnitude(input, 1f);
+        float moveX = input.x;
+        float moveZ = input.y;
 
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
@@ -125,8 +164,8 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void QueueJump()
     {
-        jumpHeld = Input.GetButton("Jump");
-        bool wantJump = autoBhop ? jumpHeld : Input.GetButtonDown("Jump");
+        jumpHeld = jumpAction != null && jumpAction.IsPressed();
+        bool wantJump = autoBhop ? jumpHeld : (jumpAction != null && jumpAction.WasPressedThisFrame());
 
         if (wantJump)
         {
@@ -147,11 +186,23 @@ public class PlayerControllerSource : MonoBehaviour
             ApplyFriction(ref horizontalVelocity, dt);
         }
 
-        float wishSpeed = moveSpeed;
+        float currentMoveSpeed = moveSpeed;
+        if (sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            currentMoveSpeed *= sprintMultiplier;
+        }
+
+        float wishSpeed = currentMoveSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;
         if (!isGrounded)
         {
-            wishSpeed = Mathf.Min(wishSpeed, airSpeedCap);
+            float currentAirSpeedCap = airSpeedCap;
+            if (sprintHeld && (!sprintOnlyOnGround || isGrounded))
+            {
+                currentAirSpeedCap *= sprintMultiplier;
+            }
+
+            wishSpeed = Mathf.Min(wishSpeed, currentAirSpeedCap);
         }
 
         if (desiredMoveDirection.sqrMagnitude > 0.0001f)
@@ -164,14 +215,18 @@ public class PlayerControllerSource : MonoBehaviour
         if (isGrounded && !jumpQueued)
         {
             float horizontalSpeed = horizontalVelocity.magnitude;
-            if (horizontalSpeed > moveSpeed)
+            if (horizontalSpeed > currentMoveSpeed)
             {
-                horizontalVelocity = horizontalVelocity.normalized * moveSpeed;
+                horizontalVelocity = horizontalVelocity.normalized * currentMoveSpeed;
             }
         }
 
         // Hard cap: never allow horizontal speed beyond this value (ground/air/bhop).
         float cappedSpeed = Mathf.Max(0f, maxHorizontalSpeed);
+        if (sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            cappedSpeed *= sprintMultiplier;
+        }
         if (cappedSpeed > 0f)
         {
             float horizontalSpeed = horizontalVelocity.magnitude;
@@ -271,16 +326,40 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void Look()
     {
-        // Get mouse input for looking around
-        float mouseX = Input.GetAxis("Mouse X") * cameraSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * cameraSensitivity;
+        Vector2 look = lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
+        float lookX = look.x * cameraSensitivity;
+        float lookY = look.y * cameraSensitivity;
 
         // Rotate the camera up and down (inverting the Y axis)
-        xRotation -= mouseY;
+        xRotation -= lookY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Prevent over-rotation
 
         camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
-        transform.Rotate(Vector3.up * mouseX); // Rotate player
+        transform.Rotate(Vector3.up * lookX); // Rotate player
+    }
+
+    private void BindActions()
+    {
+        moveAction = FindProjectAction(moveActionName);
+        lookAction = FindProjectAction(lookActionName);
+        jumpAction = FindProjectAction(jumpActionName);
+        sprintAction = FindProjectAction(sprintActionName);
+        restartAction = FindProjectAction(restartActionName);
+    }
+
+    private static InputAction FindProjectAction(string actionName)
+    {
+        if (string.IsNullOrWhiteSpace(actionName))
+        {
+            return null;
+        }
+
+        if (InputSystem.actions == null)
+        {
+            return null;
+        }
+
+        return InputSystem.actions.FindAction(actionName, throwIfNotFound: false);
     }
     
     private void SetGrounded()

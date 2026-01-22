@@ -1,10 +1,33 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     private float moveSpeed = 5f;
+    [Header("Sprint")]
+    [SerializeField]
+    private float sprintMultiplier = 1.5f;
+    [SerializeField]
+    private bool sprintOnlyOnGround = true;
+
+    [Header("Input Actions (Project-wide)")]
+    [SerializeField]
+    private string moveActionName = "Move";
+    [SerializeField]
+    private string lookActionName = "Look";
+    [SerializeField]
+    private string jumpActionName = "Jump";
+    [SerializeField]
+    private string sprintActionName = "Sprint";
+    [SerializeField]
+    private string restartActionName = "Restart";
+
+    [Header("Input")]
+    [SerializeField]
+    private float moveInputSharpness = 20f;
+
     [SerializeField]
     private float jumpForce = 7f;
     [SerializeField]
@@ -16,6 +39,14 @@ public class PlayerController : MonoBehaviour
     private float xRotation = 0f;
     private Vector3 desiredMoveDirection = Vector3.zero;
     private bool jumpQueued;
+    private bool sprintHeld;
+    private Vector2 moveInput;
+
+    private InputAction moveAction;
+    private InputAction lookAction;
+    private InputAction jumpAction;
+    private InputAction sprintAction;
+    private InputAction restartAction;
 
     private new Camera camera;
     private Rigidbody rb;
@@ -27,20 +58,31 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
     }
 
+    void OnEnable()
+    {
+        BindActions();
+    }
+
     void Update()
     {
         Look();
         ReadMovementInput();
+        ReadSprintInput();
         QueueJump();
 
         #if UNITY_EDITOR // strictly debug 'r' restart
-        if (Input.GetKeyDown(KeyCode.R))
+        if (restartAction != null && restartAction.WasPressedThisFrame())
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
             );
         }
         #endif
+    }
+
+    private void ReadSprintInput()
+    {
+        sprintHeld = sprintAction != null && sprintAction.IsPressed();
     }
 
     void FixedUpdate() // Unity physics updates here at a fixed interval
@@ -52,8 +94,13 @@ public class PlayerController : MonoBehaviour
 
     private void ReadMovementInput()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        Vector2 targetMove = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        targetMove = Vector2.ClampMagnitude(targetMove, 1f);
+        // Match the old Input Manager's "GetAxis" feel (smoothed).
+        moveInput = Vector2.MoveTowards(moveInput, targetMove, moveInputSharpness * Time.deltaTime);
+
+        float moveX = moveInput.x;
+        float moveZ = moveInput.y;
 
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
@@ -68,7 +115,7 @@ public class PlayerController : MonoBehaviour
 
     private void QueueJump()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (jumpAction != null && jumpAction.WasPressedThisFrame())
         {
             jumpQueued = true;
         }
@@ -78,7 +125,14 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 currentVelocity = rb.velocity;
         Vector3 currentHorizontalVelocity = new(currentVelocity.x, 0f, currentVelocity.z);
-        Vector3 targetHorizontalVelocity = desiredMoveDirection * moveSpeed;
+
+        float currentMoveSpeed = moveSpeed;
+        if (sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            currentMoveSpeed *= sprintMultiplier;
+        }
+
+        Vector3 targetHorizontalVelocity = desiredMoveDirection * currentMoveSpeed;
 
         // When there's no input, decelerate smoothly toward zero; otherwise go to target speed.
         Vector3 newHorizontalVelocity = targetHorizontalVelocity;
@@ -103,16 +157,40 @@ public class PlayerController : MonoBehaviour
 
     private void Look()
     {
-        // Get mouse input for looking around
-        float mouseX = Input.GetAxis("Mouse X") * cameraSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * cameraSensitivity;
+        Vector2 look = lookAction != null ? lookAction.ReadValue<Vector2>() : Vector2.zero;
+        float lookX = look.x * cameraSensitivity;
+        float lookY = look.y * cameraSensitivity;
 
         // Rotate the camera up and down (inverting the Y axis)
-        xRotation -= mouseY;
+        xRotation -= lookY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Prevent over-rotation
 
         camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
-        transform.Rotate(Vector3.up * mouseX); // Rotate player
+        transform.Rotate(Vector3.up * lookX); // Rotate player
+    }
+
+    private void BindActions()
+    {
+        moveAction = FindProjectAction(moveActionName);
+        lookAction = FindProjectAction(lookActionName);
+        jumpAction = FindProjectAction(jumpActionName);
+        sprintAction = FindProjectAction(sprintActionName);
+        restartAction = FindProjectAction(restartActionName);
+    }
+
+    private static InputAction FindProjectAction(string actionName)
+    {
+        if (string.IsNullOrWhiteSpace(actionName))
+        {
+            return null;
+        }
+
+        if (InputSystem.actions == null)
+        {
+            return null;
+        }
+
+        return InputSystem.actions.FindAction(actionName, throwIfNotFound: false);
     }
     
     private void SetGrounded()

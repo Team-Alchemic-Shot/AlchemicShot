@@ -5,10 +5,10 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private float moveSpeed = 5f;
+    private float moveSpeed = 4f;
     [Header("Sprint")]
     [SerializeField]
-    private float sprintMultiplier = 1.5f;
+    private float sprintMultiplier = 1.75f;
     [SerializeField]
     private bool sprintOnlyOnGround = true;
 
@@ -29,9 +29,9 @@ public class PlayerController : MonoBehaviour
     private float moveInputSharpness = 20f;
 
     [SerializeField]
-    private float jumpForce = 7f;
+    private float jumpForce = 3f;
     [SerializeField]
-    private float cameraSensitivity = 2f;
+    private float cameraSensitivity = 0.05f;
     [SerializeField]
     private float moveDecelerationRate = 10f;
 
@@ -218,6 +218,6 @@ public class PlayerController : MonoBehaviour
     
     private void SetGrounded()
     {
-        isGrounded = Physics.SphereCast(transform.position, 0.1f, Vector3.down, out RaycastHit _, 2f);
+        isGrounded = Physics.SphereCast(transform.position, 0.1f, Vector3.down, out RaycastHit _, 1f);
     }
 }

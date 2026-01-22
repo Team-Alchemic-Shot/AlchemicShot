@@ -6,10 +6,10 @@ public class PlayerControllerSource : MonoBehaviour
 {
     [Header("General Settings")]
     [SerializeField]
-    private float moveSpeed = 5f;
+    private float moveSpeed = 4f;
     [Header("Sprint")]
     [SerializeField]
-    private float sprintMultiplier = 1.5f;
+    private float sprintMultiplier = 1.75f;
     [SerializeField]
     private bool sprintOnlyOnGround = true;
 
@@ -28,25 +28,25 @@ public class PlayerControllerSource : MonoBehaviour
     [SerializeField]
     private float jumpForce = 3f;
     [SerializeField]
-    private float cameraSensitivity = 2f;
+    private float cameraSensitivity = 0.05f;
 
     [Header("Source-like Movement")]
     [SerializeField]
     private float groundAcceleration = 60f;
     [SerializeField]
-    private float airAcceleration = 15f;
+    private float airAcceleration = 5f;
     [SerializeField]
     private float friction = 6f;
     [SerializeField]
-    private float stopSpeed = 2f;
+    private float stopSpeed = 10f;
     [SerializeField]
     private float bhopFrictionGraceTime = 0.075f;
 
     [Header("Speed Limits")]
     [SerializeField]
-    private float maxHorizontalSpeed = 8f;
+    private float maxHorizontalSpeed = 15f;
     [SerializeField]
-    private float airSpeedCap = 5f;
+    private float airSpeedCap = 2.5f;
 
     [Header("Jumping")]
     [SerializeField]
@@ -60,7 +60,7 @@ public class PlayerControllerSource : MonoBehaviour
     [SerializeField]
     private float groundCheckRadius = 0.1f;
     [SerializeField]
-    private float groundCheckDistance = 0.2f;
+    private float groundCheckDistance = 1f;
 
     // Private state variables
     private bool isGrounded = true;

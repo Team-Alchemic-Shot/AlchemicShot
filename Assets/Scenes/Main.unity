@@ -261,8 +261,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 249000a837084590cbcdcb7dbeebcfb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2.5
-  sprintMultiplier: 1.5
+  moveSpeed: 4
+  sprintMultiplier: 1.75
   sprintOnlyOnGround: 1
   moveActionName: Move
   lookActionName: Look
@@ -271,7 +271,7 @@ MonoBehaviour:
   restartActionName: Restart
   moveInputSharpness: 20
   jumpForce: 3
-  cameraSensitivity: 2
+  cameraSensitivity: 0.05
   moveDecelerationRate: 10
 --- !u!54 &380660707
 Rigidbody:
@@ -401,8 +401,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a31ae061d1cd47419b84c6bb3cc9fbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2.5
-  sprintMultiplier: 1.5
+  moveSpeed: 4
+  sprintMultiplier: 1.75
   sprintOnlyOnGround: 1
   moveActionName: Move
   lookActionName: Look
@@ -410,7 +410,7 @@ MonoBehaviour:
   sprintActionName: Sprint
   restartActionName: Restart
   jumpForce: 3
-  cameraSensitivity: 2
+  cameraSensitivity: 0.05
   groundAcceleration: 60
   airAcceleration: 10
   friction: 6

@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
     private InputAction sprintAction;
     private InputAction restartAction;
 
-    private new Camera camera;
+    private Camera camera;
     private Rigidbody rb;
 
     void Start()

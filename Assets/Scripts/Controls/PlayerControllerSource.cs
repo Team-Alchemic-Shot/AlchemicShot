@@ -82,7 +82,7 @@ public class PlayerControllerSource : MonoBehaviour
     private InputAction restartAction;
 
     // Cached components
-    private new Camera camera;
+    private Camera camera;
     private Rigidbody rb;
 
     void Start()

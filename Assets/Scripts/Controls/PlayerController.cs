@@ -14,7 +14,8 @@ public class PlayerController : MonoBehaviour
 
     private bool isGrounded = true;
     private float xRotation = 0f;
-    private Vector3 velocity = Vector3.zero;
+    private Vector3 desiredMoveDirection = Vector3.zero;
+    private bool jumpQueued;
 
     private new Camera camera;
     private Rigidbody rb;
@@ -28,53 +29,76 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        SetGrounded();
-        Move();
-        Jump();
         Look();
-        ApplyVelocity();
+        ReadMovementInput();
+        QueueJump();
+
+        #if UNITY_EDITOR // strictly debug 'r' restart
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+            );
+        }
+        #endif
     }
 
-    private void Move()
+    void FixedUpdate() // Unity physics updates here at a fixed interval
     {
-        // Get input for movement (WASD keys)
-        float moveX = Input.GetAxisRaw("Horizontal");
+        SetGrounded();
+        ApplyMovement();
+        jumpQueued = false;
+    }
+
+    private void ReadMovementInput()
+    {
+        float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
-        // Calculate movement direction relative to player's current forward direction
         Vector3 moveDirection = transform.right * moveX + transform.forward * moveZ;
 
-        // Prevent faster diagonal movement by clamping the desired horizontal direction to length 1.
+        // Prevent faster diagonal movement.
         if (moveDirection.sqrMagnitude > 1f)
         {
             moveDirection.Normalize();
         }
 
-        // no crouch, sprint functionality yet
+        desiredMoveDirection = moveDirection;
+    }
 
-        // Preserve current vertical velocity from physics; we only author horizontal movement here.
-        float y = rb.velocity.y;
+    private void QueueJump()
+    {
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpQueued = true;
+        }
+    }
 
-        Vector3 targetHorizontalVelocity = moveDirection * moveSpeed;
-        Vector3 currentHorizontalVelocity = new(rb.velocity.x, 0f, rb.velocity.z);
+    private void ApplyMovement()
+    {
+        Vector3 currentVelocity = rb.velocity;
+        Vector3 currentHorizontalVelocity = new(currentVelocity.x, 0f, currentVelocity.z);
+        Vector3 targetHorizontalVelocity = desiredMoveDirection * moveSpeed;
 
         // When there's no input, decelerate smoothly toward zero; otherwise go to target speed.
         Vector3 newHorizontalVelocity = targetHorizontalVelocity;
-        if (moveDirection.sqrMagnitude < 0.0001f)
+        if (desiredMoveDirection.sqrMagnitude < 0.0001f)
         {
-            newHorizontalVelocity = Vector3.Lerp(currentHorizontalVelocity, Vector3.zero, moveDecelerationRate * Time.deltaTime);
+            newHorizontalVelocity = Vector3.MoveTowards(
+                currentHorizontalVelocity,
+                Vector3.zero,
+                moveDecelerationRate * Time.fixedDeltaTime
+            );
         }
 
-        velocity = new(newHorizontalVelocity.x, y, newHorizontalVelocity.z);
-    }
-
-    private void Jump()
-    {
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        float newY = currentVelocity.y;
+        if (jumpQueued && isGrounded)
         {
             // Replace vertical velocity with a jump impulse.
-            velocity = new(velocity.x, jumpForce, velocity.z);
+            newY = jumpForce;
         }
+
+        rb.velocity = new(newHorizontalVelocity.x, newY, newHorizontalVelocity.z);
     }
 
     private void Look()
@@ -94,10 +118,5 @@ public class PlayerController : MonoBehaviour
     private void SetGrounded()
     {
         isGrounded = Physics.SphereCast(transform.position, 0.1f, Vector3.down, out RaycastHit _, 2f);
-    }
-
-    private void ApplyVelocity()
-    {
-        rb.velocity = 50f * Time.fixedDeltaTime * velocity; // Scale velocity for FixedUpdate timing
     }
 }

@@ -7,6 +7,7 @@ A Unity game about combining imbued bullets and slaughter.
 - **Project Board:** [Trello](trello.com)
 - **Builds:** [Releases](https://github.com/Team-Alchemic-Shot/AlchemicShot/releases)
 - **Team Chat:** [Discord](https://discord.gg/Yf42wfZmNd)
+- **Trello Board:** https://trello.com/invite/b/69726493b75c0b2eb4e642e7/ATTI869c733c876a1f9208cd78528688a1dd7015677B/alchemicshot 
 
 ## Team
 - **Producer / PM:** @TBD

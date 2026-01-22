@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     private bool jumpQueued;
     private bool sprintHeld;
     private Vector2 moveInput;
+    private float pendingYaw = 0f;
 
     private InputAction moveAction;
     private InputAction lookAction;
@@ -48,13 +49,19 @@ public class PlayerController : MonoBehaviour
     private InputAction sprintAction;
     private InputAction restartAction;
 
-    private Camera camera;
+    private Camera playerCamera;
     private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        camera = Camera.main;
+        playerCamera = Camera.main;
+
+        // Smooth visual motion between physics ticks.
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        // Helps reduce jitter/tunneling when moving at speed.
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
     }
 
@@ -66,6 +73,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Look();
+        ApplyLookRotation();
         ReadMovementInput();
         ReadSprintInput();
         QueueJump();
@@ -165,8 +173,23 @@ public class PlayerController : MonoBehaviour
         xRotation -= lookY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Prevent over-rotation
 
-        camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
-        transform.Rotate(Vector3.up * lookX); // Rotate player
+        playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
+        // Apply yaw in FixedUpdate using Rigidbody so visuals match physics.
+        pendingYaw += lookX;
+    }
+
+    private void ApplyLookRotation()
+    {
+        if (Mathf.Abs(pendingYaw) < 0.0001f)
+        {
+            return;
+        }
+
+        // Camera is a child of the Rigidbody-driven player, so rotate via Rigidbody.
+        // With interpolation enabled, Unity will smooth this between physics ticks.
+        Quaternion delta = Quaternion.Euler(0f, pendingYaw, 0f);
+        rb.MoveRotation(rb.rotation * delta);
+        pendingYaw = 0f;
     }
 
     private void BindActions()

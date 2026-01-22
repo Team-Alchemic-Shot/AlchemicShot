@@ -66,6 +66,7 @@ public class PlayerControllerSource : MonoBehaviour
     private bool isGrounded = true;
     private bool wasGrounded;
     private float xRotation = 0f;
+    private float pendingYaw;
     private Vector3 desiredMoveDirection = Vector3.zero;
     private bool jumpQueued;
     private float jumpQueuedAt;
@@ -82,13 +83,19 @@ public class PlayerControllerSource : MonoBehaviour
     private InputAction restartAction;
 
     // Cached components
-    private Camera camera;
+    private Camera playerCamera;
     private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        camera = Camera.main;
+        playerCamera = Camera.main;
+        
+        // Smooth visual motion between physics ticks.
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        // Helps reduce jitter/tunneling when moving at speed.
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
     }
 
@@ -100,6 +107,7 @@ public class PlayerControllerSource : MonoBehaviour
     void Update()
     {
         Look();
+        ApplyLookRotation();
         ReadMovementInput();
         ReadSprintInput();
         QueueJump();
@@ -334,8 +342,21 @@ public class PlayerControllerSource : MonoBehaviour
         xRotation -= lookY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Prevent over-rotation
 
-        camera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
-        transform.Rotate(Vector3.up * lookX); // Rotate player
+        playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Rotate camera
+        // Apply yaw in LateUpdate so turning is smooth at render rate.
+        pendingYaw += lookX;
+    }
+
+    private void ApplyLookRotation()
+    {
+        if (Mathf.Abs(pendingYaw) < 0.0001f)
+        {
+            return;
+        }
+
+        Quaternion delta = Quaternion.Euler(0f, pendingYaw, 0f);
+        rb.MoveRotation(rb.rotation * delta);
+        pendingYaw = 0f;
     }
 
     private void BindActions()

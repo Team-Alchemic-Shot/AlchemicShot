@@ -4,9 +4,9 @@ A Unity game about combining imbued bullets and slaughter.
 
 ## Quick Links
 - **Game Design Doc:** [design.md](docs/design.md)
-- **Project Board:** [Trello](trello.com)
+- **Project Board:** [Trello](https://trello.com/invite/b/69726493b75c0b2eb4e642e7/ATTI869c733c876a1f9208cd78528688a1dd7015677B/alchemicshot)
 - **Builds:** [Releases](https://github.com/Team-Alchemic-Shot/AlchemicShot/releases)
-- **Team Chat:** [Discord](https://discord.gg/Yf42wfZmNd)
+- **Team Chat:** [Discord](https://discord.gg/Yf42wfZmNd) 
 
 ## Team
 - **Producer / PM:** @TBD
@@ -18,7 +18,7 @@ A Unity game about combining imbued bullets and slaughter.
 ## Status
 - **Current milestone:** Alpha (Due: 2026-2-12)
 - **Latest playable build:** None
-- **Known top issues:** [Trello](trello.com)
+- **Known top issues:** [Trello](https://trello.com/invite/b/69726493b75c0b2eb4e642e7/ATTI869c733c876a1f9208cd78528688a1dd7015677B/alchemicshot)
 
 ## Controls
 - **Move:** 

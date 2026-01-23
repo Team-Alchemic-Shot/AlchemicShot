@@ -4,12 +4,19 @@ on:
   pull_request:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
   test-unity:
     name: Unity Tests
     if: ${{ github.actor != 'nektos/act' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode: [editmode, playmode]
 
     permissions:
       contents: read
@@ -53,24 +60,27 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_ENV"
 
-      - name: Run Unity Tests (EditMode + PlayMode)
+      - name: Run Unity Tests (${{ matrix.testMode }})
         uses: game-ci/unity-test-runner@v4
         with:
           unityVersion: 2022.3.62f3
           containerRegistryImageVersion: 3
           projectPath: .
-          testMode: all
-          artifactsPath: test-results
+          testMode: ${{ matrix.testMode }}
+          artifactsPath: test-results-${{ matrix.testMode }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Unity ${{ matrix.testMode }} tests
+          customParameters: -logFile - -stackTraceLogType Full
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
-          name: unity-test-results
-          path: test-results
+          name: unity-test-results-${{ matrix.testMode }}
+          path: test-results-${{ matrix.testMode }}
           retention-days: 5
 
   test-unity-act:

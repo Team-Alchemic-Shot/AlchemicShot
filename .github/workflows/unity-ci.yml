@@ -28,11 +28,10 @@ jobs:
           restore-keys: |
             Library-
 
-      # ✅ Activate Unity (Personal account)
       - name: Activate Unity
         uses: game-ci/unity-activate@v2
         with:
-          unityVersion: 2022.3.62f3
+          unityVersion: 2022.3.x
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
@@ -40,20 +39,19 @@ jobs:
       - name: Run Unity Tests (EditMode + PlayMode)
         uses: game-ci/unity-test-runner@v4
         with:
+          unityVersion: 2022.3.x
           projectPath: .
           testMode: all
           artifactsPath: test-results
-          unityVersion: 2022.3.62f3
           githubToken: ${{ secrets.GITHUB_TOKEN }}
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
-      # ✅ Return Unity license after tests
       - name: Return Unity License
         uses: game-ci/unity-return-license@v2
         with:
-          unityVersion: 2022.3.62f3
+          unityVersion: 2022.3.x
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}

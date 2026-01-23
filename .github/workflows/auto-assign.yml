@@ -14,4 +14,4 @@ jobs:
       with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: 5EUS,AaronCII,agruzberg,bmike3,DragonKnight914
-          numOfAssignee: 5
+          numOfAssignee: 2

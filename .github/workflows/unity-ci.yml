@@ -4,15 +4,24 @@ on:
   pull_request:
     branches:
       - dev
+  workflow_dispatch:
 
 jobs:
   test-unity:
     name: Unity Tests
+    if: ${{ github.actor != 'nektos/act' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        testMode: [editmode, playmode]
 
     permissions:
       contents: read
       pull-requests: write
+      checks: write
 
     steps:
       - name: Checkout repository
@@ -28,20 +37,118 @@ jobs:
           restore-keys: |
             Library-
 
-      - name: Run Unity Tests (EditMode + PlayMode)
+      - name: Prepare Unity License (Personal)
+        shell: bash
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_LICENSE_BASE64: ${{ secrets.UNITY_LICENSE_BASE64 }}
+        run: |
+          set -euo pipefail
+
+          license_payload=""
+          if [ -n "${UNITY_LICENSE:-}" ]; then
+            license_payload="$UNITY_LICENSE"
+          elif [ -n "${UNITY_LICENSE_BASE64:-}" ]; then
+            license_payload="$(echo "$UNITY_LICENSE_BASE64" | base64 -d)"
+          else
+            echo "Missing UNITY_LICENSE (raw) and UNITY_LICENSE_BASE64." >&2
+            exit 1
+          fi
+
+          {
+            echo "UNITY_LICENSE<<EOF"
+            echo "$license_payload"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Run Unity Tests (${{ matrix.testMode }})
         uses: game-ci/unity-test-runner@v4
+        with:
+          unityVersion: 2022.3.62f3
+          containerRegistryImageVersion: 3
+          projectPath: .
+          testMode: ${{ matrix.testMode }}
+          artifactsPath: test-results-${{ matrix.testMode }}
+          githubToken: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && github.token || '' }}
+          checkName: Unity ${{ matrix.testMode }} tests
+          customParameters: -logFile - -stackTraceLogType Full
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-          projectPath: .
-          testMode: all
-          artifactsPath: test-results
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
-          name: unity-test-results
-          path: test-results
+          name: unity-test-results-${{ matrix.testMode }}
+          path: test-results-${{ matrix.testMode }}
+          retention-days: 5
+
+  test-unity-act:
+    name: Unity Tests (act)
+    if: ${{ github.actor == 'nektos/act' }}
+    runs-on: ubuntu-latest
+    container:
+      image: unityci/editor:ubuntu-2022.3.62f3-linux-il2cpp-3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Prepare Unity License (Personal)
+        shell: bash
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_LICENSE_BASE64: ${{ secrets.UNITY_LICENSE_BASE64 }}
+        run: |
+          set -euo pipefail
+
+          license_payload=""
+          if [ -n "${UNITY_LICENSE:-}" ]; then
+            license_payload="$UNITY_LICENSE"
+          elif [ -n "${UNITY_LICENSE_BASE64:-}" ]; then
+            license_payload="$(echo "$UNITY_LICENSE_BASE64" | base64 -d)"
+          else
+            echo "Missing UNITY_LICENSE (raw) and UNITY_LICENSE_BASE64." >&2
+            exit 1
+          fi
+
+          mkdir -p "$HOME/.local/share/unity3d/Unity"
+          mkdir -p "$HOME/.config/unity3d/Unity/licenses"
+          printf '%s' "$license_payload" > "$HOME/.local/share/unity3d/Unity/Unity_lic.ulf"
+          printf '%s' "$license_payload" > "$HOME/.config/unity3d/Unity/licenses/UnityEntitlementLicense.xml"
+
+      - name: Run Unity Tests (EditMode)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          /opt/unity/Editor/Unity \
+            -batchmode -nographics -quit \
+            -projectPath . \
+            -runTests \
+            -testPlatform editmode \
+            -testResults test-results/editmode-results.xml \
+            -logFile -
+
+      - name: Run Unity Tests (PlayMode)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          /opt/unity/Editor/Unity \
+            -batchmode -nographics -quit \
+            -projectPath . \
+            -runTests \
+            -testPlatform playmode \
+            -testResults test-results/playmode-results.xml \
+            -logFile -
+
+      - name: Show Test Results Folder
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Listing test-results:" 
+          ls -la test-results || true

@@ -18,6 +18,30 @@ jobs:
           assignees: 5EUS,AaronCII,agruzberg,bmike3,DragonKnight914
           numOfAssignee: 2
 
+      - name: Fetch PR metadata (assignees/reviewers)
+        id: prmeta
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number });
+
+            const assignees = (pr.assignees ?? []).map(a => a.login).join(', ') || 'None';
+            const reviewers = (pr.requested_reviewers ?? []).map(r => r.login).join(', ') || 'None';
+            const teams = (pr.requested_teams ?? []).map(t => t.name).join(', ') || 'None';
+
+            core.setOutput('assignees', assignees);
+            core.setOutput('reviewers', reviewers);
+            core.setOutput('reviewer_teams', teams);
+            core.setOutput('html_url', pr.html_url);
+            core.setOutput('title', pr.title);
+            core.setOutput('number', String(pr.number));
+            core.setOutput('author', pr.user?.login ?? 'unknown');
+            core.setOutput('body', pr.body ?? '');
+
       - name: Notify Discord
         uses: Ilshidur/action-discord@0.4.0
         env:
@@ -26,13 +50,16 @@ jobs:
           DISCORD_AVATAR: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
           DISCORD_EMBEDS: >-
             [{
-              "title": ${{ toJson(format('PR #{0}: {1}', github.event.pull_request.number, github.event.pull_request.title)) }},
-              "url": ${{ toJson(github.event.pull_request.html_url) }},
-              "description": ${{ toJson(github.event.pull_request.body || 'No description provided.') }},
+              "title": ${{ toJson(format('PR #{0}: {1}', steps.prmeta.outputs.number, steps.prmeta.outputs.title)) }},
+              "url": ${{ toJson(steps.prmeta.outputs.html_url) }},
+              "description": ${{ toJson(steps.prmeta.outputs.body != '' && steps.prmeta.outputs.body || 'No description provided.') }},
               "color": 3447003,
               "fields": [
-                {"name": "Author", "value": ${{ toJson(github.event.pull_request.user.login) }}, "inline": true},
-                {"name": "Repo", "value": ${{ toJson(github.repository) }}, "inline": true}
+                {"name": "Author", "value": ${{ toJson(steps.prmeta.outputs.author) }}, "inline": true},
+                {"name": "Repo", "value": ${{ toJson(github.repository) }}, "inline": true},
+                {"name": "Assignees", "value": ${{ toJson(steps.prmeta.outputs.assignees) }}, "inline": false},
+                {"name": "Requested Reviewers", "value": ${{ toJson(steps.prmeta.outputs.reviewers) }}, "inline": false},
+                {"name": "Requested Teams", "value": ${{ toJson(steps.prmeta.outputs.reviewer_teams) }}, "inline": false}
               ]
             }]
         with:
@@ -40,3 +67,6 @@ jobs:
             :new: PR **#{{ EVENT_PAYLOAD.pull_request.number }}** opened by **{{ EVENT_PAYLOAD.pull_request.user.login }}**
             **Title:** {{ EVENT_PAYLOAD.pull_request.title }}
             **URL:** {{ EVENT_PAYLOAD.pull_request.html_url }}
+            **Assignees:** ${{ steps.prmeta.outputs.assignees }}
+            **Requested Reviewers:** ${{ steps.prmeta.outputs.reviewers }}
+            **Requested Teams:** ${{ steps.prmeta.outputs.reviewer_teams }}

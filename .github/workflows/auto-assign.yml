@@ -24,6 +24,17 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_USERNAME: "GitHub Bot"
           DISCORD_AVATAR: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          DISCORD_EMBEDS: >-
+            [{
+              "title": ${{ toJson(format('PR #{0}: {1}', github.event.pull_request.number, github.event.pull_request.title)) }},
+              "url": ${{ toJson(github.event.pull_request.html_url) }},
+              "description": ${{ toJson(github.event.pull_request.body || 'No description provided.') }},
+              "color": 3447003,
+              "fields": [
+                {"name": "Author", "value": ${{ toJson(github.event.pull_request.user.login) }}, "inline": true},
+                {"name": "Repo", "value": ${{ toJson(github.repository) }}, "inline": true}
+              ]
+            }]
         with:
           args: |
             :new: PR **#{{ EVENT_PAYLOAD.pull_request.number }}** opened by **{{ EVENT_PAYLOAD.pull_request.user.login }}**

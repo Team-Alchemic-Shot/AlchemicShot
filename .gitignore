@@ -76,6 +76,14 @@ mono_crash.*
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Local tooling / secrets (act)
+.secrets
+.secrets.bak
+.env
+.input
+.vars
+
+
 # TestRunner generated files
 InitTestScene*.unity*
 

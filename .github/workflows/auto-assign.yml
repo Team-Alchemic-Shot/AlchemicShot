@@ -65,8 +65,4 @@ jobs:
         with:
           args: |
             :new: PR **#{{ EVENT_PAYLOAD.pull_request.number }}** opened by **{{ EVENT_PAYLOAD.pull_request.user.login }}**
-            **Title:** {{ EVENT_PAYLOAD.pull_request.title }}
             **URL:** {{ EVENT_PAYLOAD.pull_request.html_url }}
-            **Assignees:** ${{ steps.prmeta.outputs.assignees }}
-            **Requested Reviewers:** ${{ steps.prmeta.outputs.reviewers }}
-            **Requested Teams:** ${{ steps.prmeta.outputs.reviewer_teams }}

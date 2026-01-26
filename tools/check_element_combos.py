@@ -20,6 +20,9 @@ from typing import Dict, Iterable, List, Optional, Tuple
 GUID_RE = re.compile(r"guid:\s*([0-9a-fA-F]+)")
 ELEMENT_NAME_RE = re.compile(r"^\s*elementName:\s*(.*)$")
 ELEMENT_TIER_RE = re.compile(r"^\s*elementTier:\s*(\d+)\s*$")
+BEHAVIORS_INLINE_RE = re.compile(r"^\s*behaviors:\s*\[\]\s*$")
+BEHAVIORS_START_RE = re.compile(r"^\s*behaviors:\s*$")
+BEHAVIOR_ITEM_RE = re.compile(r"^\s*-\s+")
 
 TIER_LABELS = {0: "Primitive", 1: "Tier1", 2: "Tier2"}
 TIER_FOLDER_ALIASES = {
@@ -35,6 +38,7 @@ class ElementInfo:
     name: str
     tier: Optional[int]
     path: Path
+    behavior_count: int
 
 
 @dataclass(frozen=True)
@@ -71,9 +75,11 @@ def extract_folder_tier(path: Path) -> Optional[int]:
     return None
 
 
-def parse_element_asset(path: Path) -> Tuple[Optional[str], Optional[int]]:
+def parse_element_asset(path: Path) -> Tuple[Optional[str], Optional[int], int]:
     name: Optional[str] = None
     tier: Optional[int] = None
+    behavior_count = 0
+    in_behaviors = False
     for line in read_text(path).splitlines():
         if name is None:
             name_match = ELEMENT_NAME_RE.match(line)
@@ -83,9 +89,16 @@ def parse_element_asset(path: Path) -> Tuple[Optional[str], Optional[int]]:
             tier_match = ELEMENT_TIER_RE.match(line)
             if tier_match:
                 tier = int(tier_match.group(1))
-        if name is not None and tier is not None:
-            break
-    return name, tier
+        if BEHAVIORS_INLINE_RE.match(line):
+            in_behaviors = False
+        elif BEHAVIORS_START_RE.match(line):
+            in_behaviors = True
+        elif in_behaviors and BEHAVIOR_ITEM_RE.match(line):
+            behavior_count += 1
+        elif in_behaviors and line and not line.startswith(" "):
+            in_behaviors = False
+
+    return name, tier, behavior_count
 
 
 def parse_combo_asset(path: Path) -> Tuple[Optional[str], Optional[str], Optional[str]]:
@@ -113,13 +126,14 @@ def build_element_index(
         if element_guid not in read_text(asset_path):
             continue
 
-        name, tier = parse_element_asset(asset_path)
+        name, tier, behavior_count = parse_element_asset(asset_path)
         name = name or asset_path.stem
         elements[asset_path.as_posix()] = ElementInfo(
             guid=asset_path.as_posix(),
             name=name,
             tier=tier,
             path=asset_path,
+            behavior_count=behavior_count,
         )
 
     # Rebuild mapping by real GUID from meta file if present
@@ -135,6 +149,7 @@ def build_element_index(
                         name=element.name,
                         tier=element.tier,
                         path=element.path,
+                        behavior_count=element.behavior_count,
                     )
                     break
     return guid_map
@@ -175,6 +190,8 @@ def check_combos(
     elements: Dict[str, ElementInfo],
     combos: List[ComboInfo],
     require_all_pairs: bool,
+    require_combo_per_element: bool,
+    require_behaviors: bool,
 ) -> int:
     errors = 0
 
@@ -191,6 +208,7 @@ def check_combos(
                     name=element.name,
                     tier=final_tier,
                     path=element.path,
+                    behavior_count=element.behavior_count,
                 )
             )
         if element.tier is not None and folder_tier is not None:
@@ -207,12 +225,15 @@ def check_combos(
         errors += len(folder_mismatches)
 
     combo_lookup: Dict[Tuple[str, str], ComboInfo] = {}
+    combo_usage: Dict[str, int] = {}
     for combo in combos:
         if not combo.input_a or not combo.input_b:
             print(f"Combo {combo.path} missing input element references.")
             errors += 1
             continue
         combo_lookup[unordered_pair(combo.input_a, combo.input_b)] = combo
+        combo_usage[combo.input_a] = combo_usage.get(combo.input_a, 0) + 1
+        combo_usage[combo.input_b] = combo_usage.get(combo.input_b, 0) + 1
 
     # Ensure combo assets live under the tier folder they target (if detectable).
     for combo in combos:
@@ -283,6 +304,32 @@ def check_combos(
                     print(f"  - {pair}")
                 errors += len(missing_pairs)
 
+    if require_combo_per_element:
+        missing_combo_elements: List[str] = []
+        for element in elements.values():
+            if combo_usage.get(element.guid, 0) == 0:
+                missing_combo_elements.append(
+                    f"{element.name} ({element.path})"
+                )
+        if missing_combo_elements:
+            print("Elements with no combo entries:")
+            for entry in missing_combo_elements:
+                print(f"  - {entry}")
+            errors += len(missing_combo_elements)
+
+    if require_behaviors:
+        missing_behavior_elements: List[str] = []
+        for element in elements.values():
+            if element.behavior_count <= 0:
+                missing_behavior_elements.append(
+                    f"{element.name} ({element.path})"
+                )
+        if missing_behavior_elements:
+            print("Elements with no behaviors assigned:")
+            for entry in missing_behavior_elements:
+                print(f"  - {entry}")
+            errors += len(missing_behavior_elements)
+
     return errors
 
 
@@ -299,6 +346,16 @@ def main() -> int:
         "--allow-missing-pairs",
         action="store_true",
         help="Allow missing same-tier combo assets (default: fail if any are missing).",
+    )
+    parser.add_argument(
+        "--require-combo-per-element",
+        action="store_true",
+        help="Fail if any element does not appear in at least one combo.",
+    )
+    parser.add_argument(
+        "--require-behaviors",
+        action="store_true",
+        help="Fail if any element has no behaviors assigned.",
     )
     args = parser.parse_args()
 
@@ -321,7 +378,13 @@ def main() -> int:
         return 0
 
     require_all_pairs = not args.allow_missing_pairs
-    errors = check_combos(elements, combos, require_all_pairs)
+    errors = check_combos(
+        elements,
+        combos,
+        require_all_pairs,
+        args.require_combo_per_element,
+        args.require_behaviors,
+    )
     if errors == 0:
         print("Element combo check passed.")
     else:

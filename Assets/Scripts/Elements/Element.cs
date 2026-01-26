@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Element", menuName = "Elements/Element")]
@@ -11,6 +12,8 @@ public class Element : ScriptableObject
     public GameObject vfxPrefab;
     public AudioClip sfxClip;
     public float sfxVolume = 1.0f;
+
+    public List<ElementBehavior> behaviors = new();
 }
 
 [System.Serializable]

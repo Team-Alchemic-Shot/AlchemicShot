@@ -5,6 +5,6 @@ public class ElementCombo : ScriptableObject
 {
     public ElementPair inputElements;
     public Element resultElement;
-    public float? priority;
+    public float priority;
 
 }

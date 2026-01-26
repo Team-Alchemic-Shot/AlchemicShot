@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "Element Database", menuName = "Elements/Element Database")]
 public class ElementDatabase : ScriptableObject
 {
     public Element[] elements;

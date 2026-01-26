@@ -7,6 +7,7 @@ m_Script GUIDs, and validates:
 - combos use valid element references
 - combos within the same tier produce the next tier
 - missing combos within the same tier (optional)
+- database asset includes all elements and combos (optional)
 """
 
 from __future__ import annotations
@@ -23,6 +24,9 @@ ELEMENT_TIER_RE = re.compile(r"^\s*elementTier:\s*(\d+)\s*$")
 BEHAVIORS_INLINE_RE = re.compile(r"^\s*behaviors:\s*\[\]\s*$")
 BEHAVIORS_START_RE = re.compile(r"^\s*behaviors:\s*$")
 BEHAVIOR_ITEM_RE = re.compile(r"^\s*-\s+")
+DATABASE_ELEMENTS_START_RE = re.compile(r"^\s*elements:\s*$")
+DATABASE_COMBOS_START_RE = re.compile(r"^\s*elementCombos:\s*$")
+DATABASE_LIST_ITEM_RE = re.compile(r"^\s*-\s+")
 
 TIER_LABELS = {0: "Primitive", 1: "Tier1", 2: "Tier2"}
 TIER_FOLDER_ALIASES = {
@@ -182,6 +186,38 @@ def build_combo_index(
     return combos
 
 
+def parse_database_asset(path: Path) -> Tuple[set[str], set[str]]:
+    element_guids: set[str] = set()
+    combo_guids: set[str] = set()
+    in_elements = False
+    in_combos = False
+
+    for line in read_text(path).splitlines():
+        if DATABASE_ELEMENTS_START_RE.match(line):
+            in_elements = True
+            in_combos = False
+            continue
+        if DATABASE_COMBOS_START_RE.match(line):
+            in_combos = True
+            in_elements = False
+            continue
+
+        if in_elements and DATABASE_LIST_ITEM_RE.match(line):
+            guid = extract_guid_from_line(line)
+            if guid:
+                element_guids.add(guid)
+        elif in_combos and DATABASE_LIST_ITEM_RE.match(line):
+            guid = extract_guid_from_line(line)
+            if guid:
+                combo_guids.add(guid)
+
+        if (in_elements or in_combos) and line and not line.startswith(" "):
+            in_elements = False
+            in_combos = False
+
+    return element_guids, combo_guids
+
+
 def unordered_pair(a: str, b: str) -> Tuple[str, str]:
     return (a, b) if a < b else (b, a)
 
@@ -192,6 +228,7 @@ def check_combos(
     require_all_pairs: bool,
     require_combo_per_element: bool,
     require_behaviors: bool,
+    database_asset: Optional[Path],
 ) -> int:
     errors = 0
 
@@ -330,6 +367,31 @@ def check_combos(
                 print(f"  - {entry}")
             errors += len(missing_behavior_elements)
 
+    if database_asset is not None:
+        if not database_asset.exists():
+            print(f"Database asset not found: {database_asset}")
+            errors += 1
+        else:
+            db_elements, db_combos = parse_database_asset(database_asset)
+
+            missing_elements = [
+                element for element in elements.values() if element.guid not in db_elements
+            ]
+            if missing_elements:
+                print("Elements missing from database asset:")
+                for element in missing_elements:
+                    print(f"  - {element.name} ({element.path})")
+                errors += len(missing_elements)
+
+            missing_combos = [
+                combo for combo in combos if combo.guid not in db_combos
+            ]
+            if missing_combos:
+                print("Combos missing from database asset:")
+                for combo in missing_combos:
+                    print(f"  - {combo.path}")
+                errors += len(missing_combos)
+
     return errors
 
 
@@ -357,6 +419,16 @@ def main() -> int:
         action="store_true",
         help="Fail if any element has no behaviors assigned.",
     )
+    parser.add_argument(
+        "--database-asset",
+        default="Assets/Scripts/Elements/Database1.asset",
+        help="Path to the ElementDatabase asset used for validation.",
+    )
+    parser.add_argument(
+        "--skip-database-check",
+        action="store_true",
+        help="Skip validation of elements/combos being referenced by the database asset.",
+    )
     args = parser.parse_args()
 
     assets_root = Path(args.assets_root).resolve()
@@ -378,12 +450,14 @@ def main() -> int:
         return 0
 
     require_all_pairs = not args.allow_missing_pairs
+    database_asset = None if args.skip_database_check else Path(args.database_asset).resolve()
     errors = check_combos(
         elements,
         combos,
         require_all_pairs,
         args.require_combo_per_element,
         args.require_behaviors,
+        database_asset,
     )
     if errors == 0:
         print("Element combo check passed.")

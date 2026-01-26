@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(ZombieTargeting))]
 public class ZombieAttack : MonoBehaviour
 {
     [SerializeField]

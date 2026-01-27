@@ -1488,6 +1488,7 @@ GameObject:
   - component: {fileID: 1801169023}
   - component: {fileID: 1801169022}
   - component: {fileID: 1801169021}
+  - component: {fileID: 1801169025}
   m_Layer: 0
   m_Name: Revolver
   m_TagString: Untagged
@@ -1596,6 +1597,24 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1801169019}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1801169025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801169019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0baa2676997901e3da34547287e95c07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useLocalRotation: 1
+  followSpeed: 20
+  pitchOffset: 90
+  followYaw: 0
+  followPosition: 1
+  cameraLocalOffset: {x: 0.2, y: -0.2, z: 0.5}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

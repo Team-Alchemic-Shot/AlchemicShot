@@ -5,6 +5,7 @@ public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
     public MagazineBlueprint magazineBlueprint;
+    public GameObject player;
 
     private InputAction fireAction;
     private InputAction reloadAction;
@@ -21,9 +22,11 @@ public class Gun : MonoBehaviour
             bullets = new BulletData[gunDefinition.stats.magazineSize]
         };
         test_LoadBP();
-        gunDefinition.loadFireMechanism.Initialize(magazineBlueprint, magazineState);
+        gunDefinition.loadFireMechanism.Initialize(
+            magazineBlueprint, 
+            magazineState, 
+            player);
         gunDefinition.loadFireMechanism.Load(ammoStock);
-
     }
 
     private void test_LoadBP()

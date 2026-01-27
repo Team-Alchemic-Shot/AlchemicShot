@@ -3,6 +3,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "SingleShot", menuName = "Gun/LoadFireMechanism/SingleShot")]
 public class SingleShot : LoadFireMechanism
 {
+    [SerializeField]
+    private float range = 50f;
+    [SerializeField]
+    private LayerMask zombieMask;
+
     public override int Fire()
     {
         if (magazineState.Count == 0)
@@ -11,7 +16,30 @@ public class SingleShot : LoadFireMechanism
             return 0;
         }
         Debug.Log("SingleShot Fire");
-        magazineState.Pop();
+
+        var bullet = magazineState.Pop();
+
+        // raycast (only hits Zombie layer)
+        Camera cam = Camera.main;
+        if (cam != null)
+        {
+            Ray ray = new(cam.transform.position, cam.transform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hit, range, zombieMask))
+            {
+                Debug.Log($"Hit zombie: {hit.collider.name}");
+                if (hit.collider.TryGetComponent<Health>(out var health))
+                {
+                    health.ApplyDamage(new DamageInfo
+                    {
+                        amount = bullet.baseDamage,
+                        source = source,
+                        position = hit.point
+                    });
+                }
+            }
+        }
+       
+
         return 1;
     }
 

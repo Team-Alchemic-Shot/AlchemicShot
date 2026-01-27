@@ -330,7 +330,7 @@ def check_combos(
                 continue
             missing_pairs: List[str] = []
             for i in range(len(tier_elements)):
-                for j in range(i + 1, len(tier_elements)):
+                for j in range(i, len(tier_elements)):
                     a = tier_elements[i]
                     b = tier_elements[j]
                     if unordered_pair(a.guid, b.guid) not in combo_lookup:

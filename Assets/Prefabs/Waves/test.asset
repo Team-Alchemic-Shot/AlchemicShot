@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7857aaa6067ce43b08840d6c6b03cadb, type: 3}
   m_Name: test
   m_EditorClassIdentifier: 
-  entries: []
+  entries:
+  - prefab: {fileID: 2972907501231071446, guid: 8d1d7dc175b7a4cecaaaa28630cf5e73,
+      type: 3}
+    count: 10
   spawnInterval: 0.5

@@ -26,8 +26,7 @@ public class FireBehavior : ElementBehavior
             status = context.target.AddComponent<FireDotStatus>();
         }
 
-        float intensity = context.intensity <= 0f ? 1f : context.intensity;
-        var damage = new DamageInfo(intensity, context.instigator, context.target.transform.position);
+        var damage = new DamageInfo(defaultIntensity, context.instigator, context.target.transform.position);
         status.Apply(
             duration, 
             tickInterval, 

@@ -26,6 +26,18 @@ public class ElementDatabase : ScriptableObject
         }
         return null;
     }
+
+    public Element GetElementByName(string name)
+    {
+        foreach (var element in elements)
+        {
+            if (element.elementName == name)
+            {
+                return element;
+            }
+        }
+        return null;
+    }
 }
 
 [System.Serializable]

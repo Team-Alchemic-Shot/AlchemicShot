@@ -6,6 +6,7 @@ public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
     public MagazineBlueprint magazineBlueprint;
+    public ElementDatabase elementDatabase;
     public GameObject player;
 
     private InputAction fireAction;
@@ -39,7 +40,8 @@ public class Gun : MonoBehaviour
         {
             magazineBlueprint.bullets[i] = new BulletData
             {
-                baseDamage = 100,
+                element = elementDatabase.GetElementByName("Fire"),
+                baseDamage = gunDefinition.stats.damage,
                 isEmpty = false
             };
         }

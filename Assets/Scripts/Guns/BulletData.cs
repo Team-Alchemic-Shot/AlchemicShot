@@ -1,6 +1,6 @@
 public class BulletData
 {
-    // public ElementType elementType;
+    public Element element;
     public float baseDamage = 1;
 
     public bool isEmpty = false;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 [CreateAssetMenu(fileName = "WaterBehavior", menuName = "Elements/Behaviors/Water")]
 public class WaterBehavior : ElementBehavior
@@ -26,41 +27,52 @@ public class WaterBehavior : ElementBehavior
             status = context.target.AddComponent<WaterDotStatus>();
         }
 
-        float intensity = context.intensity <= 0f ? 1f : context.intensity;
-        status.Apply(duration, tickInterval, intensity, refreshDuration, stackIntensity, logTicks);
+
+        status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, logTicks);
     }
 
     private class WaterDotStatus : MonoBehaviour
     {
         private float durationRemaining;
         private bool logTicks;
-        private Rigidbody2D rigidbody2d;
-        private Vector2 reducedVelocity;
         private bool hasAppliedSlowness = false;
+        private float tickInterval;
+        private float tickTimer;
 
         public void Apply(float duration, float interval, float intensity, bool refreshDuration, bool stackIntensity, bool logTicks)
         {
+            if (!TryGetComponent<NavMeshAgent>(out var agent))
+            {
+                return;
+            }
+
             this.logTicks = logTicks;
-            rigidbody2d = GetComponent<Rigidbody2D>();
+            tickInterval = Mathf.Max(0.05f, interval);
+
+            if (stackIntensity)
+            {
+                intensity += intensity;
+            }
+            else 
+            {
+                intensity = Mathf.Max(20, intensity);
+            }
 
             if (refreshDuration || durationRemaining <= 0f)
             {
                 durationRemaining = Mathf.Max(0.05f, duration);
             }
 
+            tickTimer = tickInterval;
+
             if (!hasAppliedSlowness)
             {
-                // Apply 30% speed reduction on first apply
-                if (rigidbody2d != null)
-                {
-                    reducedVelocity = rigidbody2d.velocity * 0.7f; // 70% of original = 30% reduction
-                    rigidbody2d.velocity = reducedVelocity; // TODO: Reduce Zombie Agent Speed
-                    hasAppliedSlowness = true;
+                agent.speed *= 1 / intensity; // intensity is inverse of speed multiplier
+                hasAppliedSlowness = true;
 
-                    if (logTicks)
-                    {
-                        Debug.Log($"Water slow applied to {gameObject.name} (30% speed reduction)");
-                    }
+                if (logTicks)
+                {
+                    Debug.Log($"Water slow applied to {gameObject.name} ({(1 - (1 / intensity)) * 100}% speed reduction)");
                 }
             }
         }
@@ -74,6 +86,16 @@ public class WaterBehavior : ElementBehavior
             }
 
             durationRemaining -= Time.deltaTime;
+            tickTimer -= Time.deltaTime;
+
+            if (tickTimer <= 0f)
+            {
+                tickTimer += tickInterval;
+                if (logTicks)
+                {
+                    Debug.Log($"Water tick on {gameObject.name}");
+                }
+            }
         }
     }
 }

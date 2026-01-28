@@ -81,7 +81,7 @@ MonoBehaviour:
   detectionRadius: 10
   targetMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 119
   refreshInterval: 0.5
   maxTargetColliders: 16
 --- !u!114 &9039623588025776597

@@ -40,6 +40,16 @@ public class SingleShot : LoadFireMechanism
                         source = source,
                         position = hit.point
                     });
+                    foreach (var behavior in bullet.element.behaviors)
+                    {
+                        var context = new ElementBehaviorContext
+                        {
+                            instigator = source,
+                            target = hit.collider.gameObject,
+                            position = hit.point
+                        };
+                        behavior.Apply(context);
+                    }
                 }
             }
         }

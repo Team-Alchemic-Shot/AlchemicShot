@@ -91,13 +91,13 @@ public class FireBehavior : ElementBehavior
             if (tickTimer <= 0f)
             {
                 tickTimer += tickInterval;
+                if (TryGetComponent<Health>(out var health))
+                {
+                    health.ApplyDamage(new DamageInfo(intensity, instigator, transform.position));
+                }
                 if (logTicks)
                 {
                     Debug.Log($"Fire DOT tick on {gameObject.name} (intensity: {intensity:F2})");
-                    if (TryGetComponent<Health>(out var health))
-                    {
-                        health.ApplyDamage(new DamageInfo(intensity, instigator, transform.position));
-                    }
                 }
             }
         }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,7 @@ public class Gun : MonoBehaviour
     private InputAction reloadAction;
     private MagazineState magazineState = new();
     private int ammoStock = 999999999; // infinite ammo for now?
+    private bool isReloading;
 
     private void Awake()
     {
@@ -24,15 +26,23 @@ public class Gun : MonoBehaviour
         test_LoadBP();
         gunDefinition.loadFireMechanism.Initialize(
             magazineBlueprint, 
-            magazineState, 
+            magazineState,
+            gunDefinition.stats,
+            gunDefinition.fx, 
             player);
         gunDefinition.loadFireMechanism.Load(ammoStock);
     }
 
     private void test_LoadBP()
     {
-
-        magazineBlueprint.bullets[0] = new BulletData();   
+        for (int i = 0; i < magazineBlueprint.bullets.Length; i++)
+        {
+            magazineBlueprint.bullets[i] = new BulletData
+            {
+                baseDamage = 100,
+                isEmpty = false
+            };
+        }
     }
 
     private void Update()
@@ -44,20 +54,66 @@ public class Gun : MonoBehaviour
 
         if (reloadAction.triggered)
         {
-            gunDefinition.loadFireMechanism.Load(ammoStock);
+            StartReload();
         }
     }
 
     private void Fire()
     {
+        if (isReloading)
+        {
+            return;
+        }
+
         if (magazineState.Count > 0 && ammoStock != 0)
         {
             // ammoStock -= gunDefinition.loadFireMechanism.Fire(); infinite ammo for now
-            gunDefinition.loadFireMechanism.Fire();
+            gunDefinition.loadFireMechanism.Fire(ammoStock);
+            if (gunDefinition.fx.shootSound != null)
+            {
+                AudioSource.PlayClipAtPoint(
+                    gunDefinition.fx.shootSound,
+                    player.transform.position,
+                    gunDefinition.fx.shootSoundVolume);
+            }
             if (magazineState.Count == 0)
             {
-                gunDefinition.loadFireMechanism.Load(ammoStock);
+                StartReload();
             }
         }
+        else if (ammoStock != 0)
+        {
+            StartReload();
+        }
+    }
+
+    private void StartReload()
+    {
+        if (isReloading)
+        {
+            return;
+        }
+
+        isReloading = true;
+        if (gunDefinition.fx.reloadSound != null)
+        {
+            AudioSource.PlayClipAtPoint(
+                gunDefinition.fx.reloadSound,
+                player.transform.position,
+                gunDefinition.fx.reloadSoundVolume);
+        }
+        StartCoroutine(ReloadRoutine());
+    }
+
+    private IEnumerator ReloadRoutine()
+    {
+        float reloadTime = Mathf.Max(0f, gunDefinition.stats.reloadTime);
+        if (reloadTime > 0f)
+        {
+            yield return new WaitForSeconds(reloadTime);
+        }
+
+        gunDefinition.loadFireMechanism.Load(ammoStock);
+        isReloading = false;
     }
 }

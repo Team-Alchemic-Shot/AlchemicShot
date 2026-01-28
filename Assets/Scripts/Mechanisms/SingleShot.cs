@@ -4,34 +4,39 @@ using UnityEngine;
 public class SingleShot : LoadFireMechanism
 {
     [SerializeField]
-    private float range = 50f;
-    [SerializeField]
     private LayerMask zombieMask;
 
-    public override int Fire()
+    public override int Fire(int ammoStock)
     {
         if (magazineState.Count == 0)
         {
             Debug.LogWarning("No bullets to fire!");
             return 0;
         }
-        Debug.Log("SingleShot Fire");
 
         var bullet = magazineState.Pop();
+        while (bullet.isEmpty)
+        {
+            if (magazineState.Count == 0)
+            {
+                return 0;
+            }
+
+            bullet = magazineState.Pop();
+        }
 
         // raycast (only hits Zombie layer)
         Camera cam = Camera.main;
         if (cam != null)
         {
             Ray ray = new(cam.transform.position, cam.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, range, zombieMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
             {
-                Debug.Log($"Hit zombie: {hit.collider.name}");
                 if (hit.collider.TryGetComponent<Health>(out var health))
                 {
                     health.ApplyDamage(new DamageInfo
                     {
-                        amount = bullet.baseDamage,
+                        amount = bullet.baseDamage + gunStats.damage,
                         source = source,
                         position = hit.point
                     });
@@ -45,7 +50,6 @@ public class SingleShot : LoadFireMechanism
 
     public override void Load(int ammoStock)
     {
-        Debug.Log("SingleShot Load");
         if (ammoStock == 0)
         {
             Debug.LogWarning("No ammo stock to load from!");
@@ -65,12 +69,16 @@ public class SingleShot : LoadFireMechanism
         }
 
         magazineState.Clear();
+        Reload(ammoStock);
+    }
 
+    private void Reload(int ammoStock)
+    {
         int bulletsToLoad = Mathf.Min(ammoStock, magazineBlueprint.bullets.Length);
         
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)
-        {
+        { 
             magazineState.Push(magazineBlueprint.bullets[i]);
         }
     }

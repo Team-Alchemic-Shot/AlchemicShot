@@ -822,6 +822,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 914252600}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &558467991
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 558467993}
+  - component: {fileID: 558467995}
+  - component: {fileID: 558467994}
+  m_Layer: 0
+  m_Name: test_spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &558467993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558467991}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 21.89}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &558467994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558467991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a642fe4e14d8c40b18d861428a2206df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnOnStart: 1
+  testWave: {fileID: 11400000, guid: d94be92b49ab24c74a48347b0b5cb669, type: 2}
+  useTransformPosition: 1
+  spawnCenterOffset: {x: 0, y: 0, z: 0}
+  spawnRadius: 5
+--- !u!114 &558467995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558467991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e5ad40a2dedd1db99e60385d112fa39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &776517071
 GameObject:
   m_ObjectHideFlags: 0
@@ -1584,6 +1646,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunDefinition: {fileID: 11400000, guid: 0c977ffa1c4d8505784955fb7e26250d, type: 2}
+  player: {fileID: 380660705}
 --- !u!136 &1801169022
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1683,3 +1746,4 @@ SceneRoots:
   - {fileID: 380660711}
   - {fileID: 424243738}
   - {fileID: 914252600}
+  - {fileID: 558467993}

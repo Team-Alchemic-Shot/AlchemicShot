@@ -9,6 +9,7 @@ public class Health : EntityComponent, IDamageable
     private bool destroyOnDeath = true;
 
     public float CurrentHealth { get; private set; }
+    public float MaxHealth => maxHealth;
 
     public event Action<Health> OnDamaged;
     public event Action<Health> OnDeath;

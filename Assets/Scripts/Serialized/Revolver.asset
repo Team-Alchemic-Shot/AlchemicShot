@@ -16,11 +16,12 @@ MonoBehaviour:
   loadFireMechanism: {fileID: 11400000, guid: 286af61a9922eaedaa2cfda2ba0698ff, type: 2}
   stats:
     damage: 1
-    range: 100
+    range: 1000
     fireRate: 5
     magazineSize: 6
     reloadTime: 1
   fx:
-    bulletPrefab: {fileID: 0}
-    shootSound: {fileID: 0}
-    reloadSound: {fileID: 0}
+    shootSound: {fileID: 8300000, guid: 42ecc8dad998351fd9cd84b197f20432, type: 3}
+    reloadSound: {fileID: 8300000, guid: bd83678e92b540580a5d3f8d0621aeaf, type: 3}
+    shootSoundVolume: 0.25
+    reloadSoundVolume: 0.25

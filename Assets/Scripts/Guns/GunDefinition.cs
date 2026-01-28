@@ -20,16 +20,25 @@ public abstract class LoadFireMechanism : ScriptableObject
 {
     protected MagazineBlueprint magazineBlueprint;
     protected MagazineState magazineState;
+    protected GunStats gunStats;
+    protected GunFX gunFX;
     protected GameObject source;
 
     /// <summary>
     /// Initializes the load/fire mechanism with the given magazine blueprint and state references.
     /// </summary>
-    public void Initialize(MagazineBlueprint bp, MagazineState state, GameObject source)
+    public void Initialize(
+        MagazineBlueprint bp, 
+        MagazineState state, 
+        GunStats stats, 
+        GunFX fx, 
+        GameObject src)
     {
         magazineBlueprint = bp;
         magazineState = state;
-        this.source = source;
+        gunStats = stats;
+        gunFX = fx;
+        source = src;
     }
 
     /// <summary>
@@ -40,7 +49,7 @@ public abstract class LoadFireMechanism : ScriptableObject
     /// <summary>
     /// Fires the gun, returning the number of bullets fired.
     /// </summary>
-    public abstract int Fire();
+    public abstract int Fire(int ammoStock);
 }
 
 /// <summary>
@@ -64,5 +73,7 @@ public struct GunFX
 {
     public AudioClip shootSound;
     public AudioClip reloadSound;
+    public float shootSoundVolume;
+    public float reloadSoundVolume;
 }
 

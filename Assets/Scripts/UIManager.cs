@@ -18,10 +18,20 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         // update health
-        //float HPtoDisplay = GameObject.FindWithTag("Player").GetComponent<PlayerHealth>().health;
+        float HPtoDisplay = GameObject.FindWithTag("Player").GetComponent<Health>().CurrentHealth;
         healthText.text = HPtoDisplay.ToString(); 
 
         // update ammo
+
+    }
+
+    public void AddBullet()
+    {
+
+    }
+
+    public void RemoveBullet()
+    {
 
     }
 }

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c546bd0177f4b04999325b8282569a5, type: 3}
   m_Name: WaterBehavior
   m_EditorClassIdentifier: 
-  description: 
-  defaultIntensity: 1
-  duration: 4
+  description: Water
+  defaultIntensity: 5
+  duration: 10
   tickInterval: 0.5
   refreshDuration: 1
   stackIntensity: 0

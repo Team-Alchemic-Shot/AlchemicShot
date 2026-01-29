@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fd70cabb3b64c44a9137f3914d04ed7, type: 3}
   m_Name: Air
   m_EditorClassIdentifier: 
-  elementName: 
-  elementColor: {r: 0, g: 0, b: 0, a: 0}
-  elementDensity: 0
+  elementName: Air
+  elementColor: {r: 0.7735849, g: 0.7735849, b: 0.7735849, a: 0}
+  elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0
   vfxPrefab: {fileID: 0}
   sfxClip: {fileID: 0}
   sfxVolume: 1
-  behaviors: []
+  behaviors:
+  - {fileID: 11400000, guid: e34fcdad7b7316cb29ad415bd630074b, type: 2}

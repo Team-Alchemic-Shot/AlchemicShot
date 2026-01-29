@@ -15,7 +15,7 @@ MonoBehaviour:
   gunName: Revolver
   loadFireMechanism: {fileID: 11400000, guid: 286af61a9922eaedaa2cfda2ba0698ff, type: 2}
   stats:
-    damage: 1
+    damage: 30
     range: 1000
     fireRate: 5
     magazineSize: 6

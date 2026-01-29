@@ -34,6 +34,7 @@ public class SingleShot : LoadFireMechanism
             {
                 if (hit.collider.TryGetComponent<Health>(out var health))
                 {
+                    float healthBefore = health.CurrentHealth;
                     health.ApplyDamage(new DamageInfo
                     {
                         amount = bullet.baseDamage + gunStats.damage,
@@ -50,6 +51,7 @@ public class SingleShot : LoadFireMechanism
                         };
                         behavior.Apply(context);
                     }
+                    Debug.Log($"Entity damage taken: {healthBefore} -> {health.CurrentHealth}");
                 }
             }
         }

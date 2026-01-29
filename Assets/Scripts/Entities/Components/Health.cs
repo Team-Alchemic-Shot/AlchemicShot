@@ -8,6 +8,8 @@ public class Health : EntityComponent, IDamageable
     [SerializeField]
     private bool destroyOnDeath = true;
 
+    private float weaknessMultiplier = 0f;
+
     public float CurrentHealth { get; private set; }
     public float MaxHealth => maxHealth;
 
@@ -27,7 +29,8 @@ public class Health : EntityComponent, IDamageable
             return;
         }
 
-        CurrentHealth = Mathf.Max(0f, CurrentHealth - info.amount);
+        float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
+        CurrentHealth = Mathf.Max(0f, CurrentHealth - scaledDamage);
         OnDamaged?.Invoke(this);
 
         if (CurrentHealth <= 0f)
@@ -49,4 +52,9 @@ public class Health : EntityComponent, IDamageable
 
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
     }
+
+    public void ApplyWeakness(float multiplier)
+    {
+        weaknessMultiplier += multiplier;
+    } 
 }

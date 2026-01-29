@@ -6,6 +6,7 @@ public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
     public MagazineBlueprint magazineBlueprint;
+    public ElementDatabase elementDatabase;
     public GameObject player;
 
     private InputAction fireAction;
@@ -37,11 +38,24 @@ public class Gun : MonoBehaviour
     {
         for (int i = 0; i < magazineBlueprint.bullets.Length; i++)
         {
-            magazineBlueprint.bullets[i] = new BulletData
+            if (i % 2 == 0)
             {
-                baseDamage = 100,
-                isEmpty = false
-            };
+                magazineBlueprint.bullets[i] = new BulletData
+                {
+                    element = elementDatabase.GetElementByName("Earth"),
+                    baseDamage = gunDefinition.stats.damage,
+                    isEmpty = false
+                };
+                continue;
+            }
+            else {
+                magazineBlueprint.bullets[i] = new BulletData
+                {
+                    element = elementDatabase.GetElementByName("Fire"),
+                    baseDamage = gunDefinition.stats.damage,
+                    isEmpty = false
+                };
+            }
         }
     }
 

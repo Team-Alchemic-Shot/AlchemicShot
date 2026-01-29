@@ -9,9 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffd9f55490cdebcccb1fa5b9b2826acb, type: 3}
-  m_Name: SingleShot
+  m_Script: {fileID: 11500000, guid: 8fd70cabb3b64c44a9137f3914d04ed7, type: 3}
+  m_Name: Earth
   m_EditorClassIdentifier: 
-  zombieMask:
-    serializedVersion: 2
-    m_Bits: 9
+  elementName: 
+  elementColor: {r: 0, g: 0, b: 0, a: 0}
+  elementDensity: 0
+  elementIcon: {fileID: 0}
+  elementTier: 0
+  vfxPrefab: {fileID: 0}
+  sfxClip: {fileID: 0}
+  sfxVolume: 1
+  behaviors: []

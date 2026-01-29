@@ -34,12 +34,24 @@ public class SingleShot : LoadFireMechanism
             {
                 if (hit.collider.TryGetComponent<Health>(out var health))
                 {
+                    float healthBefore = health.CurrentHealth;
                     health.ApplyDamage(new DamageInfo
                     {
                         amount = bullet.baseDamage + gunStats.damage,
                         source = source,
                         position = hit.point
                     });
+                    foreach (var behavior in bullet.element.behaviors)
+                    {
+                        var context = new ElementBehaviorContext
+                        {
+                            instigator = source,
+                            target = hit.collider.gameObject,
+                            position = hit.point
+                        };
+                        behavior.Apply(context);
+                    }
+                    Debug.Log($"Entity damage taken: {healthBefore} -> {health.CurrentHealth}");
                 }
             }
         }

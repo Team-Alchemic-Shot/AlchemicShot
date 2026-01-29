@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffd9f55490cdebcccb1fa5b9b2826acb, type: 3}
-  m_Name: SingleShot
+  m_Script: {fileID: 11500000, guid: d8d0907d4b5c24baa8682c6aa0469e4b, type: 3}
+  m_Name: EarthBehavior
   m_EditorClassIdentifier: 
-  zombieMask:
-    serializedVersion: 2
-    m_Bits: 9
+  description: 
+  defaultIntensity: 1
+  duration: 3
+  tickInterval: 0.5
+  refreshDuration: 1
+  stackIntensity: 0
+  logTicks: 1

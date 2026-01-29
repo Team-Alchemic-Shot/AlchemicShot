@@ -4,8 +4,6 @@ using UnityEngine;
 public class AirBehavior : ElementBehavior
 {
     [SerializeField]
-    private float knockbackForce = 10f;
-    [SerializeField]
     private float knockbackDistance = 5f;
     [SerializeField]
     private bool useForce = true;
@@ -25,19 +23,7 @@ public class AirBehavior : ElementBehavior
         {
             if (useForce)
             {
-                rigidbody.AddForce(knockbackDirection * knockbackForce, ForceMode.Impulse);
-            }
-            else
-            {
-                // Alternative: move the object directly
-                context.target.transform.position += knockbackDirection * knockbackDistance;
-            }
-        }
-        else if (context.target.TryGetComponent<Rigidbody2D>(out var rigidbody2D))
-        {
-            if (useForce)
-            {
-                rigidbody2D.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+                rigidbody.AddForce(knockbackDirection * defaultIntensity, ForceMode.Impulse);
             }
             else
             {
@@ -51,6 +37,6 @@ public class AirBehavior : ElementBehavior
             context.target.transform.position += knockbackDirection * knockbackDistance;
         }
 
-        Debug.Log($"Knockback applied to {context.target.name} with force {knockbackForce}");
+        Debug.Log($"Knockback applied to {context.target.name} with force {defaultIntensity}");
     }
 }

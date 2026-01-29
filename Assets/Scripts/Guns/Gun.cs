@@ -42,7 +42,7 @@ public class Gun : MonoBehaviour
             {
                 magazineBlueprint.bullets[i] = new BulletData
                 {
-                    element = elementDatabase.GetElementByName("Earth"),
+                    element = elementDatabase.GetElementByName("Air"),
                     baseDamage = gunDefinition.stats.damage,
                     isEmpty = false
                 };
@@ -51,7 +51,7 @@ public class Gun : MonoBehaviour
             else {
                 magazineBlueprint.bullets[i] = new BulletData
                 {
-                    element = elementDatabase.GetElementByName("Fire"),
+                    element = elementDatabase.GetElementByName("Air"),
                     baseDamage = gunDefinition.stats.damage,
                     isEmpty = false
                 };

@@ -36,27 +36,43 @@ public class Gun : MonoBehaviour
 
     private void test_LoadBP()
     {
-        for (int i = 0; i < magazineBlueprint.bullets.Length; i++)
+        magazineBlueprint.bullets[0] = new BulletData
         {
-            if (i % 2 == 0)
-            {
-                magazineBlueprint.bullets[i] = new BulletData
-                {
-                    element = elementDatabase.GetElementByName("Air"),
-                    baseDamage = gunDefinition.stats.damage,
-                    isEmpty = false
-                };
-                continue;
-            }
-            else {
-                magazineBlueprint.bullets[i] = new BulletData
-                {
-                    element = elementDatabase.GetElementByName("Air"),
-                    baseDamage = gunDefinition.stats.damage,
-                    isEmpty = false
-                };
-            }
-        }
+            element = elementDatabase.GetElementByName("Air"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };
+        magazineBlueprint.bullets[1] = new BulletData
+        {
+            element = elementDatabase.GetElementByName("Fire"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };
+        magazineBlueprint.bullets[2] = new BulletData
+        {
+            element = elementDatabase.GetElementByName("Water"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };
+        magazineBlueprint.bullets[3] = new BulletData
+        {
+            element = elementDatabase.GetElementByName("Earth"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };        
+        magazineBlueprint.bullets[4] = new BulletData
+        {
+            element = elementDatabase.GetElementByName("Air"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };
+        magazineBlueprint.bullets[5] = new BulletData
+        {
+            element = elementDatabase.GetElementByName("Fire"),
+            baseDamage = gunDefinition.stats.damage,
+            isEmpty = false
+        };        
+
     }
 
     private void Update()

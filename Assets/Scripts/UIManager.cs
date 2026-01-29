@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    float HPtoDisplay; 
-    public TMP_Text healthText;
+    private float HPtoDisplay; 
+    private TMP_Text healthText;
+    private List<TMP_Text> bulletText;
 
     // Start is called before the first frame update
     void Start()
@@ -19,10 +20,12 @@ public class UIManager : MonoBehaviour
     {
         // update health
         float HPtoDisplay = GameObject.FindWithTag("Player").GetComponent<Health>().CurrentHealth;
-        healthText.text = HPtoDisplay.ToString(); 
+        healthText.text = HPtoDisplay.ToString();
 
         // update ammo
-
+        foreach (var bullet in bulletText) {
+            
+        }
     }
 
     public void AddBullet()
@@ -32,6 +35,6 @@ public class UIManager : MonoBehaviour
 
     public void RemoveBullet()
     {
-
+        bulletText.RemoveAt(0);
     }
 }

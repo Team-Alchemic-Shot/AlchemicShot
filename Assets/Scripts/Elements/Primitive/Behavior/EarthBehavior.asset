@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d0907d4b5c24baa8682c6aa0469e4b, type: 3}
   m_Name: EarthBehavior
   m_EditorClassIdentifier: 
-  description: Earthj
-  defaultIntensity: 0.5
+  description: Earth
   duration: 3
+  defaultIntensity: 0.5
   tickInterval: 0.5
   refreshDuration: 1
   stackIntensity: 0

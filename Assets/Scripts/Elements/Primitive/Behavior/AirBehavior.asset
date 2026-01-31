@@ -13,6 +13,5 @@ MonoBehaviour:
   m_Name: AirBehavior
   m_EditorClassIdentifier: 
   description: Air
+  duration: 1
   defaultIntensity: 10
-  knockbackDistance: 5
-  useForce: 1

@@ -53,7 +53,7 @@ public class SingleShot : LoadFireMechanism
                 }
             }
             Debug.DrawLine(ray.origin, hit.point, Color.red, 5f);
-            bs.SetLifetime(0.1f); // rough hack to make bullet disappear quickly after hit
+            bs.SetLifetime(0.5f); // rough hack to make bullet disappear quickly after hit
         }
 
         return 1;

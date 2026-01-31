@@ -7,11 +7,11 @@ public class Gun : MonoBehaviour
     public GunDefinition gunDefinition;
     public ElementDatabase elementDatabase;
     public GameObject player;
+    public MagazineBlueprint magazineBlueprint;
 
     private InputAction fireAction;
     private InputAction reloadAction;
     private MagazineState magazineState;
-    private MagazineBlueprint magazineBlueprint;
     private int ammoStock = 999999999; // infinite ammo for now?
     private bool isReloading;
 
@@ -20,9 +20,8 @@ public class Gun : MonoBehaviour
         fireAction = ControlUtil.FindProjectAction("Fire");
         reloadAction = ControlUtil.FindProjectAction("Reload");
         
-        magazineBlueprint = new(gunDefinition.stats.magazineSize);
+        magazineBlueprint ??= new(gunDefinition.stats.magazineSize);
         magazineState = new();
-        test_LoadBP();
         gunDefinition.loadFireMechanism.Initialize(
             magazineBlueprint, 
             magazineState,
@@ -31,20 +30,6 @@ public class Gun : MonoBehaviour
             player,
             gunDefinition.bulletPrefab);
         gunDefinition.loadFireMechanism.Load(ammoStock);
-    }
-
-    private void test_LoadBP()
-    {
-        for (int i = 0; i < gunDefinition.stats.magazineSize; i++)
-        {
-            magazineBlueprint.bullets[i] = new BulletData
-            {
-                baseDamage = gunDefinition.stats.damage,
-                isEmpty = false,
-                element = elementDatabase.GetElementByName("Air")
-            };
-        }
-
     }
 
     private void Update()

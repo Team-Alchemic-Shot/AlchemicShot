@@ -1825,6 +1825,26 @@ MonoBehaviour:
   gunDefinition: {fileID: 11400000, guid: 0c977ffa1c4d8505784955fb7e26250d, type: 2}
   elementDatabase: {fileID: 11400000, guid: 6c2eedd5761ae6e6090684b8092c347c, type: 2}
   player: {fileID: 380660705}
+  magazineBlueprint:
+    bullets:
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
+    - element: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
+      baseDamage: 1
+      isEmpty: 0
 --- !u!136 &1801169022
 CapsuleCollider:
   m_ObjectHideFlags: 0

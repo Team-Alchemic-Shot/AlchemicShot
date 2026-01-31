@@ -26,4 +26,9 @@ public class BulletScript : MonoBehaviour
         this.lifetime = lifetime;
         rb.velocity = direction.normalized * speed;
     }
+
+    public void SetLifetime(float lifetime)
+    {
+        this.lifetime = lifetime;
+    }
 }

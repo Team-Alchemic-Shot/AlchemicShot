@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Reactions : MonoBehaviour
@@ -17,7 +16,7 @@ public class Reactions : MonoBehaviour
         Instance = this;
     }
 
-    public Element GetReactionResultFor(GameObject hit)
+    public ElementCombo GetReactionResultFor(GameObject hit)
     {
         var elements = hit.GetComponent<ElementStatus>();
         if (elements == null || elements.currentElements.Count < 2)
@@ -35,47 +34,58 @@ public class Reactions : MonoBehaviour
         return elementDatabase.GetComboResult(e1, e2);
     }
 
-    public bool TryGetReactionResult(GameObject hit, out Element result)
+    public bool TryGetReactionResult(GameObject hit, out ElementCombo elementCombo)
     {
-        result = GetReactionResultFor(hit);
-        return result != null;
-    }   
+        var combo = GetReactionResultFor(hit);
+        if (combo != null)
+        {
+            elementCombo = combo;
+            return true;
+        }
+        elementCombo = null;
+        return false;
+    } 
 
     public void TryApplyReaction(GameObject hit, ElementBehaviorContext context)
     {
-        if (TryGetReactionResult(hit, out var reactionElement))
+        if (TryGetReactionResult(hit, out var elementCombo))
         {
             var elements = hit.GetComponent<ElementStatus>();
             var e1 = elements.currentElements[0];
             var e2 = elements.currentElements[1];
             elements.currentElements.RemoveAt(0);
             elements.currentElements.RemoveAt(0);
-            elements.currentElements.Add(reactionElement);
+            elements.currentElements.Add(elementCombo.resultElement);
+
+            var result = elementCombo.resultElement;
 
             // Remove statuses from the original elements
-            foreach (var behavior1 in e1.behaviors)
+            if (elementCombo.removeOldStatusesOnReaction)
             {
-                if (behavior1.StatusType != null && context.target.GetComponent(behavior1.StatusType) != null)
+                foreach (var behavior1 in e1.behaviors)
                 {
-                    var status = context.target.GetComponent(behavior1.StatusType);
-                    Destroy(status);
+                    if (behavior1.StatusType != null && context.target.GetComponent(behavior1.StatusType) != null)
+                    {
+                        var status = context.target.GetComponent(behavior1.StatusType);
+                        Destroy(status);
+                    }
                 }
-            }
-            foreach (var behavior2 in e2.behaviors)
-            {
-                if (behavior2.StatusType != null && context.target.GetComponent(behavior2.StatusType) != null)
+                foreach (var behavior2 in e2.behaviors)
                 {
-                    var status = context.target.GetComponent(behavior2.StatusType);
-                    Destroy(status);
+                    if (behavior2.StatusType != null && context.target.GetComponent(behavior2.StatusType) != null)
+                    {
+                        var status = context.target.GetComponent(behavior2.StatusType);
+                        Destroy(status);
+                    }
                 }
             }
 
-            foreach (var behavior in reactionElement.behaviors)
+            foreach (var behavior in result.behaviors)
             {
                 behavior.Apply(context);
             }
 
-            Debug.Log($"Reaction occurred! Created element: {reactionElement.elementName}");
+            Debug.Log($"Reaction occurred! Created element: {result.elementName}");
         }
     }
 }

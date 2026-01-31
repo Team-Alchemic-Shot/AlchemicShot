@@ -18,11 +18,15 @@ public class ElementDatabase : ScriptableObject
         }
     }
 
-    public Element GetComboResult(Element a, Element b)
+    public ElementCombo GetComboResult(Element a, Element b)
     {
-        if (comboLookup.TryGetValue(new ElementPair(a, b), out Element result))
+        foreach (var combo in elementCombos)
         {
-            return result;
+            if ((combo.inputElements.elementA == a && combo.inputElements.elementB == b) ||
+                (combo.inputElements.elementA == b && combo.inputElements.elementB == a))
+            {
+                return combo;
+            }
         }
         return null;
     }

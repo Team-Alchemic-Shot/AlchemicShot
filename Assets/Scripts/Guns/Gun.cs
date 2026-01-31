@@ -5,13 +5,13 @@ using UnityEngine.InputSystem;
 public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
-    public MagazineBlueprint magazineBlueprint;
     public ElementDatabase elementDatabase;
     public GameObject player;
 
     private InputAction fireAction;
     private InputAction reloadAction;
-    private MagazineState magazineState = new();
+    private MagazineState magazineState;
+    private MagazineBlueprint magazineBlueprint;
     private int ammoStock = 999999999; // infinite ammo for now?
     private bool isReloading;
 
@@ -20,58 +20,30 @@ public class Gun : MonoBehaviour
         fireAction = ControlUtil.FindProjectAction("Fire");
         reloadAction = ControlUtil.FindProjectAction("Reload");
         
-        magazineBlueprint = new()
-        {
-            bullets = new BulletData[gunDefinition.stats.magazineSize]
-        };
+        magazineBlueprint = new(gunDefinition.stats.magazineSize);
+        magazineState = new();
         test_LoadBP();
         gunDefinition.loadFireMechanism.Initialize(
             magazineBlueprint, 
             magazineState,
             gunDefinition.stats,
             gunDefinition.fx, 
-            player);
+            player,
+            gunDefinition.bulletPrefab);
         gunDefinition.loadFireMechanism.Load(ammoStock);
     }
 
     private void test_LoadBP()
     {
-        magazineBlueprint.bullets[0] = new BulletData
+        for (int i = 0; i < gunDefinition.stats.magazineSize; i++)
         {
-            element = elementDatabase.GetElementByName("Air"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[1] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Fire"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[2] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Water"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[3] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Earth"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };        
-        magazineBlueprint.bullets[4] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Air"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[5] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Fire"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };        
+            magazineBlueprint.bullets[i] = new BulletData
+            {
+                baseDamage = gunDefinition.stats.damage,
+                isEmpty = false,
+                element = elementDatabase.GetElementByName("Air")
+            };
+        }
 
     }
 

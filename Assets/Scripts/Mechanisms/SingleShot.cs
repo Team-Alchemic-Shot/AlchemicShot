@@ -1,8 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SingleShot", menuName = "Gun/LoadFireMechanism/SingleShot")]
 public class SingleShot : LoadFireMechanism
 {
+    private static WaitForSeconds _waitForSeconds0_1 = new WaitForSeconds(0.1f);
     [SerializeField]
     private LayerMask zombieMask;
 
@@ -24,6 +26,10 @@ public class SingleShot : LoadFireMechanism
 
             bullet = magazineState.Pop();
         }
+
+        var bulletObj = Instantiate(bulletPrefab, Camera.main.transform.position, source.transform.rotation);
+        bulletObj.GetComponent<BulletScript>()
+            .Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
 
         // raycast (only hits Zombie layer)
         Camera cam = Camera.main;
@@ -53,9 +59,10 @@ public class SingleShot : LoadFireMechanism
                     }
                     Debug.Log($"Entity damage taken: {healthBefore} -> {health.CurrentHealth}");
                 }
+                Debug.DrawLine(ray.origin, hit.point, Color.red, 5f);
+                Destroy(bulletObj);
             }
         }
-       
 
         return 1;
     }

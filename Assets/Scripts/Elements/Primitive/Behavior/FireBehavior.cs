@@ -1,10 +1,8 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "FireBehavior", menuName = "Elements/Behaviors/Fire")]
+[CreateAssetMenu(fileName = "FireBehavior", menuName = "Elements/Behaviors/Primitive/Fire")]
 public class FireBehavior : ElementBehavior
 {
-    [SerializeField]
-    private float duration = 3f;
     [SerializeField]
     private float tickInterval = 0.5f;
     [SerializeField]

@@ -1,10 +1,8 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Earth")]
+[CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Primitive/Earth")]
 public class EarthBehavior : ElementBehavior
 {
-    [SerializeField]
-    private float duration = 3f;
     [SerializeField]
     private float tickInterval = 0.5f;
     [SerializeField]
@@ -43,7 +41,6 @@ public class EarthBehavior : ElementBehavior
         private float tickTimer;
         private float intensity;
         private bool logTicks;
-        private GameObject instigator;
 
         public void Apply(
             float duration, 
@@ -72,7 +69,6 @@ public class EarthBehavior : ElementBehavior
             }
 
             tickTimer = tickInterval;
-            this.instigator = instigator;
             if (TryGetComponent<Health>(out var health))
             {
                 health.ApplyWeakness(this.intensity);

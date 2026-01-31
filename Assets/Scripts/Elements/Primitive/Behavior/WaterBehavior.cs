@@ -1,11 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-[CreateAssetMenu(fileName = "WaterBehavior", menuName = "Elements/Behaviors/Water")]
+[CreateAssetMenu(fileName = "WaterBehavior", menuName = "Elements/Behaviors/Primitive/Water")]
 public class WaterBehavior : ElementBehavior
 {
-    [SerializeField]
-    private float duration = 4f;
     [SerializeField]
     private float tickInterval = 0.5f;
     [SerializeField]

@@ -28,29 +28,44 @@ public class SingleShot : LoadFireMechanism
         var bs = bulletObj.GetComponent<BulletScript>();
         bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
 
-        // raycast (only hits Zombie layer)
+        // raycast (only hits Zombie and Default layer)
         Camera cam = Camera.main;
         Ray ray = new(cam.transform.position, cam.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
         {
             if (hit.collider.TryGetComponent<Health>(out var health))
             {
+                // apply bullet damage
                 health.ApplyDamage(new DamageInfo
                 {
                     amount = bullet.baseDamage + gunStats.damage,
                     source = source,
                     position = hit.point
                 });
+                
+                // create a context to pass to element behaviors and reactions
+                var context = new ElementBehaviorContext
+                {
+                    instigator = source,
+                    target = hit.collider.gameObject,
+                    position = hit.point
+                };
+
+                // apply bullet element behaviors
                 foreach (var behavior in bullet.element.behaviors)
                 {
-                    var context = new ElementBehaviorContext
-                    {
-                        instigator = source,
-                        target = hit.collider.gameObject,
-                        position = hit.point
-                    };
+
                     behavior.Apply(context);
                 }
+
+                // handle element reactions
+                if (!hit.collider.gameObject.TryGetComponent<ElementStatus>(out var elementStatus))
+                {
+                    elementStatus = hit.collider.gameObject.AddComponent<ElementStatus>();
+                }
+                elementStatus.currentElements.Add(bullet.element); // track element
+                Reactions.Instance.TryApplyReaction(hit.collider.gameObject, context);
+                
             }
             Debug.DrawLine(ray.origin, hit.point, Color.red, 5f);
             bs.SetLifetime(0.5f); // rough hack to make bullet disappear quickly after hit

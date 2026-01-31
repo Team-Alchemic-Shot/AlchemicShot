@@ -13,6 +13,8 @@ public abstract class ElementBehavior : ScriptableObject
     [TextArea]
     public string description;
 
+    public float duration = 3f;
+
     public float defaultIntensity = 1f;
 
     public abstract void Apply(ElementBehaviorContext context);

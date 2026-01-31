@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Air")]
+[CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Primitive/Air")]
 public class AirBehavior : ElementBehavior
 {
     public override void Apply(ElementBehaviorContext context)

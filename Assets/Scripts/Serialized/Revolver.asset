@@ -17,6 +17,8 @@ MonoBehaviour:
   stats:
     damage: 30
     range: 1000
+    bulletLifeTime: 10
+    bulletSpeed: 400
     fireRate: 5
     magazineSize: 6
     reloadTime: 1
@@ -25,3 +27,5 @@ MonoBehaviour:
     reloadSound: {fileID: 8300000, guid: bd83678e92b540580a5d3f8d0621aeaf, type: 3}
     shootSoundVolume: 0.25
     reloadSoundVolume: 0.25
+  bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
+    type: 3}

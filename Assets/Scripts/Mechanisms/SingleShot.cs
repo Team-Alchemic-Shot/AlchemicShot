@@ -10,7 +10,6 @@ public class SingleShot : LoadFireMechanism
     {
         if (magazineState.Count == 0)
         {
-            Debug.LogWarning("No bullets to fire!");
             return 0;
         }
 
@@ -25,37 +24,37 @@ public class SingleShot : LoadFireMechanism
             bullet = magazineState.Pop();
         }
 
+        var bulletObj = Instantiate(bulletPrefab, Camera.main.transform.position, source.transform.rotation);
+        var bs = bulletObj.GetComponent<BulletScript>();
+        bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
+
         // raycast (only hits Zombie layer)
         Camera cam = Camera.main;
-        if (cam != null)
+        Ray ray = new(cam.transform.position, cam.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
         {
-            Ray ray = new(cam.transform.position, cam.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
+            if (hit.collider.TryGetComponent<Health>(out var health))
             {
-                if (hit.collider.TryGetComponent<Health>(out var health))
+                health.ApplyDamage(new DamageInfo
                 {
-                    float healthBefore = health.CurrentHealth;
-                    health.ApplyDamage(new DamageInfo
+                    amount = bullet.baseDamage + gunStats.damage,
+                    source = source,
+                    position = hit.point
+                });
+                foreach (var behavior in bullet.element.behaviors)
+                {
+                    var context = new ElementBehaviorContext
                     {
-                        amount = bullet.baseDamage + gunStats.damage,
-                        source = source,
+                        instigator = source,
+                        target = hit.collider.gameObject,
                         position = hit.point
-                    });
-                    foreach (var behavior in bullet.element.behaviors)
-                    {
-                        var context = new ElementBehaviorContext
-                        {
-                            instigator = source,
-                            target = hit.collider.gameObject,
-                            position = hit.point
-                        };
-                        behavior.Apply(context);
-                    }
-                    Debug.Log($"Entity damage taken: {healthBefore} -> {health.CurrentHealth}");
+                    };
+                    behavior.Apply(context);
                 }
             }
+            Debug.DrawLine(ray.origin, hit.point, Color.red, 5f);
+            bs.SetLifetime(0.5f); // rough hack to make bullet disappear quickly after hit
         }
-       
 
         return 1;
     }
@@ -87,10 +86,10 @@ public class SingleShot : LoadFireMechanism
     private void Reload(int ammoStock)
     {
         int bulletsToLoad = Mathf.Min(ammoStock, magazineBlueprint.bullets.Length);
-        
+
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)
-        { 
+        {
             magazineState.Push(magazineBlueprint.bullets[i]);
         }
     }

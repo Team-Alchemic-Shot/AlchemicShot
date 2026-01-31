@@ -10,6 +10,7 @@ public class GunDefinition : ScriptableObject
     public LoadFireMechanism loadFireMechanism;
     public GunStats stats;
     public GunFX fx;
+    public GameObject bulletPrefab;
 }
 
 /// <summary>
@@ -23,6 +24,7 @@ public abstract class LoadFireMechanism : ScriptableObject
     protected GunStats gunStats;
     protected GunFX gunFX;
     protected GameObject source;
+    protected GameObject bulletPrefab;
 
     /// <summary>
     /// Initializes the load/fire mechanism with the given magazine blueprint and state references.
@@ -32,13 +34,15 @@ public abstract class LoadFireMechanism : ScriptableObject
         MagazineState state, 
         GunStats stats, 
         GunFX fx, 
-        GameObject src)
+        GameObject src,
+        GameObject bullet)
     {
         magazineBlueprint = bp;
         magazineState = state;
         gunStats = stats;
         gunFX = fx;
         source = src;
+        bulletPrefab = bullet;
     }
 
     /// <summary>
@@ -60,6 +64,8 @@ public struct GunStats
 {
     public float damage;
     public float range;
+    public float bulletLifeTime;
+    public float bulletSpeed;
     public float fireRate;
     public int magazineSize;
     public float reloadTime;

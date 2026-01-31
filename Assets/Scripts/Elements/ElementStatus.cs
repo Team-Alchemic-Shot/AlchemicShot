@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ElementStatus : MonoBehaviour
@@ -13,12 +14,7 @@ public class ElementStatus : MonoBehaviour
             currentElements.Add(element);
         }
         
-        float maxDuration = 0f;
-        foreach (var behavior in element.behaviors)
-        {
-            if (behavior.duration > maxDuration)
-                maxDuration = behavior.duration;
-        }
+        float maxDuration = element.behaviors.Max(b => b.duration);
         StartCoroutine(RemoveElementAfterDelay(element, maxDuration));
     }
 

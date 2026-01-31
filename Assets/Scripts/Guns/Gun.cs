@@ -146,4 +146,9 @@ public class Gun : MonoBehaviour
         gunDefinition.loadFireMechanism.Load(ammoStock);
         isReloading = false;
     }
+
+    public MagazineState GetMagazine()
+    {
+        return magazineState;
+    }
 }

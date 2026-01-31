@@ -21,4 +21,8 @@ public class MagazineState
         bullets.Push(bullet);
     }
 
+    public Stack<BulletData> GetBullets()
+    {
+        return bullets;
+    }
 }

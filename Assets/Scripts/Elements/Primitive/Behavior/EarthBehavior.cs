@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Primitive/Earth")]
@@ -11,6 +12,8 @@ public class EarthBehavior : ElementBehavior
     private bool stackIntensity = false;
     [SerializeField]
     private bool logTicks = true;
+
+    public override Type StatusType { get; } = typeof(EarthStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {

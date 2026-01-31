@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,6 +13,8 @@ public class WaterBehavior : ElementBehavior
     private bool stackIntensity = false;
     [SerializeField]
     private bool logTicks = true;
+
+    public override Type StatusType { get; } = typeof(WaterDotStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {

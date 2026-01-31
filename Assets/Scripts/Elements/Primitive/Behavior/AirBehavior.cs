@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Primitive/Air")]
 public class AirBehavior : ElementBehavior
 {
+    public override Type StatusType { get; } = null;
+
     public override void Apply(ElementBehaviorContext context)
     {
         if (context.target == null)

@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Reactions : MonoBehaviour
@@ -45,9 +46,29 @@ public class Reactions : MonoBehaviour
         if (TryGetReactionResult(hit, out var reactionElement))
         {
             var elements = hit.GetComponent<ElementStatus>();
+            var e1 = elements.currentElements[0];
+            var e2 = elements.currentElements[1];
             elements.currentElements.RemoveAt(0);
             elements.currentElements.RemoveAt(0);
             elements.currentElements.Add(reactionElement);
+
+            // Remove statuses from the original elements
+            foreach (var behavior1 in e1.behaviors)
+            {
+                if (behavior1.StatusType != null && context.target.GetComponent(behavior1.StatusType) != null)
+                {
+                    var status = context.target.GetComponent(behavior1.StatusType);
+                    Destroy(status);
+                }
+            }
+            foreach (var behavior2 in e2.behaviors)
+            {
+                if (behavior2.StatusType != null && context.target.GetComponent(behavior2.StatusType) != null)
+                {
+                    var status = context.target.GetComponent(behavior2.StatusType);
+                    Destroy(status);
+                }
+            }
 
             foreach (var behavior in reactionElement.behaviors)
             {

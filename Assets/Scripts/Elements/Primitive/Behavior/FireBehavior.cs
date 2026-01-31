@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "FireBehavior", menuName = "Elements/Behaviors/Primitive/Fire")]
@@ -11,6 +12,8 @@ public class FireBehavior : ElementBehavior
     private bool stackIntensity = false;
     [SerializeField]
     private bool logTicks = true;
+
+    public override Type StatusType { get; } = typeof(FireDotStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {

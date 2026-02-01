@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class UIManager : MonoBehaviour
 {
@@ -10,7 +8,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TextMeshProUGUI bulletTextPrefab;
-    private List<TMP_Text> bulletText;
     [SerializeField] private Transform bulletPanel;
     private Gun gun;
 
@@ -42,17 +39,5 @@ public class UIManager : MonoBehaviour
             text.text = bullet.element.elementName + " Bullet";
             text.color = bullet.element.elementColor;
         }
-
-
-    }
-
-    public void AddBullet()
-    {
-
-    }
-
-    public void RemoveBullet()
-    {
-        //bulletText.RemoveAt(0);
     }
 }

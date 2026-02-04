@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -26,6 +27,11 @@ public abstract class LoadFireMechanism : ScriptableObject
     protected GameObject source;
     protected GameObject bulletPrefab;
 
+    public event Action<ElementBehaviorContext> HitTarget;
+    public event Action<BulletData> FiredBullet;
+    public event Action<Ray, RaycastHit> HitSomething;
+    public event Action<(int, MagazineState)> Reloaded;
+
     /// <summary>
     /// Initializes the load/fire mechanism with the given magazine blueprint and state references.
     /// </summary>
@@ -45,6 +51,26 @@ public abstract class LoadFireMechanism : ScriptableObject
         bulletPrefab = bullet;
     }
 
+    protected void NotifyFiredBullet(BulletData bullet)
+    {
+        FiredBullet?.Invoke(bullet);
+    }
+    
+    protected void NotifyHitTarget(ElementBehaviorContext context)
+    {
+        HitTarget?.Invoke(context);
+    }
+
+    protected void NotifyHitSomething(Ray ray, RaycastHit hit)
+    {
+        HitSomething?.Invoke(ray, hit);
+    }
+
+    protected void NotifyReloaded(int ammoLoaded, MagazineState state)
+    {
+        Reloaded?.Invoke((ammoLoaded, state));
+    }
+    
     /// <summary>
     /// Loads ammunition from the given ammo stock into the magazine.
     /// </summary>
@@ -59,7 +85,7 @@ public abstract class LoadFireMechanism : ScriptableObject
 /// <summary>
 /// Struct to hold gun statistics.
 /// </summary>
-[System.Serializable]
+[Serializable]
 public struct GunStats
 {
     public float damage;
@@ -74,7 +100,7 @@ public struct GunStats
 /// <summary>
 /// Struct to hold gun effects.
 /// </summary>
-[System.Serializable]
+[Serializable]
 public struct GunFX
 {
     public AudioClip shootSound;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,28 +10,64 @@ public class Gun : MonoBehaviour
     public GameObject player;
     public MagazineBlueprint magazineBlueprint;
 
+    public event Action<GunDefinition, GameObject> Fired;
+    public event Action<GunDefinition, GameObject> ReloadStarted;
+
+    public event Action<ElementBehaviorContext> HitTarget;
+    public event Action<BulletData> FiredBullet;
+    public event Action<Ray, RaycastHit> HitSomething;
+    public event Action<(int, MagazineState)> Reloaded;
+
     private InputAction fireAction;
     private InputAction reloadAction;
     private MagazineState magazineState;
+    private LoadFireMechanism mechanism;
     private int ammoStock = 999999999; // infinite ammo for now?
     private bool isReloading;
 
     private void Awake()
     {
+        // get controls
         fireAction = ControlUtil.FindProjectAction("Fire");
         reloadAction = ControlUtil.FindProjectAction("Reload");
         
-        magazineBlueprint ??= new(gunDefinition.stats.magazineSize);
-        magazineState = new();
-        gunDefinition.loadFireMechanism.Initialize(
+        magazineBlueprint ??= new(gunDefinition.stats.magazineSize); // init blueprint if not set from editor
+        magazineState = new(); // new empty magazine state
+
+        mechanism = Instantiate(gunDefinition.loadFireMechanism);
+        mechanism.Initialize( // set references
             magazineBlueprint, 
             magazineState,
             gunDefinition.stats,
             gunDefinition.fx, 
             player,
             gunDefinition.bulletPrefab);
-        gunDefinition.loadFireMechanism.Load(ammoStock);
+
+        mechanism.HitTarget += OnMechanismHitTarget;
+        mechanism.FiredBullet += OnMechanismFiredBullet;
+        mechanism.HitSomething += OnMechanismHitSomething;
+        mechanism.Reloaded += OnMechanismReloaded;
+
+        mechanism.Load(ammoStock); // load initial magazine
     }
+
+    private void OnDestroy()
+    {
+        if (mechanism == null)
+        {
+            return;
+        }
+
+        mechanism.HitTarget -= OnMechanismHitTarget;
+        mechanism.FiredBullet -= OnMechanismFiredBullet;
+        mechanism.HitSomething -= OnMechanismHitSomething;
+        mechanism.Reloaded -= OnMechanismReloaded;
+    }
+
+    private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
+    private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
+    private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
+    private void OnMechanismReloaded((int, MagazineState) payload) => Reloaded?.Invoke(payload);
 
     private void Update()
     {
@@ -54,14 +91,10 @@ public class Gun : MonoBehaviour
 
         if (magazineState.Count > 0 && ammoStock != 0)
         {
-            // ammoStock -= gunDefinition.loadFireMechanism.Fire(); infinite ammo for now
-            gunDefinition.loadFireMechanism.Fire(ammoStock);
-            if (gunDefinition.fx.shootSound != null)
+            var bulletsFired = mechanism.Fire(ammoStock);
+            if (bulletsFired > 0)
             {
-                AudioSource.PlayClipAtPoint(
-                    gunDefinition.fx.shootSound,
-                    player.transform.position,
-                    gunDefinition.fx.shootSoundVolume);
+                Fired?.Invoke(gunDefinition, player);
             }
             if (magazineState.Count == 0)
             {
@@ -82,13 +115,8 @@ public class Gun : MonoBehaviour
         }
 
         isReloading = true;
-        if (gunDefinition.fx.reloadSound != null)
-        {
-            AudioSource.PlayClipAtPoint(
-                gunDefinition.fx.reloadSound,
-                player.transform.position,
-                gunDefinition.fx.reloadSoundVolume);
-        }
+
+        ReloadStarted?.Invoke(gunDefinition, player);
         StartCoroutine(ReloadRoutine());
     }
 
@@ -100,7 +128,7 @@ public class Gun : MonoBehaviour
             yield return new WaitForSeconds(reloadTime);
         }
 
-        gunDefinition.loadFireMechanism.Load(ammoStock);
+        mechanism.Load(ammoStock);
         isReloading = false;
     }
 }

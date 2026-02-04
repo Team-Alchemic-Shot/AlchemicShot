@@ -28,6 +28,8 @@ public class SingleShot : LoadFireMechanism
         var bs = bulletObj.GetComponent<BulletScript>();
         bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
 
+        NotifyFiredBullet(bullet);
+
         // raycast (only hits Zombie and Default layer)
         Camera cam = Camera.main;
         Ray ray = new(cam.transform.position, cam.transform.forward);
@@ -48,26 +50,13 @@ public class SingleShot : LoadFireMechanism
                 {
                     instigator = source,
                     target = hit.collider.gameObject,
-                    position = hit.point
+                    position = hit.point,
+                    sourceBullet = bullet
                 };
 
-                // apply bullet element behaviors
-                foreach (var behavior in bullet.element.behaviors)
-                {
-
-                    behavior.Apply(context);
-                }
-
-                // handle element reactions
-                if (!hit.collider.gameObject.TryGetComponent<ElementStatus>(out var elementStatus))
-                {
-                    elementStatus = hit.collider.gameObject.AddComponent<ElementStatus>();
-                }
-                elementStatus.currentElements.Add(bullet.element); // track element
-                Reactions.Instance.TryApplyReaction(hit.collider.gameObject, context);
-                
+                NotifyHitTarget(context);
             }
-            Debug.DrawLine(ray.origin, hit.point, Color.red, 5f);
+            NotifyHitSomething(ray, hit);
             bs.SetLifetime(0.5f); // rough hack to make bullet disappear quickly after hit
         }
 
@@ -107,5 +96,6 @@ public class SingleShot : LoadFireMechanism
         {
             magazineState.Push(magazineBlueprint.bullets[i]);
         }
+        NotifyReloaded(bulletsToLoad, magazineState);
     }
 }

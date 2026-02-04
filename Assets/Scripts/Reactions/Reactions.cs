@@ -16,7 +16,7 @@ public class Reactions : MonoBehaviour
         Instance = this;
     }
 
-    public ElementCombo GetReactionResultFor(GameObject hit)
+    private ElementCombo GetReactionResultFor(GameObject hit)
     {
         var elements = hit.GetComponent<ElementStatus>();
         if (elements == null || elements.currentElements.Count < 2)
@@ -34,7 +34,7 @@ public class Reactions : MonoBehaviour
         return elementDatabase.GetComboResult(e1, e2);
     }
 
-    public bool TryGetReactionResult(GameObject hit, out ElementCombo elementCombo)
+    private bool TryGetReactionResult(GameObject hit, out ElementCombo elementCombo)
     {
         var combo = GetReactionResultFor(hit);
         if (combo != null)
@@ -44,9 +44,9 @@ public class Reactions : MonoBehaviour
         }
         elementCombo = null;
         return false;
-    } 
+    }
 
-    public void TryApplyReaction(GameObject hit, ElementBehaviorContext context)
+    private void TryApplyReaction(GameObject hit, ElementBehaviorContext context)
     {
         if (TryGetReactionResult(hit, out var elementCombo))
         {
@@ -87,5 +87,15 @@ public class Reactions : MonoBehaviour
 
             Debug.Log($"Reaction occurred! Created element: {result.elementName}");
         }
+    }
+
+    public static void DoReaction(ElementBehaviorContext context)
+    {
+        if (!context.target.TryGetComponent<ElementStatus>(out var elementStatus))
+        {
+            elementStatus = context.target.AddComponent<ElementStatus>();
+        }
+        elementStatus.currentElements.Add(context.sourceBullet.element); // track element
+        Instance.TryApplyReaction(context.target, context);
     }
 }

@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public struct ElementBehaviorContext
 {
     public GameObject instigator;
     public GameObject target;
     public Vector3 position;
+    public BulletData sourceBullet;
 }
 
 public abstract class ElementBehavior : ScriptableObject
@@ -20,4 +21,12 @@ public abstract class ElementBehavior : ScriptableObject
     public abstract Type StatusType { get; }
 
     public abstract void Apply(ElementBehaviorContext context);
+
+    public static void ApplyBehaviors(ElementBehaviorContext context)
+    {
+        foreach (var behavior in context.sourceBullet.element.behaviors)
+        {
+            behavior.Apply(context);
+        }
+    }
 }

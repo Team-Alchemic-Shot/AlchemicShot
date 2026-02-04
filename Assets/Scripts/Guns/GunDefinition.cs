@@ -30,7 +30,7 @@ public abstract class LoadFireMechanism : ScriptableObject
     public event Action<ElementBehaviorContext> HitTarget;
     public event Action<BulletData> FiredBullet;
     public event Action<Ray, RaycastHit> HitSomething;
-    public event Action<(int, MagazineState)> Reloaded;
+    public event Action<int, MagazineState> Reloaded;
 
     /// <summary>
     /// Initializes the load/fire mechanism with the given magazine blueprint and state references.
@@ -68,7 +68,7 @@ public abstract class LoadFireMechanism : ScriptableObject
 
     protected void NotifyReloaded(int ammoLoaded, MagazineState state)
     {
-        Reloaded?.Invoke((ammoLoaded, state));
+        Reloaded?.Invoke(ammoLoaded, state);
     }
     
     /// <summary>

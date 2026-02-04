@@ -16,7 +16,7 @@ public class Gun : MonoBehaviour
     public event Action<ElementBehaviorContext> HitTarget;
     public event Action<BulletData> FiredBullet;
     public event Action<Ray, RaycastHit> HitSomething;
-    public event Action<(int, MagazineState)> Reloaded;
+    public event Action<int, MagazineState> Reloaded;
 
     private InputAction fireAction;
     private InputAction reloadAction;
@@ -44,6 +44,7 @@ public class Gun : MonoBehaviour
             player,
             gunDefinition.bulletPrefab);
 
+        // transfer to facade
         mechanism.HitTarget += OnMechanismHitTarget;
         mechanism.FiredBullet += OnMechanismFiredBullet;
         mechanism.HitSomething += OnMechanismHitSomething;
@@ -68,7 +69,7 @@ public class Gun : MonoBehaviour
     private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
     private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
     private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
-    private void OnMechanismReloaded((int, MagazineState) payload) => Reloaded?.Invoke(payload);
+    private void OnMechanismReloaded(int ammoLoaded, MagazineState state) => Reloaded?.Invoke(ammoLoaded, state);
 
     private void Update()
     {

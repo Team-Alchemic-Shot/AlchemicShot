@@ -46,11 +46,11 @@ public class Reactions : MonoBehaviour
         return false;
     }
 
-    private void TryApplyReaction(GameObject hit, ElementBehaviorContext context)
+    private void TryApplyReaction(ElementBehaviorContext context)
     {
-        if (TryGetReactionResult(hit, out var elementCombo))
+        if (TryGetReactionResult(context.target, out var elementCombo))
         {
-            var elements = hit.GetComponent<ElementStatus>();
+            var elements = context.target.GetComponent<ElementStatus>();
             var e1 = elements.currentElements[0];
             var e2 = elements.currentElements[1];
             elements.currentElements.RemoveAt(0);
@@ -96,6 +96,6 @@ public class Reactions : MonoBehaviour
             elementStatus = context.target.AddComponent<ElementStatus>();
         }
         elementStatus.currentElements.Add(context.sourceBullet.element); // track element
-        Instance.TryApplyReaction(context.target, context);
+        Instance.TryApplyReaction(context);
     }
 }

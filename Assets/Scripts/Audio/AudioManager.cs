@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GunSounds
+public class AudioManager
 {
     public static void PlayGunfire(GunDefinition definition, GameObject player)
     {
@@ -22,5 +22,10 @@ public class GunSounds
                 player.transform.position,
                 definition.fx.reloadSoundVolume);
         }
+    }
+
+    public static void Subscribe(Gun gun)
+    {
+        
     }
 }

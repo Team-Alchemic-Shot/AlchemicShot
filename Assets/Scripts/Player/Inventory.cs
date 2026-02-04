@@ -4,22 +4,38 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    
-    public Gun currentGun;
+    private Gun _currentGun;
+    public Gun CurrentGun
+    {
+        get => _currentGun;
+        set
+        {
+            if (_currentGun != value)
+            {
+                _currentGun = value;
+                OnGunChanged?.Invoke(_currentGun);
+            }
+        }
+    }
+
     public List<Gun> guns = new();
 
     public event Action<Gun> OnGunChanged;
 
-    private Gun subscribedGun;
-
     void Awake()
     {
-        OnGunChanged += gun => SubscribeToGunEvents(gun);
     }
 
     private void Start()
     {
-        OnGunChanged?.Invoke(currentGun);
+        if (_currentGun == null && guns.Count > 0)
+        {
+            CurrentGun = guns[0];
+        }
+        else
+        {
+            OnGunChanged?.Invoke(_currentGun);
+        }
     }
 
     void Update()
@@ -27,30 +43,4 @@ public class Inventory : MonoBehaviour
         // switch guns check and invoke event
     }
 
-    private void SubscribeToGunEvents(Gun gun)
-    {
-        if (subscribedGun != null)
-        {
-            subscribedGun.Fired -= GunSounds.PlayGunfire;
-            subscribedGun.ReloadStarted -= GunSounds.PlayReload;
-            subscribedGun.HitTarget -= Reactions.DoReaction;
-            subscribedGun.HitTarget -= ElementBehavior.ApplyBehaviors;
-        }
-
-        subscribedGun = gun;
-        if (subscribedGun == null)
-        {
-            return;
-        }
-
-        subscribedGun.Fired += GunSounds.PlayGunfire;
-        subscribedGun.ReloadStarted += GunSounds.PlayReload;
-        subscribedGun.HitTarget += Reactions.DoReaction;
-        subscribedGun.HitTarget += ElementBehavior.ApplyBehaviors;
-    }
-
-    private void OnDestroy()
-    {
-        SubscribeToGunEvents(null);
-    }
 }

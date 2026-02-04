@@ -34,6 +34,7 @@ public class Gun : MonoBehaviour
         magazineBlueprint ??= new(gunDefinition.stats.magazineSize); // init blueprint if not set from editor
         magazineState = new(); // new empty magazine state
 
+        // scriptable objects are stored on the disk, so we need to instantiate them to get a unique instance
         mechanism = Instantiate(gunDefinition.loadFireMechanism);
         mechanism.Initialize( // set references
             magazineBlueprint, 

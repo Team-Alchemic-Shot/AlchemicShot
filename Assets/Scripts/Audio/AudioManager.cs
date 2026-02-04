@@ -23,9 +23,4 @@ public class AudioManager
                 definition.fx.reloadSoundVolume);
         }
     }
-
-    public static void Subscribe(Gun gun)
-    {
-        
-    }
 }

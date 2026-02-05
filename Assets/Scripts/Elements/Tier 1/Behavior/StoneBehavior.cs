@@ -15,6 +15,6 @@ public class StoneBehavior : ElementBehavior
             Debug.Log($"StoneBehavior applied: Added upward force to {context.target.name}.");
         }
 
-        RemoveBehaviorAfterDelay(context, duration);
+        RemoveBehavior(context);
     }
 }

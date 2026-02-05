@@ -80,6 +80,8 @@ public class Reactions : MonoBehaviour
                 behavior.Apply(context);
             }
 
+            context.sourceBullet.element = result; // update bullet's element to the new one for further processing
+
             Debug.Log($"Reaction occurred! Created element: {result.elementName}");
         }
     }

@@ -23,6 +23,8 @@ public class ElementStatus : MonoBehaviour
 
     public void RemoveElementFromTag(Type tagType)
     {
+        // TODO should this remove all elements with behaviors of this tag type?
+        // this is called from Destroy, and also when Reactions destroys tags
         var elementsToRemove = currentElements
             .Where(e => e.behaviors.Any(b => b.TagType == tagType))
             .ToList();

@@ -61,12 +61,16 @@ public abstract class ElementBehavior : ScriptableObject
         Remove(context);
     }
 
-    // IMPORTANT: Call this if the behavior is instantaneous
-    public void RemoveBehavior(ElementBehaviorContext context, float delay)
+    /// <summary>
+    /// Schedules removal of this behavior from the target after a delay.
+    /// IMPORTANT: Call this if the behavior is instantaneous to ensure it gets removed after a grace period for reactions.
+    /// </summary>
+    /// <param name="context"></param>
+    public void RemoveBehavior(ElementBehaviorContext context)
     {
         if (context.target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
         {
-            monoBehaviour.StartCoroutine(RemoveBehaviorAfterDelay(context, delay));
+            monoBehaviour.StartCoroutine(RemoveBehaviorAfterDelay(context, duration));
         }
     }
 }

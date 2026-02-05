@@ -23,6 +23,7 @@ public class AirBehavior : ElementBehavior
             Debug.Log($"Knockback applied to {context.target.name} with force {defaultIntensity}");
         }
 
-        RemoveBehavior(context, duration);
+        // remove since this is an instantaneous effect
+        RemoveBehavior(context);
     }
 }

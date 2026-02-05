@@ -36,6 +36,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     /// <param name="context"></param>
     public virtual void Remove(ElementBehaviorContext context)
     {
+        RevertEffects(context);
         if (TagType != null && context.target.TryGetComponent(TagType, out var tag))
         {
             Destroy(tag); // will remove from status automatically
@@ -44,7 +45,6 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
             elementStatus.RemoveElement(context.sourceBullet.element); // immediately remove instantaneous behaviors
             CancelRemoveBehavior(context); // don't need to double remove
         }
-        RevertEffects(context);
     }
 
     /// <summary>

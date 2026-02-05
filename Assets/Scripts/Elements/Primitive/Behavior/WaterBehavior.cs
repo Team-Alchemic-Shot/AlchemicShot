@@ -28,12 +28,28 @@ public class WaterBehavior : ElementBehavior
             status = context.target.AddComponent<WaterDotStatus>();
         }
 
+        status.SetContext(this, context);
         status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
     }
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        // Reverted inside WaterDotStatus.OnDestroy using the actual applied multiplier.
+        if (context.target == null)
+        {
+            return;
+        }
+
+        if (context.target.TryGetComponent<WaterDotStatus>(out var status)
+            && context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        {
+            var appliedMultiplier = status.GetAppliedSpeedMultiplier();
+            if (appliedMultiplier != 0f && appliedMultiplier != 1f)
+            {
+                agent.speed /= appliedMultiplier;
+            }
+
+            status.ResetAppliedSpeedMultiplier();
+        }
     }
 
     private class WaterDotStatus : ElementTag
@@ -44,6 +60,14 @@ public class WaterBehavior : ElementBehavior
         private float tickInterval;
         private float tickTimer;
         private float appliedSpeedMultiplier = 1f;
+        private ElementBehavior sourceBehavior;
+        private ElementBehaviorContext lastContext;
+
+        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
+        {
+            sourceBehavior = behavior;
+            lastContext = context;
+        }
 
         public override void Apply(
             float duration, 
@@ -80,7 +104,8 @@ public class WaterBehavior : ElementBehavior
 
             if (!hasAppliedSlowness)
             {
-                appliedSpeedMultiplier = 1 / intensity; // intensity is inverse of speed multiplier
+                var desiredMultiplier = 1 / intensity; // intensity is inverse of speed multiplier
+                appliedSpeedMultiplier = desiredMultiplier;
                 agent.speed *= appliedSpeedMultiplier;
                 hasAppliedSlowness = true;
 
@@ -89,25 +114,41 @@ public class WaterBehavior : ElementBehavior
                     Debug.Log($"Water slow applied to {gameObject.name} ({(1 - (1 / intensity)) * 100}% speed reduction)");
                 }
             }
-        }
-
-        protected override void OnDestroy()
-        {
-            if (TryGetComponent<NavMeshAgent>(out var agent) && hasAppliedSlowness)
+            else
             {
+                var desiredMultiplier = 1 / intensity;
                 if (appliedSpeedMultiplier != 0f)
                 {
-                    agent.speed /= appliedSpeedMultiplier;
+                    var ratio = desiredMultiplier / appliedSpeedMultiplier;
+                    agent.speed *= ratio;
+                    appliedSpeedMultiplier = desiredMultiplier;
                 }
             }
-            base.OnDestroy();
+        }
+
+        public float GetAppliedSpeedMultiplier()
+        {
+            return appliedSpeedMultiplier;
+        }
+
+        public void ResetAppliedSpeedMultiplier()
+        {
+            appliedSpeedMultiplier = 1f;
+            hasAppliedSlowness = false;
         }
 
         private void Update()
         {
             if (durationRemaining <= 0f)
             {
-                Destroy(this);
+                if (sourceBehavior != null && lastContext.target != null)
+                {
+                    sourceBehavior.Remove(lastContext);
+                }
+                else
+                {
+                    Destroy(this);
+                }
                 return;
             }
 

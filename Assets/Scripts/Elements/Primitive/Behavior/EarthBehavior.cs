@@ -27,6 +27,7 @@ public class EarthBehavior : ElementBehavior
             status = context.target.AddComponent<EarthStatus>();
         }
 
+        status.SetContext(this, context);
         status.Apply(
             duration, 
             tickInterval, 
@@ -39,9 +40,21 @@ public class EarthBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target.TryGetComponent<Health>(out var health))
+        if (context.target == null)
         {
-            health.ApplyWeakness(-defaultIntensity);
+            return;
+        }
+
+        if (context.target.TryGetComponent<EarthStatus>(out var status)
+            && context.target.TryGetComponent<Health>(out var health))
+        {
+            var appliedWeakness = status.GetAppliedWeakness();
+            if (appliedWeakness != 0f)
+            {
+                health.ApplyWeakness(-appliedWeakness);
+            }
+
+            status.ResetAppliedWeakness();
         }
     }
 
@@ -52,6 +65,15 @@ public class EarthBehavior : ElementBehavior
         private float tickTimer;
         private float intensity;
         private bool logTicks;
+        private float currentAppliedWeakness;
+        private ElementBehavior sourceBehavior;
+        private ElementBehaviorContext lastContext;
+
+        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
+        {
+            sourceBehavior = behavior;
+            lastContext = context;
+        }
 
         public override void Apply(
             float duration, 
@@ -82,15 +104,37 @@ public class EarthBehavior : ElementBehavior
             tickTimer = tickInterval;
             if (TryGetComponent<Health>(out var health))
             {
-                health.ApplyWeakness(this.intensity);
+                var delta = this.intensity - currentAppliedWeakness;
+                if (Mathf.Abs(delta) > 0f)
+                {
+                    health.ApplyWeakness(delta);
+                    currentAppliedWeakness = this.intensity;
+                }
             }
+        }
+
+        public float GetAppliedWeakness()
+        {
+            return currentAppliedWeakness;
+        }
+
+        public void ResetAppliedWeakness()
+        {
+            currentAppliedWeakness = 0f;
         }
 
         private void Update()
         {
             if (durationRemaining <= 0f)
             {
-                Destroy(this);
+                if (sourceBehavior != null && lastContext.target != null)
+                {
+                    sourceBehavior.Remove(lastContext);
+                }
+                else
+                {
+                    Destroy(this);
+                }
                 return;
             }
 

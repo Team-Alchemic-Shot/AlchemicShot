@@ -70,7 +70,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
         elementStatus.AddElement(context.sourceBullet.element); // track applied element
         foreach (var behavior in context.sourceBullet.element.behaviors)
         {
-            behavior.Apply(context);
+            behavior.Apply(context); // TODO if behaviors modify each other, need to instantiate copies here
         }
     }
 

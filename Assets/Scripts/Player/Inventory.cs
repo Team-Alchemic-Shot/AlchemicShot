@@ -22,10 +22,6 @@ public class Inventory : MonoBehaviour
 
     public event Action<Gun> OnGunChanged;
 
-    void Awake()
-    {
-    }
-
     private void Start()
     {
         if (_currentGun == null && guns.Count > 0)

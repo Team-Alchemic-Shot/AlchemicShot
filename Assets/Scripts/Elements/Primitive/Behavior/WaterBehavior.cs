@@ -28,7 +28,7 @@ public class WaterBehavior : ElementBehavior
             status = context.target.AddComponent<WaterDotStatus>();
         }
 
-        status.SetContext(this, context);
+        status.SetContext(this, context); // sometimes additional context is needed
         status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
     }
 

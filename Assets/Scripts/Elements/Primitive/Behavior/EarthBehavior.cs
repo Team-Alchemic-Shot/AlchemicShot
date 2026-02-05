@@ -27,7 +27,7 @@ public class EarthBehavior : ElementBehavior
             status = context.target.AddComponent<EarthStatus>();
         }
 
-        status.SetContext(this, context);
+        status.SetContext(this, context); // sometimes additional context is needed
         status.Apply(
             duration, 
             tickInterval, 

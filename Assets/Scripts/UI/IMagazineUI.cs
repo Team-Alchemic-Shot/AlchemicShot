@@ -10,9 +10,7 @@ public interface IMagazineUI
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    void Reload();
+
+    void Shoot();
 }

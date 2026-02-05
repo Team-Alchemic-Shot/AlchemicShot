@@ -13,7 +13,7 @@ public class EarthBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type StatusType { get; } = typeof(EarthStatus);
+    public override Type TagType { get; } = typeof(EarthStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -37,7 +37,15 @@ public class EarthBehavior : ElementBehavior
             logTicks);
     }
 
-    private class EarthStatus : MonoBehaviour
+    public override void RevertEffects(ElementBehaviorContext context)
+    {
+        if (context.target.TryGetComponent<Health>(out var health))
+        {
+            health.ApplyWeakness(-defaultIntensity);
+        }
+    }
+
+    private class EarthStatus : ElementTag
     {
         private float durationRemaining;
         private float tickInterval;
@@ -45,7 +53,7 @@ public class EarthBehavior : ElementBehavior
         private float intensity;
         private bool logTicks;
 
-        public void Apply(
+        public override void Apply(
             float duration, 
             float interval, 
             float intensity, 

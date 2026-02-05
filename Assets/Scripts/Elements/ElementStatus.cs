@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,13 +9,8 @@ public class ElementStatus : MonoBehaviour
 
     public void AddElement(Element element)
     {
-        if (!currentElements.Contains(element))
-        {
-            currentElements.Add(element);
-        }
-        
-        float maxDuration = element.behaviors.Max(b => b.duration);
-        StartCoroutine(RemoveElementAfterDelay(element, maxDuration));
+        currentElements.Add(element);
+        // TODO maybe should refresh duration or stack intensity of existing element behaviors?
     }
 
     public void RemoveElement(Element element)
@@ -26,9 +21,15 @@ public class ElementStatus : MonoBehaviour
         }
     }
 
-    public IEnumerator RemoveElementAfterDelay(Element element, float delay)
+    public void RemoveElementFromTag(Type tagType)
     {
-        yield return new WaitForSeconds(delay);
-        RemoveElement(element);
+        var elementsToRemove = currentElements
+            .Where(e => e.behaviors.Any(b => b.TagType == tagType))
+            .ToList();
+
+        foreach (var element in elementsToRemove)
+        {
+            RemoveElement(element);
+        }
     }
 }

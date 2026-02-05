@@ -5,13 +5,16 @@ using UnityEngine;
 
 public class StoneBehavior : ElementBehavior
 {
-    public override Type StatusType { get; } = null;
+    public override Type TagType { get; } = null;
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target.TryGetComponent<Health>(out var health))
+        if (context.target.TryGetComponent<Rigidbody>(out var rb))
         {
-            Debug.Log($"StoneBehavior applied massive damage to {context.target.name}");
+            rb.AddForce(new(0, 100, 0), ForceMode.Impulse);
+            Debug.Log($"StoneBehavior applied: Added upward force to {context.target.name}.");
         }
+
+        RemoveBehaviorAfterDelay(context, duration);
     }
 }

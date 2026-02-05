@@ -13,7 +13,7 @@ public class FireBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type StatusType { get; } = typeof(FireDotStatus);
+    public override Type TagType { get; } = typeof(FireDotStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -38,7 +38,7 @@ public class FireBehavior : ElementBehavior
             logTicks);
     }
 
-    public class FireDotStatus : MonoBehaviour
+    public class FireDotStatus : ElementTag
     {
         private float durationRemaining;
         private float tickInterval;
@@ -47,7 +47,7 @@ public class FireBehavior : ElementBehavior
         private bool logTicks;
         private GameObject instigator;
 
-        public void Apply(
+        public override void Apply(
             float duration, 
             float interval, 
             float intensity, 

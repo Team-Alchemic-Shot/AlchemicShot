@@ -18,14 +18,14 @@ public class Reactions : MonoBehaviour
 
     private ElementCombo GetReactionResultFor(GameObject hit)
     {
-        var elements = hit.GetComponent<ElementStatus>();
-        if (elements == null || elements.currentElements.Count < 2)
+        var status = hit.GetComponent<ElementStatus>();
+        if (status == null || status.currentElements.Count < 2)
         {
             return null;
         }
 
-        var e1 = elements.currentElements[0];
-        var e2 = elements.currentElements[1];
+        var e1 = status.currentElements[^2];
+        var e2 = status.currentElements[^1];
         if (e1.elementTier != e2.elementTier)
         {
             return null;
@@ -34,7 +34,7 @@ public class Reactions : MonoBehaviour
         return elementDatabase.GetComboResult(e1, e2);
     }
 
-    private bool TryGetReactionResult(GameObject hit, out ElementCombo elementCombo)
+    public bool TryGetReactionResult(GameObject hit, out ElementCombo elementCombo)
     {
         var combo = GetReactionResultFor(hit);
         if (combo != null)
@@ -46,39 +46,34 @@ public class Reactions : MonoBehaviour
         return false;
     }
 
-    private void TryApplyReaction(ElementBehaviorContext context)
+    public static void TryApplyReaction(ElementBehaviorContext context)
     {
-        if (TryGetReactionResult(context.target, out var elementCombo))
+        if (Instance.TryGetReactionResult(context.target, out var elementCombo))
         {
-            var elements = context.target.GetComponent<ElementStatus>();
-            var e1 = elements.currentElements[0];
-            var e2 = elements.currentElements[1];
-            elements.currentElements.RemoveAt(0);
-            elements.currentElements.RemoveAt(0);
-            elements.currentElements.Add(elementCombo.resultElement);
-
             var result = elementCombo.resultElement;
+            var status = context.target.GetComponent<ElementStatus>(); // will always have a status
+            var e1 = elementCombo.inputElements.elementA;
+            var e2 = elementCombo.inputElements.elementB;
 
-            // Remove statuses from the original elements
-            if (elementCombo.removeOldStatusesOnReaction)
+            status.AddElement(result); // track result
+
+            // Remove statuses and revert effects from the original elements
+            if (elementCombo.removeE1OldStatusesOnReaction)
             {
                 foreach (var behavior1 in e1.behaviors)
                 {
-                    if (behavior1.StatusType != null && context.target.GetComponent(behavior1.StatusType) != null)
-                    {
-                        var status = context.target.GetComponent(behavior1.StatusType);
-                        Destroy(status);
-                    }
+                    behavior1.Remove(context);
                 }
+                status.RemoveElement(e1);
+            }
+            if (elementCombo.removeE2OldStatusesOnReaction)
+            {
                 foreach (var behavior2 in e2.behaviors)
                 {
-                    if (behavior2.StatusType != null && context.target.GetComponent(behavior2.StatusType) != null)
-                    {
-                        var status = context.target.GetComponent(behavior2.StatusType);
-                        Destroy(status);
-                    }
+                    behavior2.Remove(context);
                 }
-            }
+                status.RemoveElement(e2);
+            } 
 
             foreach (var behavior in result.behaviors)
             {
@@ -87,15 +82,5 @@ public class Reactions : MonoBehaviour
 
             Debug.Log($"Reaction occurred! Created element: {result.elementName}");
         }
-    }
-
-    public static void DoReaction(ElementBehaviorContext context)
-    {
-        if (!context.target.TryGetComponent<ElementStatus>(out var elementStatus))
-        {
-            elementStatus = context.target.AddComponent<ElementStatus>();
-        }
-        elementStatus.currentElements.Add(context.sourceBullet.element); // track element
-        Instance.TryApplyReaction(context);
     }
 }

@@ -14,7 +14,7 @@ public class WaterBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type StatusType { get; } = typeof(WaterDotStatus);
+    public override Type TagType { get; } = typeof(WaterDotStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -28,11 +28,18 @@ public class WaterBehavior : ElementBehavior
             status = context.target.AddComponent<WaterDotStatus>();
         }
 
-
-        status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, logTicks);
+        status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
     }
 
-    private class WaterDotStatus : MonoBehaviour
+    public override void RevertEffects(ElementBehaviorContext context)
+    {
+        if (context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        {
+            agent.speed /= 1 / defaultIntensity;
+        }
+    }
+
+    private class WaterDotStatus : ElementTag
     {
         private float durationRemaining;
         private bool logTicks;
@@ -40,7 +47,14 @@ public class WaterBehavior : ElementBehavior
         private float tickInterval;
         private float tickTimer;
 
-        public void Apply(float duration, float interval, float intensity, bool refreshDuration, bool stackIntensity, bool logTicks)
+        public override void Apply(
+            float duration, 
+            float interval, 
+            float intensity, 
+            bool refreshDuration, 
+            bool stackIntensity,
+            GameObject instigator, 
+            bool logTicks)
         {
             if (!TryGetComponent<NavMeshAgent>(out var agent))
             {

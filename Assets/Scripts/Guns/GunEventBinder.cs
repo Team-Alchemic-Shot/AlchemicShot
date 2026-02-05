@@ -54,8 +54,8 @@ public class GunEventBinder : MonoBehaviour
 
         subscribedGun.Fired += AudioManager.PlayGunfire;
         subscribedGun.ReloadStarted += AudioManager.PlayReload;
-        subscribedGun.HitTarget += Reactions.DoReaction;
         subscribedGun.HitTarget += ElementBehavior.ApplyBehaviors;
+        subscribedGun.HitTarget += Reactions.TryApplyReaction; // do reactions after applying behaviors
     }
     
 
@@ -68,7 +68,7 @@ public class GunEventBinder : MonoBehaviour
 
         subscribedGun.Fired -= AudioManager.PlayGunfire;
         subscribedGun.ReloadStarted -= AudioManager.PlayReload;
-        subscribedGun.HitTarget -= Reactions.DoReaction;
+        subscribedGun.HitTarget -= Reactions.TryApplyReaction;
         subscribedGun.HitTarget -= ElementBehavior.ApplyBehaviors;
         subscribedGun = null;
     }

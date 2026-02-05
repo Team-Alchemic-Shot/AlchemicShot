@@ -18,4 +18,4 @@ MonoBehaviour:
   tickInterval: 0.5
   refreshDuration: 1
   stackIntensity: 0
-  logTicks: 1
+  logTicks: 0

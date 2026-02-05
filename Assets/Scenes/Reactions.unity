@@ -1845,10 +1845,10 @@ MonoBehaviour:
   player: {fileID: 380660705}
   magazineBlueprint:
     bullets:
-    - element: {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}
+    - element: {fileID: 11400000, guid: ce22bd14fdd85e6708f65f0c2249f593, type: 2}
       baseDamage: 1
       isEmpty: 0
-    - element: {fileID: 11400000, guid: ce22bd14fdd85e6708f65f0c2249f593, type: 2}
+    - element: {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}
       baseDamage: 1
       isEmpty: 0
     - element: {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}

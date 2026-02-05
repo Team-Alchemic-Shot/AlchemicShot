@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: FireBehavior
   m_EditorClassIdentifier: 
   description: Test fire
-  defaultIntensity: 10
   duration: 3
+  defaultIntensity: 10
   tickInterval: 0.5
   refreshDuration: 1
   stackIntensity: 0

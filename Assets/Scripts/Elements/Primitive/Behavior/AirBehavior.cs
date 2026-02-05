@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Primitive/Air")]
 public class AirBehavior : ElementBehavior
 {
-    public override Type StatusType { get; } = null;
+    public override Type TagType { get; } = null;
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -22,5 +22,7 @@ public class AirBehavior : ElementBehavior
             rigidbody.AddForce(knockbackDirection * defaultIntensity, ForceMode.Impulse);
             Debug.Log($"Knockback applied to {context.target.name} with force {defaultIntensity}");
         }
+
+        RemoveBehavior(context, duration);
     }
 }

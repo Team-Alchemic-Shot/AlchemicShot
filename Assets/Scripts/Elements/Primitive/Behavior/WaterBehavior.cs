@@ -33,10 +33,7 @@ public class WaterBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target.TryGetComponent<NavMeshAgent>(out var agent))
-        {
-            agent.speed /= 1 / defaultIntensity;
-        }
+        // Reverted inside WaterDotStatus.OnDestroy using the actual applied multiplier.
     }
 
     private class WaterDotStatus : ElementTag
@@ -46,6 +43,7 @@ public class WaterBehavior : ElementBehavior
         private bool hasAppliedSlowness = false;
         private float tickInterval;
         private float tickTimer;
+        private float appliedSpeedMultiplier = 1f;
 
         public override void Apply(
             float duration, 
@@ -82,7 +80,8 @@ public class WaterBehavior : ElementBehavior
 
             if (!hasAppliedSlowness)
             {
-                agent.speed *= 1 / intensity; // intensity is inverse of speed multiplier
+                appliedSpeedMultiplier = 1 / intensity; // intensity is inverse of speed multiplier
+                agent.speed *= appliedSpeedMultiplier;
                 hasAppliedSlowness = true;
 
                 if (logTicks)
@@ -90,6 +89,18 @@ public class WaterBehavior : ElementBehavior
                     Debug.Log($"Water slow applied to {gameObject.name} ({(1 - (1 / intensity)) * 100}% speed reduction)");
                 }
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            if (TryGetComponent<NavMeshAgent>(out var agent) && hasAppliedSlowness)
+            {
+                if (appliedSpeedMultiplier != 0f)
+                {
+                    agent.speed /= appliedSpeedMultiplier;
+                }
+            }
+            base.OnDestroy();
         }
 
         private void Update()

@@ -11,7 +11,7 @@ public abstract class ElementTag : MonoBehaviour
             GameObject instigator, 
             bool logTicks);
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         if (TryGetComponent<ElementStatus>(out var elementStatus))
         {

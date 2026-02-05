@@ -24,6 +24,8 @@ public class StoneBehavior : ElementBehavior
         RemoveBehavior(context);
     }
 
+    // Note: this is a hacky way to revert since agent's need to be re-enabled close to a NavMesh surface.
+    // probably better to build revert logic into a tag which is a MonoBehaviour (update checks for proximity to NavMesh)
     public override void RevertEffects(ElementBehaviorContext context)
     {
         if (context.target.TryGetComponent<NavMeshAgent>(out var agent))

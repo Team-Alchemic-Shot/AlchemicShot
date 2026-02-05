@@ -27,8 +27,7 @@ public abstract class ElementBehavior : ScriptableObject
     {
         if (context.target.TryGetComponent<ElementStatus>(out var elementStatus))
         {
-            elementStatus.RemoveElementFromTag(TagType);
-            Debug.Log($"Removed element with tag {TagType} from {context.target.name}");
+            elementStatus.RemoveElement(context.sourceBullet.element);
         }
         if (TagType != null && context.target.TryGetComponent(TagType, out var tag))
         {

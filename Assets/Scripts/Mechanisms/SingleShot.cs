@@ -44,7 +44,7 @@ public class SingleShot : LoadFireMechanism
                     source = source,
                     position = hit.point
                 });
-                
+
                 // create a context to pass to element behaviors and reactions
                 var context = new ElementBehaviorContext
                 {
@@ -93,15 +93,15 @@ public class SingleShot : LoadFireMechanism
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)
         {
-                var blueprintBullet = magazineBlueprint.bullets[i];
-                if (blueprintBullet == null)
-                {
-                    magazineState.Push(new BulletData { isEmpty = true });
-                }
-                else
-                {
-                    magazineState.Push(blueprintBullet.Clone()); // prevent reference issues by cloning bullets from blueprint
-                }
+            var blueprintBullet = magazineBlueprint.bullets[i];
+            if (blueprintBullet == null)
+            {
+                magazineState.Push(new BulletData { isEmpty = true });
+            }
+            else
+            {
+                magazineState.Push(blueprintBullet.Clone()); // prevent reference issues by cloning bullets from blueprint
+            }
         }
         NotifyReloaded(bulletsToLoad, magazineState);
     }

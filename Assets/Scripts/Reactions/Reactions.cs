@@ -77,7 +77,8 @@ public class Reactions : MonoBehaviour
 
             foreach (var behavior in result.behaviors)
             {
-                behavior.Apply(context); // TODO if behaviors modify each other, need to instantiate copies here
+                var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
+                behaviorInstance.Apply(context);
             }
 
             context.sourceBullet.element = result; // update bullet's element to the new one for further processing

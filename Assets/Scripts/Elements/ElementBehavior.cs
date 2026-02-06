@@ -45,6 +45,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
             elementStatus.RemoveElement(context.sourceBullet.element); // immediately remove instantaneous behaviors
             CancelRemoveBehavior(context); // don't need to double remove
         }
+        Destroy(this); // clean up behavior instance
     }
 
     /// <summary>
@@ -70,7 +71,8 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
         elementStatus.AddElement(context.sourceBullet.element); // track applied element
         foreach (var behavior in context.sourceBullet.element.behaviors)
         {
-            behavior.Apply(context); // TODO if behaviors modify each other, need to instantiate copies here
+            var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
+            behaviorInstance.Apply(context);
         }
     }
 

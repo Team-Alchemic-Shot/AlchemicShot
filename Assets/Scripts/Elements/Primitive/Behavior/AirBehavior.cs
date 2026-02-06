@@ -20,7 +20,6 @@ public class AirBehavior : ElementBehavior
         if (context.target.TryGetComponent<Rigidbody>(out var rigidbody))
         {
             rigidbody.AddForce(knockbackDirection * defaultIntensity, ForceMode.Impulse);
-            Debug.Log($"Knockback applied to {context.target.name} with force {defaultIntensity}");
         }
 
         // remove since this is an instantaneous effect

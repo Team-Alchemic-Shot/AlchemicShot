@@ -67,7 +67,6 @@ public class SingleShot : LoadFireMechanism
     {
         if (ammoStock == 0)
         {
-            Debug.LogWarning("No ammo stock to load from!");
             return;
         }
 

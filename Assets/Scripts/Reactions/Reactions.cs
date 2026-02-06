@@ -55,8 +55,6 @@ public class Reactions : MonoBehaviour
             var e1 = elementCombo.inputElements.elementA;
             var e2 = elementCombo.inputElements.elementB;
 
-            status.AddElement(result); // track result
-
             // Remove statuses and revert effects from the original elements
             if (elementCombo.removeE1OldStatusesOnReaction)
             {
@@ -74,6 +72,8 @@ public class Reactions : MonoBehaviour
                 }
                 status.RemoveElement(e2);
             } 
+
+            status.AddElement(result); // track result
 
             foreach (var behavior in result.behaviors)
             {

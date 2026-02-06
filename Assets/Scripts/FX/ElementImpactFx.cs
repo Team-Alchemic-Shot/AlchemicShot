@@ -25,8 +25,9 @@ public static class ElementImpactFx
                 Quaternion.identity,
                 context.target.transform);
 
-            // stick mesh color change here
         }
+
+        // stick mesh color change here actually
 
         if (element.sfxClip != null)
         {

@@ -93,7 +93,15 @@ public class SingleShot : LoadFireMechanism
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)
         {
-            magazineState.Push(magazineBlueprint.bullets[i]);
+                var blueprintBullet = magazineBlueprint.bullets[i];
+                if (blueprintBullet == null)
+                {
+                    magazineState.Push(new BulletData { isEmpty = true });
+                }
+                else
+                {
+                    magazineState.Push(blueprintBullet.Clone()); // prevent reference issues by cloning bullets from blueprint
+                }
         }
         NotifyReloaded(bulletsToLoad, magazineState);
     }

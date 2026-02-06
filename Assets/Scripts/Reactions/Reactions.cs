@@ -78,6 +78,7 @@ public class Reactions : MonoBehaviour
             foreach (var behavior in result.behaviors)
             {
                 var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
+                behaviorInstance.MarkRuntimeInstance();
                 behaviorInstance.Apply(context);
             }
 

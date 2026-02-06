@@ -20,6 +20,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
 
     public float defaultIntensity = 1f;
     public abstract Type TagType { get; }
+    internal bool IsRuntimeInstance { get; private set; }
 
     /// <summary>
     /// Applies the behavior to the target in the given context.
@@ -45,7 +46,10 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
             elementStatus.RemoveElement(context.sourceBullet.element); // immediately remove instantaneous behaviors
             CancelRemoveBehavior(context); // don't need to double remove
         }
-        Destroy(this); // clean up behavior instance
+        if (IsRuntimeInstance)
+        {
+            Destroy(this); // clean up behavior instance
+        }
     }
 
     /// <summary>
@@ -72,8 +76,14 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
         foreach (var behavior in context.sourceBullet.element.behaviors)
         {
             var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
+            behaviorInstance.MarkRuntimeInstance();
             behaviorInstance.Apply(context);
         }
+    }
+
+    internal void MarkRuntimeInstance()
+    {
+        IsRuntimeInstance = true;
     }
 
     /// <summary>

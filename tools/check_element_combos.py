@@ -27,6 +27,8 @@ BEHAVIOR_ITEM_RE = re.compile(r"^\s*-\s+")
 DATABASE_ELEMENTS_START_RE = re.compile(r"^\s*elements:\s*$")
 DATABASE_COMBOS_START_RE = re.compile(r"^\s*elementCombos:\s*$")
 DATABASE_LIST_ITEM_RE = re.compile(r"^\s*-\s+")
+BEHAVIOR_TAGTYPE_NULL_RE = re.compile(r"TagType\s*\{[^}]*\}\s*=\s*null|=>\s*null")
+BEHAVIOR_REMOVE_CALL_RE = re.compile(r"\bRemoveBehavior\s*\(")
 
 TIER_LABELS = {0: "Primitive", 1: "Tier1", 2: "Tier2"}
 TIER_FOLDER_ALIASES = {
@@ -119,6 +121,22 @@ def parse_combo_asset(path: Path) -> Tuple[Optional[str], Optional[str], Optiona
     return input_a, input_b, result
 
 
+def parse_behavior_guids(path: Path) -> List[str]:
+    behavior_guids: List[str] = []
+    in_behaviors = False
+    for line in read_text(path).splitlines():
+        if BEHAVIORS_START_RE.match(line):
+            in_behaviors = True
+            continue
+        if in_behaviors and BEHAVIOR_ITEM_RE.match(line):
+            guid = extract_guid_from_line(line)
+            if guid:
+                behavior_guids.append(guid)
+        elif in_behaviors and line and not line.startswith(" "):
+            in_behaviors = False
+    return behavior_guids
+
+
 def build_element_index(
     assets_root: Path, element_guid: str
 ) -> Dict[str, ElementInfo]:
@@ -186,6 +204,17 @@ def build_combo_index(
     return combos
 
 
+def build_guid_to_asset_path(assets_root: Path) -> Dict[str, Path]:
+    guid_map: Dict[str, Path] = {}
+    for meta_path in assets_root.rglob("*.meta"):
+        for line in read_text(meta_path).splitlines():
+            if line.startswith("guid:"):
+                guid = line.split("guid:", 1)[1].strip()
+                guid_map[guid] = meta_path.with_suffix("")
+                break
+    return guid_map
+
+
 def parse_database_asset(path: Path) -> Tuple[set[str], set[str]]:
     element_guids: set[str] = set()
     combo_guids: set[str] = set()
@@ -229,6 +258,8 @@ def check_combos(
     require_combo_per_element: bool,
     require_behaviors: bool,
     database_asset: Optional[Path],
+    require_instant_removal: bool,
+    assets_root: Path,
 ) -> int:
     errors = 0
 
@@ -392,6 +423,40 @@ def check_combos(
                     print(f"  - {combo.path}")
                 errors += len(missing_combos)
 
+    if require_instant_removal:
+        behavior_guids: List[str] = []
+        for element in elements.values():
+            behavior_guids.extend(parse_behavior_guids(element.path))
+
+        if behavior_guids:
+            guid_to_path = build_guid_to_asset_path(assets_root)
+            missing_remove_calls: List[str] = []
+
+            for behavior_guid in set(behavior_guids):
+                behavior_asset = guid_to_path.get(behavior_guid)
+                if behavior_asset is None or not behavior_asset.exists():
+                    continue
+                script_guid = None
+                for line in read_text(behavior_asset).splitlines():
+                    if line.strip().startswith("m_Script:"):
+                        script_guid = extract_guid_from_line(line)
+                        break
+                if script_guid is None:
+                    continue
+                script_path = guid_to_path.get(script_guid)
+                if script_path is None or not script_path.exists():
+                    continue
+
+                script_text = read_text(script_path)
+                if BEHAVIOR_TAGTYPE_NULL_RE.search(script_text) and not BEHAVIOR_REMOVE_CALL_RE.search(script_text):
+                    missing_remove_calls.append(str(script_path))
+
+            if missing_remove_calls:
+                print("Instantaneous behaviors (TagType null) missing RemoveBehavior call:")
+                for entry in sorted(missing_remove_calls):
+                    print(f"  - {entry}")
+                errors += len(missing_remove_calls)
+
     return errors
 
 
@@ -429,6 +494,11 @@ def main() -> int:
         action="store_true",
         help="Skip validation of elements/combos being referenced by the database asset.",
     )
+    parser.add_argument(
+        "--require-instant-remove",
+        action="store_true",
+        help="Fail if a behavior with TagType == null does not call RemoveBehavior().",
+    )
     args = parser.parse_args()
 
     assets_root = Path(args.assets_root).resolve()
@@ -458,6 +528,8 @@ def main() -> int:
         args.require_combo_per_element,
         args.require_behaviors,
         database_asset,
+        args.require_instant_remove,
+        assets_root,
     )
     if errors == 0:
         print("Element combo check passed.")

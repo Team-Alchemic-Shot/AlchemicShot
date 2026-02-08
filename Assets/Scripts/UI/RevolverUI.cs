@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class RevolverUI : IMagazineUI
+public class RevolverUI : MagazineUI
 {
     [SerializeField] private Transform bulletPanel;
     [SerializeField] private TextMeshProUGUI bulletTextPrefab;
@@ -16,7 +16,7 @@ public class RevolverUI : IMagazineUI
         
     }
 
-    public void Reload()
+    public override void Reload()
     {
         gun = GameObject.FindWithTag("Player").GetComponentInChildren<Gun>();
         foreach (Transform text in bulletPanel)
@@ -29,7 +29,7 @@ public class RevolverUI : IMagazineUI
         }
     }
 
-    public void Shoot()
+    public override void Shoot()
     {
         bullets.RemoveAt(bullets.Count - 1);
     }

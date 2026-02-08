@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text scoreText;
     
     private Gun gun;
-    private IMagazineUI magazineUI;
+    private MagazineUI magazineUI;
 
     // Start is called before the first frame update
     void Start()

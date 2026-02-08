@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -24,10 +26,10 @@ public static class ElementImpactFx
                 context.position,
                 Quaternion.identity,
                 context.target.transform);
-
         }
 
-        // stick mesh color change here actually
+        // Apply mesh color shift based on element
+        ApplyMeshColorShift(context.target, element);
 
         if (element.sfxClip != null)
         {
@@ -35,6 +37,52 @@ public static class ElementImpactFx
                 element.sfxClip,
                 context.position,
                 element.sfxVolume);
+        }
+    }
+
+    private static void ApplyMeshColorShift(GameObject target, Element element)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        var meshRenderer = target.GetComponent<MeshRenderer>();
+        if (meshRenderer == null)
+        {
+            meshRenderer = target.GetComponentInChildren<MeshRenderer>();
+        }
+
+        if (meshRenderer == null)
+        {
+            return;
+        }
+
+        // Store original color and apply new color
+        Color originalColor = meshRenderer.material.color;
+        meshRenderer.material.color = element.elementColor;
+
+        // Calculate duration from behaviors
+        float duration = 3f; // default
+        if (element.behaviors != null && element.behaviors.Count > 0)
+        {
+            duration = element.behaviors.Max(b => b.duration);
+        }
+
+        // Schedule revert coroutine
+        var monoBehaviour = target.GetComponent<MonoBehaviour>();
+        if (monoBehaviour != null)
+        {
+            monoBehaviour.StartCoroutine(RevertMeshColorAfterDelay(meshRenderer, originalColor, duration));
+        }
+    }
+
+    private static IEnumerator RevertMeshColorAfterDelay(MeshRenderer renderer, Color originalColor, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (renderer != null)
+        {
+            renderer.material.color = originalColor;
         }
     }
 }

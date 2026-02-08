@@ -7,9 +7,9 @@ public class UIManager : MonoBehaviour
     private float HPtoDisplay;
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text scoreText;
-    [SerializeField] private TextMeshProUGUI bulletTextPrefab;
-    [SerializeField] private Transform bulletPanel;
+    
     private Gun gun;
+    private IMagazineUI magazineUI;
 
     // Start is called before the first frame update
     void Start()
@@ -25,19 +25,5 @@ public class UIManager : MonoBehaviour
         healthText.text = HPtoDisplay.ToString();
         // TODO: update score
 
-
-        // update ammo display
-        foreach (Transform text in bulletPanel)
-        {
-            Destroy(text.gameObject);
-        }
-
-        Stack<BulletData> bullets = gun.GetMagazine().GetBullets();
-        foreach (var bullet in bullets)
-        {
-            TextMeshProUGUI text = Instantiate(bulletTextPrefab, bulletPanel);
-            text.text = bullet.element.elementName + " Bullet";
-            text.color = bullet.element.elementColor;
-        }
     }
 }

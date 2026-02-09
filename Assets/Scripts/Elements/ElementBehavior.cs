@@ -105,10 +105,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     /// <param name="context"></param>
     public void RemoveBehavior(ElementBehaviorContext context)
     {
-        if (context.target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
-        {
-            monoBehaviour.StartCoroutine(RemoveBehaviorAfterDelay(context, duration));
-        }
+        RemoveBehavior(context, duration);
     }
 
     public void RemoveBehavior(ElementBehaviorContext context, float delay)

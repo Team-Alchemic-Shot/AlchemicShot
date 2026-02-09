@@ -16,7 +16,7 @@ public class StoneBehavior : ElementBehavior
         }
         if (context.target.TryGetComponent<Rigidbody>(out var rb))
         {
-            rb.AddForce(new(0, defaultIntensity, 0), ForceMode.Impulse);
+            // rb.AddForce(new(0, defaultIntensity, 0), ForceMode.Impulse);
         }
 
         RemoveBehavior(context);

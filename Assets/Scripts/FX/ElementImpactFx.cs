@@ -47,8 +47,7 @@ public static class ElementImpactFx
             return;
         }
 
-        var meshRenderer = target.GetComponent<MeshRenderer>();
-        if (meshRenderer == null)
+        if (!target.TryGetComponent<MeshRenderer>(out var meshRenderer))
         {
             meshRenderer = target.GetComponentInChildren<MeshRenderer>();
         }
@@ -70,8 +69,7 @@ public static class ElementImpactFx
         }
 
         // Schedule revert coroutine
-        var monoBehaviour = target.GetComponent<MonoBehaviour>();
-        if (monoBehaviour != null)
+        if (target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
         {
             monoBehaviour.StartCoroutine(RevertMeshColorAfterDelay(meshRenderer, originalColor, duration));
         }

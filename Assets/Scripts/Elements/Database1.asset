@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   elements:
   - {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}
-  - {fileID: 11400000, guid: cfcbb2efae326e1c8b2267c5ea2a5b6e, type: 2}
   - {fileID: 11400000, guid: ce22bd14fdd85e6708f65f0c2249f593, type: 2}
   - {fileID: 11400000, guid: a5683094787f374b9bb3b504fe0c8967, type: 2}
   - {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
-  elementCombos:
-  - {fileID: 11400000, guid: f6a6d1f9059b96e79bb191b3c99cd7e7, type: 2}
+  elementCombos: []

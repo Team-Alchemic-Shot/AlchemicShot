@@ -260,8 +260,37 @@ def check_combos(
     database_asset: Optional[Path],
     require_instant_removal: bool,
     assets_root: Path,
+    max_tier: Optional[int],
 ) -> int:
     errors = 0
+
+    def within_max_tier(tier: Optional[int]) -> bool:
+        if tier is None:
+            return False
+        if max_tier is None:
+            return True
+        return tier <= max_tier
+
+    def combo_expected_tier(
+        input_a: Optional[ElementInfo], input_b: Optional[ElementInfo]
+    ) -> Optional[int]:
+        if not input_a or not input_b:
+            return None
+        if input_a.tier is None or input_b.tier is None:
+            return None
+        if input_a.tier != input_b.tier:
+            return None
+        return min(input_a.tier + 1, max(TIER_LABELS))
+
+    def within_max_combo_tier(
+        input_a: Optional[ElementInfo], input_b: Optional[ElementInfo]
+    ) -> bool:
+        if max_tier is None:
+            return True
+        expected = combo_expected_tier(input_a, input_b)
+        if expected is None:
+            return False
+        return expected <= max_tier
 
     elements_by_tier: Dict[int, List[ElementInfo]] = {0: [], 1: [], 2: []}
     folder_mismatches: List[str] = []
@@ -279,7 +308,11 @@ def check_combos(
                     behavior_count=element.behavior_count,
                 )
             )
-        if element.tier is not None and folder_tier is not None:
+        if (
+            element.tier is not None
+            and folder_tier is not None
+            and within_max_tier(element.tier)
+        ):
             if element.tier != folder_tier:
                 folder_mismatches.append(
                     f"{element.path} tier={TIER_LABELS.get(element.tier, element.tier)} "
@@ -299,9 +332,12 @@ def check_combos(
             print(f"Combo {combo.path} missing input element references.")
             errors += 1
             continue
-        combo_lookup[unordered_pair(combo.input_a, combo.input_b)] = combo
-        combo_usage[combo.input_a] = combo_usage.get(combo.input_a, 0) + 1
-        combo_usage[combo.input_b] = combo_usage.get(combo.input_b, 0) + 1
+        input_a = elements.get(combo.input_a)
+        input_b = elements.get(combo.input_b)
+        if input_a and input_b and within_max_combo_tier(input_a, input_b):
+            combo_lookup[unordered_pair(combo.input_a, combo.input_b)] = combo
+            combo_usage[combo.input_a] = combo_usage.get(combo.input_a, 0) + 1
+            combo_usage[combo.input_b] = combo_usage.get(combo.input_b, 0) + 1
 
     # Ensure combo assets live under the tier folder they target (if detectable).
     for combo in combos:
@@ -312,6 +348,8 @@ def check_combos(
         if not input_a or not input_b:
             continue
         if input_a.tier is None or input_b.tier is None:
+            continue
+        if not within_max_combo_tier(input_a, input_b):
             continue
         if input_a.tier != input_b.tier:
             continue
@@ -338,6 +376,8 @@ def check_combos(
             continue
         if input_a.tier is None or input_b.tier is None or result.tier is None:
             continue
+        if not within_max_combo_tier(input_a, input_b):
+            continue
         if input_a.tier != input_b.tier:
             print(
                 f"Combo {combo.path} mixes tiers: "
@@ -346,7 +386,9 @@ def check_combos(
             )
             errors += 1
             continue
-        expected = min(input_a.tier + 1, max(TIER_LABELS))
+        expected = combo_expected_tier(input_a, input_b)
+        if expected is None:
+            continue
         if result.tier != expected:
             print(
                 f"Combo {combo.path} result tier mismatch: "
@@ -357,6 +399,8 @@ def check_combos(
 
     if require_all_pairs:
         for tier, tier_elements in elements_by_tier.items():
+            if max_tier is not None and (tier + 1) > max_tier:
+                continue
             if len(tier_elements) < 2:
                 continue
             missing_pairs: List[str] = []
@@ -375,6 +419,10 @@ def check_combos(
     if require_combo_per_element:
         missing_combo_elements: List[str] = []
         for element in elements.values():
+            if element.tier is None:
+                continue
+            if max_tier is not None and (element.tier + 1) > max_tier:
+                continue
             if combo_usage.get(element.guid, 0) == 0:
                 missing_combo_elements.append(
                     f"{element.name} ({element.path})"
@@ -388,6 +436,8 @@ def check_combos(
     if require_behaviors:
         missing_behavior_elements: List[str] = []
         for element in elements.values():
+            if not within_max_tier(element.tier):
+                continue
             if element.behavior_count <= 0:
                 missing_behavior_elements.append(
                     f"{element.name} ({element.path})"
@@ -406,7 +456,9 @@ def check_combos(
             db_elements, db_combos = parse_database_asset(database_asset)
 
             missing_elements = [
-                element for element in elements.values() if element.guid not in db_elements
+                element
+                for element in elements.values()
+                if within_max_tier(element.tier) and element.guid not in db_elements
             ]
             if missing_elements:
                 print("Elements missing from database asset:")
@@ -414,9 +466,19 @@ def check_combos(
                     print(f"  - {element.name} ({element.path})")
                 errors += len(missing_elements)
 
-            missing_combos = [
-                combo for combo in combos if combo.guid not in db_combos
-            ]
+            missing_combos: List[ComboInfo] = []
+            for combo in combos:
+                if combo.guid in db_combos:
+                    continue
+                if not (combo.input_a and combo.input_b):
+                    continue
+                input_a = elements.get(combo.input_a)
+                input_b = elements.get(combo.input_b)
+                if not input_a or not input_b:
+                    continue
+                if not within_max_combo_tier(input_a, input_b):
+                    continue
+                missing_combos.append(combo)
             if missing_combos:
                 print("Combos missing from database asset:")
                 for combo in missing_combos:
@@ -475,6 +537,15 @@ def main() -> int:
         help="Allow missing same-tier combo assets (default: fail if any are missing).",
     )
     parser.add_argument(
+        "--max-tier",
+        type=int,
+        default=None,
+        help=(
+            "Maximum element tier to validate (e.g. 1 to check Primitive/Tier1 only). "
+            "Combos that would produce a tier above this limit are ignored."
+        ),
+    )
+    parser.add_argument(
         "--require-combo-per-element",
         action="store_true",
         help="Fail if any element does not appear in at least one combo.",
@@ -530,6 +601,7 @@ def main() -> int:
         database_asset,
         args.require_instant_remove,
         assets_root,
+        args.max_tier,
     )
     if errors == 0:
         print("Element combo check passed.")

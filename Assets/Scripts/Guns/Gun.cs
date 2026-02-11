@@ -151,4 +151,23 @@ public class Gun : MonoBehaviour
     {
         return magazineState;
     }
+
+    public MagazineBlueprint GetMagazineBlueprint()
+    {
+        return magazineBlueprint;
+    }
+
+    public void UpdateMagazineFromBlueprint()
+    {
+        // Clear the current magazine state and reload from blueprint
+        magazineState.Clear();
+        // Load bullets in reverse order so they stack correctly (last bullet is fired first)
+        for (int i = magazineBlueprint.bullets.Length - 1; i >= 0; i--)
+        {
+            if (magazineBlueprint.bullets[i] != null)
+            {
+                magazineState.Push(magazineBlueprint.bullets[i]);
+            }
+        }
+    }
 }

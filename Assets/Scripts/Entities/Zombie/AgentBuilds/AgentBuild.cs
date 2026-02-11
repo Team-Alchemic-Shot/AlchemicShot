@@ -44,12 +44,12 @@ public class AgentBuild : MonoBehaviour
         else
         {
             // bounce of any obsticle when hitting one
-            Vector3 reflected = Vector3.Reflect(dirc, hit.normal);
+            /*Vector3 reflected = Vector3.Reflect(dirc, hit.normal);
             reflected = Quaternion.Euler(0, Random.Range(-30f, 30f), 0) * reflected;
             reflected.y = 0f;
             reflected.Normalize();
 
-            direction = reflected;
+            direction = reflected;*/
 
             // helps to stop sticking to walls
             transform.position += direction * movementSpeed * Time.deltaTime * 0.2f;

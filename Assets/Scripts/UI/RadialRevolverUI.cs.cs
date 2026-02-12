@@ -18,7 +18,6 @@ public class RadialRevolverUI : MagazineUI
     public TextMeshProUGUI draftingTextDisplay; 
 
     private int currentChamberIndex = 0;
-    private int maxChambers;
     private Color[] originalColors;
 
     private Dictionary<int, string> draftedElements = new()
@@ -42,9 +41,8 @@ public class RadialRevolverUI : MagazineUI
             originalColors[i] = elementIcons[i].color;
         }
 
-        maxChambers = playerGun.gunDefinition.stats.magazineSize;
         
-        UpdateDraftingUI();
+        UpdateUI();
     }
 
     void Update()
@@ -52,7 +50,7 @@ public class RadialRevolverUI : MagazineUI
         if (playerGun == null) return;
 
         // Listen for hotkeys if the cylinder isn't full yet
-        if (currentChamberIndex < maxChambers)
+        if (currentChamberIndex < playerGun.gunDefinition.stats.magazineSize)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1)) DraftElement(0); // 1 Key
             if (Input.GetKeyDown(KeyCode.Alpha2)) DraftElement(1); // 2 Key
@@ -77,11 +75,13 @@ public class RadialRevolverUI : MagazineUI
         }
 
         blueprint.bullets[currentChamberIndex].element = selectedElement;
-        currentChamberIndex = ++currentChamberIndex % maxChambers; // wrap
+        playerGun.Mechanism.Load(playerGun.AmmoStock); // TODO  Force the gun to recognize the change in the magazine
+
+        currentChamberIndex = ++currentChamberIndex % playerGun.GetMagazine().GetBullets().Count; // wrap
 
         // Trigger the visual pop effect
         StartCoroutine(FlashIconRoutine(index));
-        UpdateDraftingUI();
+        UpdateUI();
     }
 
     private IEnumerator FlashIconRoutine(int index)
@@ -105,23 +105,25 @@ public class RadialRevolverUI : MagazineUI
             blueprint.bullets[i] = null;
         }
         currentChamberIndex = 0;
-        UpdateDraftingUI();
+        UpdateUI();
     }
 
-    private void UpdateDraftingUI()
+    public override void UpdateUI(BulletData data = null)
     {
         if (draftingTextDisplay == null) return;
 
         string displayText = "<b>NEXT SHOTS:</b>\n";
-        MagazineBlueprint blueprint = playerGun.GetMagazineBlueprint();
+        Stack<BulletData> bullets = playerGun.GetMagazine().GetBullets();
+        BulletData[] bulletsArray = bullets.ToArray();
+        int maxChambers = playerGun.gunDefinition.stats.magazineSize;
 
         for (int i = 0; i < maxChambers; i++)
         {
             bool isCursor = i == currentChamberIndex;
-            if (blueprint.bullets[i] != null && blueprint.bullets[i].element != null)
+            if (i < bulletsArray.Length && bulletsArray[i] != null && bulletsArray[i].element != null)
             {
-                string hexColor = ColorUtility.ToHtmlStringRGB(blueprint.bullets[i].element.elementColor);
-                displayText += $"<color=#{hexColor}>[ {blueprint.bullets[i].element.elementName} ]</color>{(isCursor ? " <" : "")}\n";
+                string hexColor = ColorUtility.ToHtmlStringRGB(bulletsArray[i].element.elementColor);
+                displayText += $"<color=#{hexColor}>[ {bulletsArray[i].element.elementName} ]</color>{(isCursor ? " <" : "")}\n";
             }
             else
             {

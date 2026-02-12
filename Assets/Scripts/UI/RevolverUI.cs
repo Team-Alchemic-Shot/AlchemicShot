@@ -37,7 +37,7 @@ public class RevolverUI : MagazineUI
         }
 
         // Update the screen ONLY when reloading
-        RefreshUI();
+        UpdateUI();
     }
 
     public override void Shoot()
@@ -48,13 +48,13 @@ public class RevolverUI : MagazineUI
             bullets.RemoveAt(bullets.Count - 1);
             
             // Update the screen ONLY when shooting
-            RefreshUI();
+            UpdateUI();
         }
     }
 
     // --- THE FIX ---
     // We completely deleted Update() and moved the visual logic here.
-    private void RefreshUI()
+    public override void UpdateUI(BulletData data = null)
     {
         // Step 1: Wipe the UI panel clean so we don't infinitely stack text
         foreach (Transform child in bulletPanel)

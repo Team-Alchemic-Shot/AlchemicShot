@@ -11,18 +11,18 @@ public class RadialRevolverUI : MagazineUI
     
     [Header("UI Visuals")]
     [Tooltip("Order them: 0=Top(Red), 1=Right(Green), 2=Bottom(Blue), 3=Left(Cyan)")]
-    public Image[] elementIcons; 
+    public Image[] elementIcons; // TODO get from element definitions instead of hardcoding order in inspector
     public TextMeshProUGUI draftingTextDisplay; 
 
     private int currentChamberIndex = 0;
-    private int maxChambers = 6;
+    private int maxChambers = 6; // TODO get from gun definition later
     private Color[] originalColors;
 
     void Start()
     {
         // Auto-find the gun
         GameObject player = GameObject.FindWithTag("Player");
-        if (player != null) playerGun = player.GetComponentInChildren<Gun>();
+        if (player != null) playerGun = player.GetComponentInChildren<Gun>(); // TODO get from inventory once merged with reactions or dev
 
         // Store the original colors (Red, Green, Blue, Cyan) so we can restore them after a flash
         originalColors = new Color[elementIcons.Length];

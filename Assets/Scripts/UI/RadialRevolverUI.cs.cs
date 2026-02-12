@@ -5,6 +5,8 @@ using System.Collections;
 
 public class RadialRevolverUI : MagazineUI
 {
+    private static readonly WaitForSeconds FlashDelay = new(0.15f);
+
     [Header("Core References")]
     public Gun playerGun;
     public ElementDatabase elementDatabase;
@@ -47,6 +49,8 @@ public class RadialRevolverUI : MagazineUI
             if (Input.GetKeyDown(KeyCode.Alpha4)) DraftElement(3); // 4 Key
         }
 
+        Debug.Log($"Current Chamber Index: {currentChamberIndex}");
+
         // Press 'C' to clear mistakes
         if (Input.GetKeyDown(KeyCode.C)) ClearDraft();
     }
@@ -56,7 +60,7 @@ public class RadialRevolverUI : MagazineUI
         MagazineBlueprint blueprint = playerGun.GetMagazineBlueprint();
         if (index >= elementDatabase.elements.Length) return; 
 
-        Element selectedElement = elementDatabase.elements[index];
+        Element selectedElement = elementDatabase.elements[index]; // TODO elements may move around in the database
 
         if (blueprint.bullets[currentChamberIndex] == null)
         {
@@ -77,7 +81,7 @@ public class RadialRevolverUI : MagazineUI
         elementIcons[index].color = Color.white;
         elementIcons[index].rectTransform.localScale = Vector3.one * 1.2f;
         
-        yield return new WaitForSeconds(0.15f);
+        yield return FlashDelay;
         
         // Return to its original color and size
         elementIcons[index].color = originalColors[index];

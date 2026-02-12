@@ -112,8 +112,6 @@ public class PlayerControllerSource : MonoBehaviour
         ReadSprintInput();
         QueueJump();
 
-        // Debug.Log($"Speed: {rb.velocity.magnitude:F2}");
-
         #if UNITY_EDITOR // strictly debug 'r' restart
         if (restartAction != null && restartAction.WasPressedThisFrame())
         {
@@ -361,28 +359,13 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void BindActions()
     {
-        moveAction = FindProjectAction(moveActionName);
-        lookAction = FindProjectAction(lookActionName);
-        jumpAction = FindProjectAction(jumpActionName);
-        sprintAction = FindProjectAction(sprintActionName);
-        restartAction = FindProjectAction(restartActionName);
+        moveAction = ControlUtil.FindProjectAction(moveActionName);
+        lookAction = ControlUtil.FindProjectAction(lookActionName);
+        jumpAction = ControlUtil.FindProjectAction(jumpActionName);
+        sprintAction = ControlUtil.FindProjectAction(sprintActionName);
+        restartAction = ControlUtil.FindProjectAction(restartActionName);
     }
 
-    private static InputAction FindProjectAction(string actionName)
-    {
-        if (string.IsNullOrWhiteSpace(actionName))
-        {
-            return null;
-        }
-
-        if (InputSystem.actions == null)
-        {
-            return null;
-        }
-
-        return InputSystem.actions.FindAction(actionName, throwIfNotFound: false);
-    }
-    
     private void SetGrounded()
     {
         isGrounded = Physics.SphereCast(

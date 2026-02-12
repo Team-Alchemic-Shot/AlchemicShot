@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Water
   m_EditorClassIdentifier: 
   elementName: Water
-  elementColor: {r: 0, g: 0.09055519, b: 1, a: 0}
+  elementColor: {r: 0, g: 0.09055519, b: 1, a: 1}
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0

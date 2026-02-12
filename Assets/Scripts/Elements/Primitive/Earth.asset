@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Earth
   m_EditorClassIdentifier: 
   elementName: Earth
-  elementColor: {r: 0.3207547, g: 0.15794301, b: 0, a: 0}
+  elementColor: {r: 0.3207547, g: 0.15794301, b: 0, a: 1}
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0

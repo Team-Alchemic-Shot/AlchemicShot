@@ -10,6 +10,9 @@ public class Gun : MonoBehaviour
     public GameObject player;
     public MagazineBlueprint magazineBlueprint;
 
+    public int AmmoStock { get; private set; } = 100;
+    public LoadFireMechanism Mechanism { get; private set; }
+
     public event Action<GunDefinition, GameObject> Fired;
     public event Action<GunDefinition, GameObject> ReloadStarted;
 
@@ -21,8 +24,6 @@ public class Gun : MonoBehaviour
     private InputAction fireAction;
     private InputAction reloadAction;
     private MagazineState magazineState;
-    private LoadFireMechanism mechanism;
-    private int ammoStock = 999999999; // infinite ammo for now?
     private bool isReloading;
 
     private void Awake()
@@ -35,8 +36,8 @@ public class Gun : MonoBehaviour
         magazineState = new(); // new empty magazine state
 
         // scriptable objects are stored on the disk, so we need to instantiate them to get a unique instance
-        mechanism = Instantiate(gunDefinition.loadFireMechanism);
-        mechanism.Initialize( // set references
+        Mechanism = Instantiate(gunDefinition.loadFireMechanism);
+        Mechanism.Initialize( // set references
             magazineBlueprint, 
             magazineState,
             gunDefinition.stats,
@@ -45,25 +46,25 @@ public class Gun : MonoBehaviour
             gunDefinition.bulletPrefab);
 
         // transfer to facade
-        mechanism.HitTarget += OnMechanismHitTarget;
-        mechanism.FiredBullet += OnMechanismFiredBullet;
-        mechanism.HitSomething += OnMechanismHitSomething;
-        mechanism.Reloaded += OnMechanismReloaded;
+        Mechanism.HitTarget += OnMechanismHitTarget;
+        Mechanism.FiredBullet += OnMechanismFiredBullet;
+        Mechanism.HitSomething += OnMechanismHitSomething;
+        Mechanism.Reloaded += OnMechanismReloaded;
 
-        mechanism.Load(ammoStock); // load initial magazine
+        Mechanism.Load(AmmoStock); // load initial magazine
     }
 
     private void OnDestroy()
     {
-        if (mechanism == null)
+        if (Mechanism == null)
         {
             return;
         }
 
-        mechanism.HitTarget -= OnMechanismHitTarget;
-        mechanism.FiredBullet -= OnMechanismFiredBullet;
-        mechanism.HitSomething -= OnMechanismHitSomething;
-        mechanism.Reloaded -= OnMechanismReloaded;
+        Mechanism.HitTarget -= OnMechanismHitTarget;
+        Mechanism.FiredBullet -= OnMechanismFiredBullet;
+        Mechanism.HitSomething -= OnMechanismHitSomething;
+        Mechanism.Reloaded -= OnMechanismReloaded;
     }
 
     private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
@@ -91,9 +92,9 @@ public class Gun : MonoBehaviour
             return;
         }
 
-        if (magazineState.Count > 0 && ammoStock != 0)
+        if (magazineState.Count > 0 && AmmoStock != 0)
         {
-            var bulletsFired = mechanism.Fire(ammoStock);
+            var bulletsFired = Mechanism.Fire(AmmoStock);
             if (bulletsFired > 0)
             {
                 Fired?.Invoke(gunDefinition, player);
@@ -103,7 +104,7 @@ public class Gun : MonoBehaviour
                 StartReload();
             }
         }
-        else if (ammoStock != 0)
+        else if (AmmoStock != 0)
         {
             StartReload();
         }
@@ -130,7 +131,31 @@ public class Gun : MonoBehaviour
             yield return new WaitForSeconds(reloadTime);
         }
 
-        mechanism.Load(ammoStock);
+        Mechanism.Load(AmmoStock);
         isReloading = false;
+    }
+
+    public MagazineState GetMagazine()
+    {
+        return magazineState;
+    }
+
+    public MagazineBlueprint GetMagazineBlueprint()
+    {
+        return magazineBlueprint;
+    }
+
+    public void UpdateMagazineFromBlueprint()
+    {
+        // Clear the current magazine state and reload from blueprint
+        magazineState.Clear();
+        // Load bullets in reverse order so they stack correctly (last bullet is fired first)
+        for (int i = magazineBlueprint.bullets.Length - 1; i >= 0; i--)
+        {
+            if (magazineBlueprint.bullets[i] != null)
+            {
+                magazineState.Push(magazineBlueprint.bullets[i]);
+            }
+        }
     }
 }

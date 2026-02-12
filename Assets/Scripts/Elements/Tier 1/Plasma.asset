@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8fd70cabb3b64c44a9137f3914d04ed7, type: 3}
-  m_Name: Stone
+  m_Name: Plasma
   m_EditorClassIdentifier: 
-  elementName: Stone
-  elementColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 0}
+  elementName: Plasma
+  elementColor: {r: 0.64705884, g: 0, b: 0.9476299, a: 0}
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 1
@@ -21,4 +21,4 @@ MonoBehaviour:
   sfxClip: {fileID: 0}
   sfxVolume: 1
   behaviors:
-  - {fileID: 11400000, guid: c7e48851ca985dc4eae214421f7d3dec, type: 2}
+  - {fileID: 11400000, guid: 4746f4b9b6895443baba64c12f5b5865, type: 2}

@@ -42,9 +42,10 @@ public class FireBehavior : ElementBehavior
         private float durationRemaining;
         private float tickInterval;
         private float tickTimer;
-        private float intensity;
         private bool logTicks;
         private GameObject instigator;
+
+        public float Intensity;
 
         public override void Apply(
             float duration, 
@@ -60,11 +61,11 @@ public class FireBehavior : ElementBehavior
 
             if (stackIntensity)
             {
-                this.intensity += intensity;
+                Intensity += intensity;
             }
             else
             {
-                this.intensity = intensity;
+                Intensity = intensity;
             }
 
             if (refreshDuration || durationRemaining <= 0f)
@@ -92,11 +93,11 @@ public class FireBehavior : ElementBehavior
                 tickTimer += tickInterval;
                 if (TryGetComponent<Health>(out var health))
                 {
-                    health.ApplyDamage(new DamageInfo(intensity, instigator, transform.position));
+                    health.ApplyDamage(new DamageInfo(Intensity, instigator, transform.position));
                 }
                 if (logTicks)
                 {
-                    Debug.Log($"Fire DOT tick on {gameObject.name} (intensity: {intensity:F2})");
+                    Debug.Log($"Fire DOT tick on {gameObject.name} (intensity: {Intensity:F2})");
                 }
             }
         }

@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e77c4d6ee98ec422bdf4148dcfebd38, type: 3}
-  m_Name: StoneBehavior
+  m_Script: {fileID: 11500000, guid: d839e7724f21446c2b151382e60482c2, type: 3}
+  m_Name: PlasmaBehavior
   m_EditorClassIdentifier: 
-  description: hello
-  duration: 15
-  defaultIntensity: 100
+  description: 
+  duration: 3
+  defaultIntensity: 1
+  tickInterval: 0.5
+  refreshDuration: 1
+  stackIntensity: 0
+  logTicks: 0

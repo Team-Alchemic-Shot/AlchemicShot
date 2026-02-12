@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7ffe2100903ff68c78d9f7c2496a6c9f, type: 3}
-  m_Name: Stone
+  m_Name: Plasma
   m_EditorClassIdentifier: 
   inputElements:
     elementA: {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}
-    elementB: {fileID: 11400000, guid: ce22bd14fdd85e6708f65f0c2249f593, type: 2}
-  resultElement: {fileID: 11400000, guid: cfcbb2efae326e1c8b2267c5ea2a5b6e, type: 2}
-  priority: 0
+    elementB: {fileID: 11400000, guid: e1ccb35cf1ae8399a8298f58af0ae3a1, type: 2}
+  resultElement: {fileID: 11400000, guid: 7e37e3f022333445fa7faa30f1b22541, type: 2}
+  priority: 1
   removeE1OldStatusesOnReaction: 1
-  removeE2OldStatusesOnReaction: 1
+  removeE2OldStatusesOnReaction: 0

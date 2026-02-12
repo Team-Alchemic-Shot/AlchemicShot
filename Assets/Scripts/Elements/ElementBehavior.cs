@@ -68,6 +68,10 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     /// <param name="context"></param>
     public static void ApplyBehaviors(ElementBehaviorContext context)
     {
+        if (context.sourceBullet.element == null || context.sourceBullet.element.behaviors == null)
+        {
+            return;
+        }
         if (!context.target.TryGetComponent<ElementStatus>(out var elementStatus))
         {
             elementStatus = context.target.AddComponent<ElementStatus>();

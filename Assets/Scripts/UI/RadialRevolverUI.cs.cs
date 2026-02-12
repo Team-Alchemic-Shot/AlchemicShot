@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RadialRevolverUI : MagazineUI
 {
@@ -13,12 +14,20 @@ public class RadialRevolverUI : MagazineUI
     
     [Header("UI Visuals")]
     [Tooltip("Order them: 0=Top(Red), 1=Right(Green), 2=Bottom(Blue), 3=Left(Cyan)")]
-    public Image[] elementIcons; // TODO get from element definitions instead of hardcoding order in inspector
+    public Image[] elementIcons;
     public TextMeshProUGUI draftingTextDisplay; 
 
     private int currentChamberIndex = 0;
-    private int maxChambers = 6; // TODO get from gun definition later
+    private int maxChambers;
     private Color[] originalColors;
+
+    private Dictionary<int, string> draftedElements = new()
+    {
+        { 0, "Fire" }, // Red
+        { 1, "Earth" }, // Green
+        { 2, "Water" }, // Blue
+        { 3, "Air" }  // Cyan
+    };
 
     void Start()
     {
@@ -32,6 +41,8 @@ public class RadialRevolverUI : MagazineUI
         {
             originalColors[i] = elementIcons[i].color;
         }
+
+        maxChambers = playerGun.gunDefinition.stats.magazineSize;
         
         UpdateDraftingUI();
     }
@@ -49,8 +60,6 @@ public class RadialRevolverUI : MagazineUI
             if (Input.GetKeyDown(KeyCode.Alpha4)) DraftElement(3); // 4 Key
         }
 
-        Debug.Log($"Current Chamber Index: {currentChamberIndex}");
-
         // Press 'C' to clear mistakes
         if (Input.GetKeyDown(KeyCode.C)) ClearDraft();
     }
@@ -60,7 +69,7 @@ public class RadialRevolverUI : MagazineUI
         MagazineBlueprint blueprint = playerGun.GetMagazineBlueprint();
         if (index >= elementDatabase.elements.Length) return; 
 
-        Element selectedElement = elementDatabase.elements[index]; // TODO elements may move around in the database
+        Element selectedElement = elementDatabase.GetElementByName(draftedElements[index]);
 
         if (blueprint.bullets[currentChamberIndex] == null)
         {
@@ -68,7 +77,7 @@ public class RadialRevolverUI : MagazineUI
         }
 
         blueprint.bullets[currentChamberIndex].element = selectedElement;
-        currentChamberIndex++;
+        currentChamberIndex = ++currentChamberIndex % maxChambers; // wrap
 
         // Trigger the visual pop effect
         StartCoroutine(FlashIconRoutine(index));
@@ -103,23 +112,22 @@ public class RadialRevolverUI : MagazineUI
     {
         if (draftingTextDisplay == null) return;
 
-        string displayText = "<b>DRAFTING QUEUE:</b>\n";
+        string displayText = "<b>NEXT SHOTS:</b>\n";
         MagazineBlueprint blueprint = playerGun.GetMagazineBlueprint();
 
         for (int i = 0; i < maxChambers; i++)
         {
-            if (i < currentChamberIndex && blueprint.bullets[i] != null && blueprint.bullets[i].element != null)
+            bool isCursor = i == currentChamberIndex;
+            if (blueprint.bullets[i] != null && blueprint.bullets[i].element != null)
             {
                 string hexColor = ColorUtility.ToHtmlStringRGB(blueprint.bullets[i].element.elementColor);
-                displayText += $"<color=#{hexColor}>[{blueprint.bullets[i].element.elementName}]</color> ";
+                displayText += $"<color=#{hexColor}>[ {blueprint.bullets[i].element.elementName} ]</color>{(isCursor ? " <" : "")}\n";
             }
             else
             {
-                displayText += "<color=#555555>[ - ]</color> ";
+                displayText += $"<color=#888888><i>[ Empty ]</i></color>{(isCursor ? " <" : "")}\n";
             }
         }
-        
-        displayText += "\n<size=70%><i>Press 'R' to Chamber | 'C' to Clear</i></size>";
         draftingTextDisplay.text = displayText;
     }
 

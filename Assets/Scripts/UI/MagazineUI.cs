@@ -2,8 +2,6 @@ using UnityEngine;
 
 public abstract class MagazineUI : MonoBehaviour
 {
-    public abstract void Reload();
-    public abstract void Shoot();
-
-    public abstract void UpdateUI(BulletData data);
+    public abstract void OnFired(BulletData data);
+    public abstract void OnReloaded(int ammo, MagazineState magazineState);
 }

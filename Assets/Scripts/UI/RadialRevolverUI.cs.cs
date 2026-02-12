@@ -42,7 +42,7 @@ public class RadialRevolverUI : MagazineUI
         }
 
         
-        UpdateUI();
+        UpdateUI(playerGun.GetMagazine());
     }
 
     void Update()
@@ -81,7 +81,7 @@ public class RadialRevolverUI : MagazineUI
 
         // Trigger the visual pop effect
         StartCoroutine(FlashIconRoutine(index));
-        UpdateUI();
+        UpdateUI(playerGun.GetMagazine());
     }
 
     private IEnumerator FlashIconRoutine(int index)
@@ -105,18 +105,26 @@ public class RadialRevolverUI : MagazineUI
             blueprint.bullets[i] = null;
         }
         currentChamberIndex = 0;
-        UpdateUI();
+        UpdateUI(playerGun.GetMagazine());
     }
 
-    public override void UpdateUI(BulletData data = null)
+    public override void OnFired(BulletData data = null)
+    {
+        UpdateUI(playerGun.GetMagazine());
+    }
+
+    public override void OnReloaded(int ammo, MagazineState magazineState)
+    {
+        UpdateUI(magazineState);
+    }
+
+    public void UpdateUI(MagazineState magazineState)
     {
         if (draftingTextDisplay == null) return;
 
         string displayText = "<b>NEXT SHOTS:</b>\n";
-        Stack<BulletData> bullets = playerGun.GetMagazine().GetBullets();
-        BulletData[] bulletsArray = bullets.ToArray();
         int maxChambers = playerGun.gunDefinition.stats.magazineSize;
-
+        var bulletsArray = magazineState.GetBullets().ToArray();
         for (int i = 0; i < maxChambers; i++)
         {
             bool isCursor = i == currentChamberIndex;
@@ -132,12 +140,4 @@ public class RadialRevolverUI : MagazineUI
         }
         draftingTextDisplay.text = displayText;
     }
-
-    public override void Reload() 
-    { 
-        currentChamberIndex = 0; 
-        ClearDraft(); 
-    }
-    
-    public override void Shoot() { }
 }

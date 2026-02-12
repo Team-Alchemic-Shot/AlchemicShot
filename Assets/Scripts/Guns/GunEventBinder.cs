@@ -66,7 +66,8 @@ public class GunEventBinder : MonoBehaviour
         subscribedGun.HitTarget += ElementBehavior.ApplyBehaviors;
         subscribedGun.HitTarget += Reactions.TryApplyReaction; // do reactions after applying behaviors
         subscribedGun.HitTarget += ElementImpactFx.TryPlayOnHit; // do VFX/SFX after reactions so result element wins
-        subscribedGun.FiredBullet += magazineUI.UpdateUI;
+        subscribedGun.FiredBullet += magazineUI.OnFired;
+        subscribedGun.Reloaded += magazineUI.OnReloaded;
     }
     
 
@@ -82,7 +83,8 @@ public class GunEventBinder : MonoBehaviour
         subscribedGun.HitTarget -= ElementImpactFx.TryPlayOnHit;
         subscribedGun.HitTarget -= Reactions.TryApplyReaction;
         subscribedGun.HitTarget -= ElementBehavior.ApplyBehaviors;
-        subscribedGun.FiredBullet -= magazineUI.UpdateUI;
+        subscribedGun.FiredBullet -= magazineUI.OnFired;
+        subscribedGun.Reloaded -= magazineUI.OnReloaded;
         subscribedGun = null;
     }
 }

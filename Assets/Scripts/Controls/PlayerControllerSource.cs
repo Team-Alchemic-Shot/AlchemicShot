@@ -112,14 +112,14 @@ public class PlayerControllerSource : MonoBehaviour
         ReadSprintInput();
         QueueJump();
 
-        #if UNITY_EDITOR // strictly debug 'r' restart
+        // #if UNITY_EDITOR // strictly debug 'r' restart
         if (restartAction != null && restartAction.WasPressedThisFrame())
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
             );
         }
-        #endif
+        // #endif
     }
 
     private void ReadSprintInput()

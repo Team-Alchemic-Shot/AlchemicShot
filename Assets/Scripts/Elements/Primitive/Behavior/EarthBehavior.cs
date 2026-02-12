@@ -1,10 +1,9 @@
+using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Earth")]
+[CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Primitive/Earth")]
 public class EarthBehavior : ElementBehavior
 {
-    [SerializeField]
-    private float duration = 3f;
     [SerializeField]
     private float tickInterval = 0.5f;
     [SerializeField]
@@ -13,6 +12,8 @@ public class EarthBehavior : ElementBehavior
     private bool stackIntensity = false;
     [SerializeField]
     private bool logTicks = true;
+
+    public override Type TagType { get; } = typeof(EarthStatus);
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -26,6 +27,7 @@ public class EarthBehavior : ElementBehavior
             status = context.target.AddComponent<EarthStatus>();
         }
 
+        status.SetContext(this, context); // sometimes additional context is needed
         status.Apply(
             duration, 
             tickInterval, 
@@ -36,16 +38,44 @@ public class EarthBehavior : ElementBehavior
             logTicks);
     }
 
-    private class EarthStatus : MonoBehaviour
+    public override void RevertEffects(ElementBehaviorContext context)
+    {
+        if (context.target == null)
+        {
+            return;
+        }
+
+        if (context.target.TryGetComponent<EarthStatus>(out var status)
+            && context.target.TryGetComponent<Health>(out var health))
+        {
+            var appliedWeakness = status.GetAppliedWeakness();
+            if (appliedWeakness != 0f)
+            {
+                health.ApplyWeakness(-appliedWeakness);
+            }
+
+            status.ResetAppliedWeakness();
+        }
+    }
+
+    private class EarthStatus : ElementTag
     {
         private float durationRemaining;
         private float tickInterval;
         private float tickTimer;
         private float intensity;
         private bool logTicks;
-        private GameObject instigator;
+        private float currentAppliedWeakness;
+        private ElementBehavior sourceBehavior;
+        private ElementBehaviorContext lastContext;
 
-        public void Apply(
+        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
+        {
+            sourceBehavior = behavior;
+            lastContext = context;
+        }
+
+        public override void Apply(
             float duration, 
             float interval, 
             float intensity, 
@@ -72,18 +102,39 @@ public class EarthBehavior : ElementBehavior
             }
 
             tickTimer = tickInterval;
-            this.instigator = instigator;
             if (TryGetComponent<Health>(out var health))
             {
-                health.ApplyWeakness(this.intensity);
+                var delta = this.intensity - currentAppliedWeakness;
+                if (Mathf.Abs(delta) > 0f)
+                {
+                    health.ApplyWeakness(delta);
+                    currentAppliedWeakness = this.intensity;
+                }
             }
+        }
+
+        public float GetAppliedWeakness()
+        {
+            return currentAppliedWeakness;
+        }
+
+        public void ResetAppliedWeakness()
+        {
+            currentAppliedWeakness = 0f;
         }
 
         private void Update()
         {
             if (durationRemaining <= 0f)
             {
-                Destroy(this);
+                if (sourceBehavior != null && lastContext.target != null)
+                {
+                    sourceBehavior.Remove(lastContext);
+                }
+                else
+                {
+                    Destroy(this);
+                }
                 return;
             }
 

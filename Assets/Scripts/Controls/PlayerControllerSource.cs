@@ -112,8 +112,6 @@ public class PlayerControllerSource : MonoBehaviour
         ReadSprintInput();
         QueueJump();
 
-        // Debug.Log($"Speed: {rb.velocity.magnitude:F2}");
-
         #if UNITY_EDITOR // strictly debug 'r' restart
         if (restartAction != null && restartAction.WasPressedThisFrame())
         {

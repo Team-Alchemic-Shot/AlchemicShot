@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,75 +6,70 @@ using UnityEngine.InputSystem;
 public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
-    public MagazineBlueprint magazineBlueprint;
     public ElementDatabase elementDatabase;
     public GameObject player;
+    public MagazineBlueprint magazineBlueprint;
+
+    public event Action<GunDefinition, GameObject> Fired;
+    public event Action<GunDefinition, GameObject> ReloadStarted;
+
+    public event Action<ElementBehaviorContext> HitTarget;
+    public event Action<BulletData> FiredBullet;
+    public event Action<Ray, RaycastHit> HitSomething;
+    public event Action<int, MagazineState> Reloaded;
 
     private InputAction fireAction;
     private InputAction reloadAction;
-    private MagazineState magazineState = new();
+    private MagazineState magazineState;
+    private LoadFireMechanism mechanism;
     private int ammoStock = 999999999; // infinite ammo for now?
     private bool isReloading;
 
     private void Awake()
     {
+        // get controls
         fireAction = ControlUtil.FindProjectAction("Fire");
         reloadAction = ControlUtil.FindProjectAction("Reload");
         
-        magazineBlueprint = new()
-        {
-            bullets = new BulletData[gunDefinition.stats.magazineSize]
-        };
-        test_LoadBP();
-        gunDefinition.loadFireMechanism.Initialize(
+        magazineBlueprint ??= new(gunDefinition.stats.magazineSize); // init blueprint if not set from editor
+        magazineState = new(); // new empty magazine state
+
+        // scriptable objects are stored on the disk, so we need to instantiate them to get a unique instance
+        mechanism = Instantiate(gunDefinition.loadFireMechanism);
+        mechanism.Initialize( // set references
             magazineBlueprint, 
             magazineState,
             gunDefinition.stats,
             gunDefinition.fx, 
-            player);
-        gunDefinition.loadFireMechanism.Load(ammoStock);
+            player,
+            gunDefinition.bulletPrefab);
+
+        // transfer to facade
+        mechanism.HitTarget += OnMechanismHitTarget;
+        mechanism.FiredBullet += OnMechanismFiredBullet;
+        mechanism.HitSomething += OnMechanismHitSomething;
+        mechanism.Reloaded += OnMechanismReloaded;
+
+        mechanism.Load(ammoStock); // load initial magazine
     }
 
-    private void test_LoadBP()
+    private void OnDestroy()
     {
-        magazineBlueprint.bullets[0] = new BulletData
+        if (mechanism == null)
         {
-            element = elementDatabase.GetElementByName("Air"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[1] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Fire"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[2] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Water"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[3] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Earth"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };        
-        magazineBlueprint.bullets[4] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Air"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };
-        magazineBlueprint.bullets[5] = new BulletData
-        {
-            element = elementDatabase.GetElementByName("Fire"),
-            baseDamage = gunDefinition.stats.damage,
-            isEmpty = false
-        };        
+            return;
+        }
 
+        mechanism.HitTarget -= OnMechanismHitTarget;
+        mechanism.FiredBullet -= OnMechanismFiredBullet;
+        mechanism.HitSomething -= OnMechanismHitSomething;
+        mechanism.Reloaded -= OnMechanismReloaded;
     }
+
+    private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
+    private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
+    private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
+    private void OnMechanismReloaded(int ammoLoaded, MagazineState state) => Reloaded?.Invoke(ammoLoaded, state);
 
     private void Update()
     {
@@ -97,14 +93,10 @@ public class Gun : MonoBehaviour
 
         if (magazineState.Count > 0 && ammoStock != 0)
         {
-            // ammoStock -= gunDefinition.loadFireMechanism.Fire(); infinite ammo for now
-            gunDefinition.loadFireMechanism.Fire(ammoStock);
-            if (gunDefinition.fx.shootSound != null)
+            var bulletsFired = mechanism.Fire(ammoStock);
+            if (bulletsFired > 0)
             {
-                AudioSource.PlayClipAtPoint(
-                    gunDefinition.fx.shootSound,
-                    player.transform.position,
-                    gunDefinition.fx.shootSoundVolume);
+                Fired?.Invoke(gunDefinition, player);
             }
             if (magazineState.Count == 0)
             {
@@ -125,13 +117,8 @@ public class Gun : MonoBehaviour
         }
 
         isReloading = true;
-        if (gunDefinition.fx.reloadSound != null)
-        {
-            AudioSource.PlayClipAtPoint(
-                gunDefinition.fx.reloadSound,
-                player.transform.position,
-                gunDefinition.fx.reloadSoundVolume);
-        }
+
+        ReloadStarted?.Invoke(gunDefinition, player);
         StartCoroutine(ReloadRoutine());
     }
 
@@ -143,7 +130,7 @@ public class Gun : MonoBehaviour
             yield return new WaitForSeconds(reloadTime);
         }
 
-        gunDefinition.loadFireMechanism.Load(ammoStock);
+        mechanism.Load(ammoStock);
         isReloading = false;
     }
 }

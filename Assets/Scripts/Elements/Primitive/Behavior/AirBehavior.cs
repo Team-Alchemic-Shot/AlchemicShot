@@ -1,12 +1,10 @@
+using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Air")]
+[CreateAssetMenu(fileName = "AirBehavior", menuName = "Elements/Behaviors/Primitive/Air")]
 public class AirBehavior : ElementBehavior
 {
-    [SerializeField]
-    private float knockbackDistance = 5f;
-    [SerializeField]
-    private bool useForce = true;
+    public override Type TagType { get; } = null;
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -21,22 +19,10 @@ public class AirBehavior : ElementBehavior
         // Apply knockback based on configuration
         if (context.target.TryGetComponent<Rigidbody>(out var rigidbody))
         {
-            if (useForce)
-            {
-                rigidbody.AddForce(knockbackDirection * defaultIntensity, ForceMode.Impulse);
-            }
-            else
-            {
-                // Alternative: move the object directly
-                context.target.transform.position += knockbackDirection * knockbackDistance;
-            }
-        }
-        else
-        {
-            // Fallback: move without physics
-            context.target.transform.position += knockbackDirection * knockbackDistance;
+            rigidbody.AddForce(knockbackDirection * defaultIntensity, ForceMode.Impulse);
         }
 
-        Debug.Log($"Knockback applied to {context.target.name} with force {defaultIntensity}");
+        // remove since this is an instantaneous effect
+        RemoveBehavior(context);
     }
 }

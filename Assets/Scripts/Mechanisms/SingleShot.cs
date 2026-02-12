@@ -10,7 +10,6 @@ public class SingleShot : LoadFireMechanism
     {
         if (magazineState.Count == 0)
         {
-            Debug.LogWarning("No bullets to fire!");
             return 0;
         }
 
@@ -25,37 +24,41 @@ public class SingleShot : LoadFireMechanism
             bullet = magazineState.Pop();
         }
 
-        // raycast (only hits Zombie layer)
+        var bulletObj = Instantiate(bulletPrefab, Camera.main.transform.position, source.transform.rotation);
+        var bs = bulletObj.GetComponent<BulletScript>();
+        bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
+
+        NotifyFiredBullet(bullet);
+
+        // raycast (only hits Zombie and Default layer)
         Camera cam = Camera.main;
-        if (cam != null)
+        Ray ray = new(cam.transform.position, cam.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
         {
-            Ray ray = new(cam.transform.position, cam.transform.forward);
-            if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
+            if (hit.collider.TryGetComponent<Health>(out var health))
             {
-                if (hit.collider.TryGetComponent<Health>(out var health))
+                // apply bullet damage
+                health.ApplyDamage(new DamageInfo
                 {
-                    float healthBefore = health.CurrentHealth;
-                    health.ApplyDamage(new DamageInfo
-                    {
-                        amount = bullet.baseDamage + gunStats.damage,
-                        source = source,
-                        position = hit.point
-                    });
-                    foreach (var behavior in bullet.element.behaviors)
-                    {
-                        var context = new ElementBehaviorContext
-                        {
-                            instigator = source,
-                            target = hit.collider.gameObject,
-                            position = hit.point
-                        };
-                        behavior.Apply(context);
-                    }
-                    Debug.Log($"Entity damage taken: {healthBefore} -> {health.CurrentHealth}");
-                }
+                    amount = bullet.baseDamage + gunStats.damage,
+                    source = source,
+                    position = hit.point
+                });
+
+                // create a context to pass to element behaviors and reactions
+                var context = new ElementBehaviorContext
+                {
+                    instigator = source,
+                    target = hit.collider.gameObject,
+                    position = hit.point,
+                    sourceBullet = bullet
+                };
+
+                NotifyHitTarget(context);
             }
+            NotifyHitSomething(ray, hit);
+            bs.SetLifetime(0.5f); // rough hack to make bullet disappear quickly after hit
         }
-       
 
         return 1;
     }
@@ -64,7 +67,6 @@ public class SingleShot : LoadFireMechanism
     {
         if (ammoStock == 0)
         {
-            Debug.LogWarning("No ammo stock to load from!");
             return;
         }
 
@@ -87,11 +89,20 @@ public class SingleShot : LoadFireMechanism
     private void Reload(int ammoStock)
     {
         int bulletsToLoad = Mathf.Min(ammoStock, magazineBlueprint.bullets.Length);
-        
+
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)
-        { 
-            magazineState.Push(magazineBlueprint.bullets[i]);
+        {
+            var blueprintBullet = magazineBlueprint.bullets[i];
+            if (blueprintBullet == null)
+            {
+                magazineState.Push(new BulletData { isEmpty = true });
+            }
+            else
+            {
+                magazineState.Push(blueprintBullet.Clone()); // prevent reference issues by cloning bullets from blueprint
+            }
         }
+        NotifyReloaded(bulletsToLoad, magazineState);
     }
 }

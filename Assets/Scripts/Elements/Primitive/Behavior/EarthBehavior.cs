@@ -36,10 +36,14 @@ public class EarthBehavior : ElementBehavior
             stackIntensity, 
             context.instigator, 
             logTicks);
+            Debug.Log($"earth applied on {context.target.name} duration={duration} tick={tickInterval} logTicks={logTicks}");
+
     }
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
+        Debug.Log($"revert {nameof(EarthBehavior)} on {context.target.name}");
+
         if (context.target == null)
         {
             return;
@@ -146,7 +150,7 @@ public class EarthBehavior : ElementBehavior
                 tickTimer += tickInterval;
                 if (logTicks)
                 {
-                    Debug.Log($"Earth tick on {gameObject.name} (intensity: {intensity:F2})");
+                    Debug.Log($"earth tick on {gameObject.name} (intensity: {intensity:F2})");
                 }
             }
         }

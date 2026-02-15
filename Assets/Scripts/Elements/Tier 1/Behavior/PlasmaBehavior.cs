@@ -3,6 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "PlasmaBehavior", menuName = "Elements/Behaviors/Tier 1/Plasma")]
 public class PlasmaBehavior : ElementBehavior
 {
+    [Header("Plasma DOT Settings")]
     [SerializeField]
     private float tickInterval = 0.5f;
     [SerializeField]
@@ -11,6 +12,9 @@ public class PlasmaBehavior : ElementBehavior
     private bool stackIntensity = false;
     [SerializeField]
     private bool logTicks = true;
+
+    [Header("Fire DOT Interaction")]
+    // TODO fire stuff here
 
     private float existingIntensity;
 
@@ -26,6 +30,7 @@ public class PlasmaBehavior : ElementBehavior
             return;
         }
         existingIntensity = fireTag.Intensity; // save for reverting later
+        // TODO reapply fire tag with unique plasma context
 
         // find or create tag instance
         if (!context.target.TryGetComponent<PlasmaTag>(out var plasmaTag))

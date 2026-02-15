@@ -10,7 +10,7 @@ using UnityEngine;
 public struct ElementBehaviorContext
 {
     public GameObject instigator;
-    public GameObject target;
+    public GameObject target; // TODO with AOE can affect multiple targets, may need to change this to a list
     public Vector3 position;
     public BulletData sourceBullet;
 }

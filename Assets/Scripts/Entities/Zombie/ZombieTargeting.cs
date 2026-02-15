@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class ZombieTargeting : MonoBehaviour
 {
     [SerializeField]
-    private float detectionRadius = 10f;
+    private float detectionRadius = 30f;
     [SerializeField]
     private LayerMask targetMask = ~0;
     [SerializeField]
@@ -14,12 +14,23 @@ public class ZombieTargeting : MonoBehaviour
     [SerializeField]
     private int maxTargetColliders = 16;
 
+    [SerializeField]
+    private float baseSpeed = 20f;
+    [SerializeField]
+    private float chaseSpeed = 30f;
+    [SerializeField]
+    private float wanderRadius = 30f;
+    [SerializeField]
+    private float wanderInterval = 10f;
+
     public Transform CurrentTarget { get; private set; }
 
     private float refreshTimer;
 
     private NavMeshAgent agent;
     private Collider[] targetBuffer; // TODO realloc on WaveManager round change based on max monsters
+
+    private float wanderTimer;
 
     private void Awake()
     {
@@ -38,7 +49,19 @@ public class ZombieTargeting : MonoBehaviour
 
         if (agent != null && CurrentTarget != null)
         {
+            agent.speed = chaseSpeed;
             agent.SetDestination(CurrentTarget.position);
+        }
+        else
+        {
+            agent.speed = baseSpeed;
+
+            wanderTimer -= Time.deltaTime;
+            if (wanderTimer <= 0f)
+            {
+                wanderTimer = wanderInterval;
+                SetRandomWanderDestination();
+            }
         }
     }
 
@@ -79,5 +102,16 @@ public class ZombieTargeting : MonoBehaviour
         }
 
         CurrentTarget = bestTarget;
+    }
+
+    private void SetRandomWanderDestination()
+    {
+        Vector3 randomDirection = Random.insideUnitSphere * wanderRadius;
+        randomDirection += transform.position;
+
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit navHit, wanderRadius, NavMesh.AllAreas))
+        {
+            agent.SetDestination(navHit.position);
+        }
     }
 }

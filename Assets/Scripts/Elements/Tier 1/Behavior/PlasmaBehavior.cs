@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlasmaBehavior", menuName = "Elements/Behaviors/Tier 1/Plasma")]
@@ -15,8 +14,6 @@ public class PlasmaBehavior : ElementBehavior
 
     private float existingIntensity;
 
-    public override Type TagType { get; } = typeof(PlasmaTag);
-
     public override void Apply(ElementBehaviorContext context)
     {
         // get fire tag instance
@@ -24,7 +21,7 @@ public class PlasmaBehavior : ElementBehavior
         {
             return;
         }
-        if (!status.TryGetTag<FireBehavior.FireDotStatus>(out var fireTag))
+        if (!status.TryGetTag<FireBehavior.FireDOTTag>(out var fireTag))
         {
             return;
         }
@@ -35,6 +32,7 @@ public class PlasmaBehavior : ElementBehavior
         {
             plasmaTag = context.target.AddComponent<PlasmaTag>();
         }
+        TrackTag(plasmaTag, context);
 
         // set context and apply tag
         plasmaTag.SetContext(fireTag);
@@ -55,7 +53,7 @@ public class PlasmaBehavior : ElementBehavior
         {
             return;
         }
-        if (!status.TryGetTag<FireBehavior.FireDotStatus>(out var fireTag))
+        if (!status.TryGetTag<FireBehavior.FireDOTTag>(out var fireTag))
         {
             return; // fire may already be gone, in which case we can just skip reverting plasma effects
         }
@@ -72,11 +70,11 @@ public class PlasmaTag : ElementTag
     private float tickTimer;
     private float intensity;
     private bool logTicks;
-    private FireBehavior.FireDotStatus fireStatus;
+    private FireBehavior.FireDOTTag fireTag;
 
-    public void SetContext(FireBehavior.FireDotStatus fireStatus)
+    public void SetContext(FireBehavior.FireDOTTag fireTag)
     {
-        this.fireStatus = fireStatus;
+        this.fireTag = fireTag;
     }
 
     public override void Apply(
@@ -112,7 +110,7 @@ public class PlasmaTag : ElementTag
     {
         if (durationRemaining <= 0f)
         {
-            Destroy(this);
+            RemoveOwners();
             return;
         }
 
@@ -124,7 +122,7 @@ public class PlasmaTag : ElementTag
             tickTimer += tickInterval;
 
             // plasma DOT formula
-            fireStatus.Intensity += intensity;
+            fireTag.Intensity += intensity;
 
             if (logTicks)
             {

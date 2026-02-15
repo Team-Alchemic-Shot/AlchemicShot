@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CrushedBehavior", menuName = "Elements/Behaviors/Tier 1/Crushed")]
@@ -13,8 +12,6 @@ public class CrushedBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type TagType { get; } = typeof(CrushedTag);
-
     public override void Apply(ElementBehaviorContext context)
     {
         if (context.target == null)
@@ -22,18 +19,12 @@ public class CrushedBehavior : ElementBehavior
             return;
         }
 
-        // // don't apply earth if crushed is active
-        // if (context.target.GetComponent<CrushedTag>() != null)
-        // {
-        //     return; 
-        // }
-
-
         // find or create tag instance
         if (!context.target.TryGetComponent<CrushedTag>(out var crushedTag))
         {
             crushedTag = context.target.AddComponent<CrushedTag>();
         }
+        TrackTag(crushedTag, context);
 
         // set context and apply tag
         crushedTag.SetContext(this, context);
@@ -144,14 +135,7 @@ public class CrushedTag : ElementTag
     {
         if (durationRemaining <= 0f)
         {
-            if (sourceBehavior != null && lastContext.target != null)
-            {
-                sourceBehavior.Remove(lastContext);
-            }
-            else
-            {
-                Destroy(this);
-            }
+                RemoveOwners();
             return;
         }
 

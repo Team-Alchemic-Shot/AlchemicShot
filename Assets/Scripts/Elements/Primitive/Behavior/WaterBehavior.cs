@@ -14,8 +14,6 @@ public class WaterBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type TagType { get; } = typeof(WaterDotStatus);
-
     public override void Apply(ElementBehaviorContext context)
     {
         if (context.target == null)
@@ -23,13 +21,13 @@ public class WaterBehavior : ElementBehavior
             return;
         }
 
-        if (!context.target.TryGetComponent<WaterDotStatus>(out var status))
+        if (!context.target.TryGetComponent<WaterDOTTag>(out var tag))
         {
-            status = context.target.AddComponent<WaterDotStatus>();
+            tag = context.target.AddComponent<WaterDOTTag>();
         }
+        TrackTag(tag, context);
 
-        status.SetContext(this, context); // sometimes additional context is needed
-        status.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
+        tag.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
     }
 
     public override void RevertEffects(ElementBehaviorContext context)
@@ -39,20 +37,20 @@ public class WaterBehavior : ElementBehavior
             return;
         }
 
-        if (context.target.TryGetComponent<WaterDotStatus>(out var status)
+        if (context.target.TryGetComponent<WaterDOTTag>(out var tag)
             && context.target.TryGetComponent<NavMeshAgent>(out var agent))
         {
-            var appliedMultiplier = status.GetAppliedSpeedMultiplier();
+            var appliedMultiplier = tag.GetAppliedSpeedMultiplier();
             if (appliedMultiplier != 0f && appliedMultiplier != 1f)
             {
                 agent.speed /= appliedMultiplier;
             }
 
-            status.ResetAppliedSpeedMultiplier();
+            tag.ResetAppliedSpeedMultiplier();
         }
     }
 
-    private class WaterDotStatus : ElementTag
+    private class WaterDOTTag : ElementTag
     {
         private float durationRemaining;
         private bool logTicks;
@@ -60,14 +58,6 @@ public class WaterBehavior : ElementBehavior
         private float tickInterval;
         private float tickTimer;
         private float appliedSpeedMultiplier = 1f;
-        private ElementBehavior sourceBehavior;
-        private ElementBehaviorContext lastContext;
-
-        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
-        {
-            sourceBehavior = behavior;
-            lastContext = context;
-        }
 
         public override void Apply(
             float duration, 
@@ -141,14 +131,7 @@ public class WaterBehavior : ElementBehavior
         {
             if (durationRemaining <= 0f)
             {
-                if (sourceBehavior != null && lastContext.target != null)
-                {
-                    sourceBehavior.Remove(lastContext);
-                }
-                else
-                {
-                    Destroy(this);
-                }
+                RemoveOwners();
                 return;
             }
 

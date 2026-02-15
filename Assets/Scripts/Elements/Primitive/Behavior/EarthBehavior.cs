@@ -13,8 +13,6 @@ public class EarthBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type TagType { get; } = typeof(EarthStatus);
-
     public override void Apply(ElementBehaviorContext context)
     {
         if (context.target == null)
@@ -22,13 +20,13 @@ public class EarthBehavior : ElementBehavior
             return;
         }
 
-        if (!context.target.TryGetComponent<EarthStatus>(out var status))
+        if (!context.target.TryGetComponent<EarthTag>(out var tag))
         {
-            status = context.target.AddComponent<EarthStatus>();
+            tag = context.target.AddComponent<EarthTag>();
         }
+        TrackTag(tag, context);
 
-        status.SetContext(this, context); // sometimes additional context is needed
-        status.Apply(
+        tag.Apply(
             duration, 
             tickInterval, 
             defaultIntensity, 
@@ -49,20 +47,20 @@ public class EarthBehavior : ElementBehavior
             return;
         }
 
-        if (context.target.TryGetComponent<EarthStatus>(out var status)
+        if (context.target.TryGetComponent<EarthTag>(out var tag)
             && context.target.TryGetComponent<Health>(out var health))
         {
-            var appliedWeakness = status.GetAppliedWeakness();
+            var appliedWeakness = tag.GetAppliedWeakness();
             if (appliedWeakness != 0f)
             {
                 health.ApplyWeakness(-appliedWeakness);
             }
 
-            status.ResetAppliedWeakness();
+            tag.ResetAppliedWeakness();
         }
     }
 
-    private class EarthStatus : ElementTag
+    private class EarthTag : ElementTag // TODO this tag is weird and probably needs redone
     {
         private float durationRemaining;
         private float tickInterval;
@@ -70,14 +68,7 @@ public class EarthBehavior : ElementBehavior
         private float intensity;
         private bool logTicks;
         private float currentAppliedWeakness;
-        private ElementBehavior sourceBehavior;
-        private ElementBehaviorContext lastContext;
 
-        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
-        {
-            sourceBehavior = behavior;
-            lastContext = context;
-        }
 
         public override void Apply(
             float duration, 
@@ -131,14 +122,7 @@ public class EarthBehavior : ElementBehavior
         {
             if (durationRemaining <= 0f)
             {
-                if (sourceBehavior != null && lastContext.target != null)
-                {
-                    sourceBehavior.Remove(lastContext);
-                }
-                else
-                {
-                    Destroy(this);
-                }
+                RemoveOwners();
                 return;
             }
 

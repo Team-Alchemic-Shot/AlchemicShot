@@ -56,29 +56,26 @@ public class Reactions : MonoBehaviour
             var e2 = elementCombo.inputElements.elementB;
 
             // Remove statuses and revert effects from the original elements
-            if (elementCombo.removeE1OldStatusesOnReaction)
+            if (elementCombo.removeE1OldBehaviorsOnReaction)
             {
-                foreach (var behavior1 in e1.behaviors)
-                {
-                    behavior1.Remove(context);
-                }
-                status.RemoveElement(e1);
+                status.RemoveBehaviorsForElement(e1, context);
             }
-            if (elementCombo.removeE2OldStatusesOnReaction)
+            if (elementCombo.removeE2OldBehaviorsOnReaction)
             {
-                foreach (var behavior2 in e2.behaviors)
-                {
-                    behavior2.Remove(context);
-                }
-                status.RemoveElement(e2);
+                status.RemoveBehaviorsForElement(e2, context);
             } 
+
+            status.RemoveElement(e1);
+            status.RemoveElement(e2);
 
             status.AddElement(result); // track result
 
             foreach (var behavior in result.behaviors)
             {
                 var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
+                behaviorInstance.SetOwnerElement(result);
                 behaviorInstance.MarkRuntimeInstance();
+                status.RegisterBehaviorInstance(result, behaviorInstance);
                 behaviorInstance.Apply(context);
             }
 

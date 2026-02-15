@@ -49,11 +49,13 @@ public class ZombieTargeting : MonoBehaviour
 
         if (agent != null && CurrentTarget != null)
         {
+            //chase
             agent.speed = chaseSpeed;
             agent.SetDestination(CurrentTarget.position);
         }
         else
         {
+            //wonder
             agent.speed = baseSpeed;
 
             wanderTimer -= Time.deltaTime;

@@ -40,6 +40,7 @@ public class SandyBehavior : ElementBehavior
         {
             // fallback to just the hit target
             ApplyToTarget(context);
+            RemoveBehavior(context);
             return;
         }
 
@@ -74,11 +75,8 @@ public class SandyBehavior : ElementBehavior
 
             // each target needs a unique behavior instance 
             var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus, true);
-            if (behaviorInstance != null)
-            {
-                behaviorInstance.ApplyToTarget(targetContext);
-                behaviorInstance.RemoveBehavior(targetContext);
-            }
+            behaviorInstance.ApplyToTarget(targetContext);
+            behaviorInstance.RemoveBehavior(targetContext);
         }
     }
 

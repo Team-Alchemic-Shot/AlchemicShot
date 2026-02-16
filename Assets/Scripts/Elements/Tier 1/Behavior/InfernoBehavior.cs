@@ -38,6 +38,7 @@ public class InfernoBehavior : ElementBehavior
         {
             // fallback to just the hit target
             ApplyToTarget(context);
+            RemoveBehavior(context);
             return;
         }
 

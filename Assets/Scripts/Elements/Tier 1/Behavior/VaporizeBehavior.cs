@@ -203,8 +203,6 @@ public class VaporizeBehavior : ElementBehavior
         {
             targetingRef.enabled = true;
         }
-
-        
     }
 
     public class VaporizeTag : ElementTag
@@ -274,6 +272,5 @@ public class VaporizeBehavior : ElementBehavior
                 RemoveOwners();
             }
         }
-
     }
 }

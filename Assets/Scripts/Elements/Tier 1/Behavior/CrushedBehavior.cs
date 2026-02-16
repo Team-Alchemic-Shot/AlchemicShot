@@ -37,5 +37,8 @@ public class CrushedBehavior : ElementBehavior
             context.instigator,
             earthLogTicks);
         EnsureTagOwner(context, earthTag, earthBehaviorTemplate); // secondary residuals    
+        
+        // remove since this is an instantaneous effect
+        RemoveBehavior(context);
     }
 }

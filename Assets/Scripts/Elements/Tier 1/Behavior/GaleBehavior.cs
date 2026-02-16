@@ -26,6 +26,7 @@ public class GaleBehavior : ElementBehavior
         {
             // fallback to just the hit target
             ApplyToTarget(context, center);
+            RemoveBehavior(context);
             return;
         }
 

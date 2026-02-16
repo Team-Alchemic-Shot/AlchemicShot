@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CrushedBehavior", menuName = "Elements/Behaviors/Tier 1/Crushed")]
-public class CrushedBehavior : ElementBehavior
+public class CrushedBehavior : ElementBehavior // TODO refactor like Sandy?
 {
     [SerializeField]
     private float tickInterval = 0.5f;

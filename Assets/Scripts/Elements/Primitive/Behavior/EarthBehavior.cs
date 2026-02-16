@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Primitive/Earth")]
@@ -31,14 +30,10 @@ public class EarthBehavior : ElementBehavior
             stackIntensity, 
             context.instigator, 
             logTicks);
-            Debug.Log($"earth applied on {context.Target.name} duration={duration} tick={tickInterval} logTicks={logTicks}");
-
     }
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        Debug.Log($"revert {nameof(EarthBehavior)} on {context.Target.name}");
-
         if (context.Target == null)
         {
             return;
@@ -65,7 +60,6 @@ public class EarthBehavior : ElementBehavior
         private float intensity;
         private bool logTicks;
         private float currentAppliedWeakness;
-
 
         public override void Apply(
             float duration, 

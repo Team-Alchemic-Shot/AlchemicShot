@@ -59,7 +59,5 @@ public class Health : EntityComponent, IDamageable
     public void ApplyWeakness(float multiplier)
     {
         weaknessMultiplier += multiplier;
-        Debug.Log($"ApplyWeakness({multiplier}) -> weakness now {weaknessMultiplier}\n{Environment.StackTrace}");
-
     } 
 }

@@ -1,16 +1,23 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CrushedBehavior", menuName = "Elements/Behaviors/Tier 1/Crushed")]
-public class CrushedBehavior : ElementBehavior // TODO refactor like Sandy?
+public class CrushedBehavior : ElementBehavior
 {
+    [Header("Earth DOT Interaction")]
+    [SerializeField]    
+    private float earthTickInterval = 0.5f;
     [SerializeField]
-    private float tickInterval = 0.5f;
+    private float earthDuration = 10f;
     [SerializeField]
-    private bool refreshDuration = true;
+    private float earthDefaultIntensity = 10f;
     [SerializeField]
-    private bool stackIntensity = false;
+    private bool earthRefreshDuration = true;
     [SerializeField]
-    private bool logTicks = true;
+    private bool earthStackIntensity = false;
+    [SerializeField]
+    private bool earthLogTicks = true;
+    [SerializeField]
+    private EarthBehavior earthBehaviorTemplate;
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -20,133 +27,15 @@ public class CrushedBehavior : ElementBehavior // TODO refactor like Sandy?
         }
 
         // find or create tag instance
-        var crushedTag = ElementTag.GetOrAddTag<CrushedTag>(context.Target); // could just piggyback off Earth
-        TrackTag(crushedTag, context);
-
-        // set context and apply tag
-        crushedTag.SetContext(this, context);
-        crushedTag.Apply(
-            duration,
-            tickInterval,
-            defaultIntensity,
-            refreshDuration,
-            stackIntensity,
+        var earthTag = ElementTag.GetOrAddTag<EarthBehavior.EarthTag>(context.Target);
+        earthTag.Apply(
+            earthDuration,
+            earthTickInterval,
+            earthDefaultIntensity,
+            earthRefreshDuration,
+            earthStackIntensity,
             context.instigator,
-            logTicks);
-    }
-
-    public override void RevertEffects(ElementBehaviorContext context)
-    {
-        Debug.Log($"revert {nameof(EarthBehavior)} on {context.Target.name}");
-
-        if (context.Target == null)
-        {
-            return;
-        }
-
-    
-        if (context.Target.TryGetComponent<CrushedTag>(out var crushedTag)
-            && context.Target.TryGetComponent<Health>(out var health))
-        {
-            var appliedWeakness = crushedTag.GetAppliedWeakness();
-            if (appliedWeakness != 0f)
-            {
-                health.ApplyWeakness(-appliedWeakness);
-            }
-
-            crushedTag.ResetAppliedWeakness();
-        }
-    }
-}
-
-public class CrushedTag : ElementTag
-{
-    private float durationRemaining;
-    private float tickInterval;
-    private float tickTimer;
-    private float intensity;
-    private bool logTicks;
-
-    private float currentAppliedWeakness;
-
-    private ElementBehavior sourceBehavior;
-    private ElementBehaviorContext lastContext;
-
-    public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
-    {
-        sourceBehavior = behavior;
-        lastContext = context;
-    }
-
-    public override void Apply(
-        float duration,
-        float interval,
-        float intensity,
-        bool refreshDuration,
-        bool stackIntensity,
-        GameObject instigator,
-        bool logTicks)
-    {
-        tickInterval = Mathf.Max(0.05f, interval);
-        this.logTicks = logTicks;
-
-        if (stackIntensity)
-        {
-            this.intensity += intensity;
-        }
-        else
-        {
-            this.intensity = intensity;
-        }
-
-        if (refreshDuration || durationRemaining <= 0f)
-        {
-            durationRemaining = Mathf.Max(0.05f, duration);
-        }
-
-        tickTimer = tickInterval;
-
-        // apply weakness flat multiplier
-        if (TryGetComponent<Health>(out var health))
-        {
-            var delta = this.intensity - currentAppliedWeakness;
-            if (Mathf.Abs(delta) > 0f)
-            {
-                health.ApplyWeakness(delta);
-                currentAppliedWeakness = this.intensity;
-            }
-        }
-    }
-
-    public float GetAppliedWeakness()
-    {
-        return currentAppliedWeakness;
-    }
-
-    public void ResetAppliedWeakness()
-    {
-        currentAppliedWeakness = 0f;
-    }
-
-    private void Update()
-    {
-        if (durationRemaining <= 0f)
-        {
-                RemoveOwners();
-            return;
-        }
-
-        durationRemaining -= Time.deltaTime;
-        tickTimer -= Time.deltaTime;
-
-        if (tickTimer <= 0f)
-        {
-            tickTimer += tickInterval;
-
-            if (logTicks)
-            {
-                Debug.Log($"Crushed tick on {gameObject.name} (intensity: {intensity:F2})");
-            }
-        }
+            earthLogTicks);
+        EnsureTagOwner(context, earthTag, earthBehaviorTemplate); // secondary residuals    
     }
 }

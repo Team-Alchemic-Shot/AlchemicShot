@@ -15,7 +15,11 @@ MonoBehaviour:
   description: 
   duration: 3
   defaultIntensity: 1
-  tickInterval: 0.5
-  refreshDuration: 1
-  stackIntensity: 0
-  logTicks: 1
+  earthTickInterval: 0.5
+  earthDuration: 10
+  earthDefaultIntensity: 10
+  earthRefreshDuration: 1
+  earthStackIntensity: 0
+  earthLogTicks: 0
+  earthBehaviorTemplate: {fileID: 11400000, guid: 233a1bb05adb9a0b78db745f3c2cabe4,
+    type: 2}

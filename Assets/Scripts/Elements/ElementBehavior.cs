@@ -84,7 +84,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
         elementStatus.AddElement(context.sourceBullet.element); // track applied element
         foreach (var behavior in context.sourceBullet.element.behaviors)
         {
-            var behaviorInstance = CreateRuntimeBehavior(behavior, context, elementStatus);
+            var behaviorInstance = CreateRuntimeBehavior(behavior, context, elementStatus, true);
             behaviorInstance.Apply(context);
         }
     }
@@ -207,12 +207,40 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     public static T CreateRuntimeBehavior<T>(
         T behavior, 
         ElementBehaviorContext targetContext, 
-        ElementStatus elementStatus) where T : ElementBehavior
+        ElementStatus elementStatus,
+        bool registerInStatus) where T : ElementBehavior
     {
         var behaviorInstance = GameObject.Instantiate(behavior);
-        behaviorInstance.SetOwnerElement(targetContext.sourceBullet.element);
         behaviorInstance.MarkRuntimeInstance();
-        elementStatus.RegisterBehaviorInstance(targetContext.sourceBullet.element, behaviorInstance);
+        if (registerInStatus && elementStatus != null && targetContext?.sourceBullet?.element != null)
+        {
+            behaviorInstance.SetOwnerElement(targetContext.sourceBullet.element);
+            elementStatus.RegisterBehaviorInstance(targetContext.sourceBullet.element, behaviorInstance);
+        }
         return behaviorInstance;
+    }
+
+    /// <summary>
+    /// Uses an owner behavior template to ensure that an applied tag is reverted correctly.
+    /// Note: this makes a new runtime behavior instance and makes that the owner of the tag.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="tag"></param>
+    /// <param name="ownerTemplate"></param>
+    public static ElementBehavior EnsureTagOwner(
+        ElementBehaviorContext context,
+        ElementTag tag,
+        ElementBehavior ownerTemplate,
+        ElementStatus elementStatus = null,
+        bool registerInStatus = false)
+    {
+        if (tag == null || ownerTemplate == null)
+        {
+            return null;
+        }
+
+        var ownerInstance = CreateRuntimeBehavior(ownerTemplate, context, elementStatus, registerInStatus);
+        ownerInstance.TrackTag(tag, context);
+        return ownerInstance;
     }
 }

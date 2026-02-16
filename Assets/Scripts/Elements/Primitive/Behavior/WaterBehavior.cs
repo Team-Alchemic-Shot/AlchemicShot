@@ -46,7 +46,7 @@ public class WaterBehavior : ElementBehavior
         }
     }
 
-    private class WaterDOTTag : ElementTag
+    public class WaterDOTTag : ElementTag
     {
         private float durationRemaining;
         private bool logTicks;

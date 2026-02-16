@@ -57,7 +57,7 @@ public class EarthBehavior : ElementBehavior
         }
     }
 
-    private class EarthTag : ElementTag // TODO this tag is weird and probably needs redone
+    public class EarthTag : ElementTag // TODO this tag is weird and probably needs redone
     {
         private float durationRemaining;
         private float tickInterval;

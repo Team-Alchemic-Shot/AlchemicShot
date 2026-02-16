@@ -1,16 +1,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "GaleBehavior", menuName = "Elements/Behaviors/Tier 1/Gale")]
-public class GaleBehavior : ElementBehavior
+[CreateAssetMenu(fileName = "SandyBehavior", menuName = "Elements/Behaviors/Tier 1/Sandy")]
+public class SandyBehavior : ElementBehavior
 {
-    [Header("Gale Settings")]
+    [Header("Sandy Settings")]
     [SerializeField]
     private LayerMask enemyMask = 1;
     [SerializeField]
     private float range = 5f;
     [SerializeField]
-    private float scatter = 0.6f;
+    private WaterBehavior waterBehaviorTemplate;
+
+    [Header("Water DOT Interaction")]
+    [SerializeField]
+    private float waterTickInterval = 0.5f;
+    [SerializeField]
+    private bool waterRefreshDuration = true;
+    [SerializeField]
+    private bool waterStackIntensity = false;
+    [SerializeField]
+    private bool waterLogTicks = true;
+    [SerializeField]
+    private float waterDuration = 10f;
+    [SerializeField]
+    private float waterDefaultIntensity = 10f;
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -25,7 +39,7 @@ public class GaleBehavior : ElementBehavior
         if (aoeTargets.Count == 0)
         {
             // fallback to just the hit target
-            ApplyToTarget(context, center);
+            ApplyToTarget(context);
             return;
         }
 
@@ -49,7 +63,7 @@ public class GaleBehavior : ElementBehavior
             {
                 // primary target uses the existing behavior instance
                 // this is the context passed through the gun pipeline
-                ApplyToTarget(context, center);
+                ApplyToTarget(context);
                 RemoveBehavior(context); 
                 continue;
             }
@@ -60,53 +74,33 @@ public class GaleBehavior : ElementBehavior
 
             // each target needs a unique behavior instance 
             var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus, true);
-            behaviorInstance.ApplyToTarget(targetContext, center);
-            behaviorInstance.RemoveBehavior(context);
+            if (behaviorInstance != null)
+            {
+                behaviorInstance.ApplyToTarget(targetContext);
+                behaviorInstance.RemoveBehavior(targetContext);
+            }
         }
     }
 
-    private void ApplyToTarget(ElementBehaviorContext context, Vector3 center)
+    private void ApplyToTarget(ElementBehaviorContext context)
     {
         if (context.Target == null)
         {
             return;
         }
 
-        // apply knockback in a scattered direction away from the center
-        if (!context.Target.TryGetComponent<Rigidbody>(out var rigidbody))
-        {
-            return;
-        }
+        // apply water tag
+        var waterTag = ElementTag.GetOrAddTag<WaterBehavior.WaterDOTTag>(context.Target);
+        waterTag.Apply(
+            waterDuration,
+            waterTickInterval,
+            waterDefaultIntensity,
+            waterRefreshDuration,
+            waterStackIntensity,
+            context.instigator,
+            waterLogTicks);
 
-        var baseDir = context.Target.transform.position - center;
-        baseDir.y = 0f;
-
-        if (baseDir.sqrMagnitude < 0.0001f)
-        {
-            baseDir = Random.insideUnitSphere;
-            baseDir.y = 0f;
-        }
-
-        baseDir.Normalize();
-
-        var jitter = Random.insideUnitSphere;
-        jitter.y = 0f;
-        if (jitter.sqrMagnitude > 0.0001f)
-        {
-            jitter.Normalize();
-        }
-
-        var finalDir = baseDir + jitter * scatter;
-        finalDir.y = 0f;
-        if (finalDir.sqrMagnitude > 0.0001f)
-        {
-            finalDir.Normalize();
-        }
-        else
-        {
-            finalDir = baseDir;
-        }
-
-        rigidbody.AddForce(finalDir * defaultIntensity, ForceMode.Impulse);
+        // has secondary residual effect: track tag ownership with behavior template for cleanup on water tag removal
+        EnsureTagOwner(context, waterTag, waterBehaviorTemplate); 
     }
 }

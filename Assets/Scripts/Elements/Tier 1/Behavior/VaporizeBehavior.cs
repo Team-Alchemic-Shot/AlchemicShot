@@ -90,7 +90,7 @@ public class VaporizeBehavior : ElementBehavior
             elementStatus.AddElement(targetContext.sourceBullet.element);
 
             // each target needs a unique behavior instance 
-            var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus);
+            var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus, true);
             behaviorInstance.ApplyToTarget(targetContext);
         }
     }

@@ -20,7 +20,7 @@ public class CrushedBehavior : ElementBehavior // TODO refactor like Sandy?
         }
 
         // find or create tag instance
-        var crushedTag = ElementTag.GetOrAddTag<CrushedTag>(context.Target);
+        var crushedTag = ElementTag.GetOrAddTag<CrushedTag>(context.Target); // could just piggyback off Earth
         TrackTag(crushedTag, context);
 
         // set context and apply tag

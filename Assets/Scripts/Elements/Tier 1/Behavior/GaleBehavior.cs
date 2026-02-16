@@ -51,6 +51,7 @@ public class GaleBehavior : ElementBehavior
                 // this is the context passed through the gun pipeline
                 ApplyToTarget(context, center);
                 RemoveBehavior(context); 
+                continue;
             }
 
             // ensure aoe targets have their own behavior instance + status tracking

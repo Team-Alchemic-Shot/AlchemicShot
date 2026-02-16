@@ -10,7 +10,7 @@ public class GaleBehavior : ElementBehavior
     [SerializeField]
     private float range = 5f;
     [SerializeField]
-    private float scatter = 0.6f;
+    private float maxAngle = 30f; //scatter is angle now
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -62,7 +62,9 @@ public class GaleBehavior : ElementBehavior
             // each target needs a unique behavior instance 
             var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus, true);
             behaviorInstance.ApplyToTarget(targetContext, center);
-            behaviorInstance.RemoveBehavior(context);
+            
+            behaviorInstance.RemoveBehavior(targetContext);
+
         }
     }
 
@@ -73,41 +75,29 @@ public class GaleBehavior : ElementBehavior
             return;
         }
 
-        // apply knockback in a scattered direction away from the center
         if (!context.Target.TryGetComponent<Rigidbody>(out var rigidbody))
         {
             return;
         }
 
-        var baseDir = context.Target.transform.position - center;
-        baseDir.y = 0f;
-
-        if (baseDir.sqrMagnitude < 0.0001f)
+        if (context.instigator == null)
         {
-            baseDir = Random.insideUnitSphere;
-            baseDir.y = 0f;
+            return;
         }
 
-        baseDir.Normalize();
+        // preferred direction is away from instigator to target
+        var preferredDir = context.Target.transform.position - context.instigator.transform.position;
+        preferredDir.y = 0f;
 
-        var jitter = Random.insideUnitSphere;
-        jitter.y = 0f;
-        if (jitter.sqrMagnitude > 0.0001f)
+        if (preferredDir.sqrMagnitude < 0.0001f)
         {
-            jitter.Normalize();
+            return;
         }
 
-        var finalDir = baseDir + jitter * scatter;
-        finalDir.y = 0f;
-        if (finalDir.sqrMagnitude > 0.0001f)
-        {
-            finalDir.Normalize();
-        }
-        else
-        {
-            finalDir = baseDir;
-        }
+        //  maxAngle in degrees.
+        var finalDir = ElementDirection.BiasedDirection(preferredDir, maxAngle);
 
         rigidbody.AddForce(finalDir * defaultIntensity, ForceMode.Impulse);
     }
+
 }

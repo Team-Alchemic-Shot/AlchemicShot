@@ -14,4 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   description: 
   duration: 3
-  defaultIntensity: 1
+  defaultIntensity: 4
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 8
+  range: 5
+  maxAngle: 25
+  waterBehaviorTemplate: {fileID: 11400000, guid: ed3212d0afa5dbae4bb162ee91248a4d,
+    type: 2}
+  waterTickInterval: 0.5
+  waterRefreshDuration: 1
+  waterStackIntensity: 0
+  waterLogTicks: 1
+  waterDuration: 6
+  waterDefaultIntensity: 12

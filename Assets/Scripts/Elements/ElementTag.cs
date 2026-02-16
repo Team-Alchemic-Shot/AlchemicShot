@@ -119,4 +119,18 @@ public abstract class ElementTag : MonoBehaviour
     {
         // ElementStatus removal is handled by behavior instances to avoid tag-type collisions.
     }
+
+    public static T GetOrAddTag<T>(GameObject target) where T : ElementTag
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        if (!target.TryGetComponent<T>(out var tag))
+        {
+            tag = target.AddComponent<T>();
+        }
+        return tag;
+    }
 }

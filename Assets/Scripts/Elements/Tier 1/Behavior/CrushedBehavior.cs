@@ -14,16 +14,13 @@ public class CrushedBehavior : ElementBehavior
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
         // find or create tag instance
-        if (!context.target.TryGetComponent<CrushedTag>(out var crushedTag))
-        {
-            crushedTag = context.target.AddComponent<CrushedTag>();
-        }
+        var crushedTag = ElementTag.GetOrAddTag<CrushedTag>(context.Target);
         TrackTag(crushedTag, context);
 
         // set context and apply tag
@@ -40,16 +37,16 @@ public class CrushedBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        Debug.Log($"revert {nameof(EarthBehavior)} on {context.target.name}");
+        Debug.Log($"revert {nameof(EarthBehavior)} on {context.Target.name}");
 
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
     
-        if (context.target.TryGetComponent<CrushedTag>(out var crushedTag)
-            && context.target.TryGetComponent<Health>(out var health))
+        if (context.Target.TryGetComponent<CrushedTag>(out var crushedTag)
+            && context.Target.TryGetComponent<Health>(out var health))
         {
             var appliedWeakness = crushedTag.GetAppliedWeakness();
             if (appliedWeakness != 0f)

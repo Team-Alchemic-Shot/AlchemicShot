@@ -8,13 +8,13 @@ public class FrostBehavior : ElementBehavior
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
         // Apply frost effect (e.g., slow down movement)
-        if (!context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (!context.Target.TryGetComponent<NavMeshAgent>(out var agent))
         {
             return;
         }
@@ -28,13 +28,13 @@ public class FrostBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
         // Revert frost effect
-        if (context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (context.Target.TryGetComponent<NavMeshAgent>(out var agent))
         {
             agent.speed = existingSpeed; // reset to original speed
         }

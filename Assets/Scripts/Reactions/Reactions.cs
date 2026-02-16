@@ -48,10 +48,10 @@ public class Reactions : MonoBehaviour
 
     public static void TryApplyReaction(ElementBehaviorContext context)
     {
-        if (Instance.TryGetReactionResult(context.target, out var elementCombo))
+        if (Instance.TryGetReactionResult(context.Target, out var elementCombo))
         {
             var result = elementCombo.resultElement;
-            var status = context.target.GetComponent<ElementStatus>(); // will always have a status
+            var status = context.Target.GetComponent<ElementStatus>(); // will always have a status
             var e1 = elementCombo.inputElements.elementA;
             var e2 = elementCombo.inputElements.elementB;
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -39,97 +40,85 @@ public class VaporizeBehavior : ElementBehavior
     private float originalFireIntensity;
     private NavMeshAgent agentRef;
     private ZombieTargeting targetingRef;
-
     private Rigidbody rigidbodyRef;
     private bool originalIsKinematic;
+    private FireBehavior.FireDOTTag fireTagRef;
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
         // find nearby enemies (including the shot target)
-        var center = context.target.transform.position;
-        var hits = Physics.OverlapSphere(center, range, enemyMask); // TODO buffer?
-        if (hits == null || hits.Length == 0)
+        var center = context.Target.transform.position;
+        var aoeTargets = AoeTargeting.CollectTargets(context.Target, center, range, enemyMask);
+        if (aoeTargets.Count == 0)
         {
             // fallback to just the hit target
             ApplyToTarget(context);
             return;
         }
 
-        foreach (var hit in hits)
-        {
-            if (hit == null)
-            {
-                continue;
-            }
+        // order targets with the primary target first, then apply behavior to all
+        var orderedTargets = AoeTargeting.CreateOrderedTargetList(context.Target, aoeTargets);
+        // mutate context to include all affected targets
+        context.targets = new Queue<GameObject>(orderedTargets); 
 
-            // resolve target from collider
-            var target = hit.attachedRigidbody != null ? hit.attachedRigidbody.gameObject : hit.gameObject;
+        foreach (var target in aoeTargets)
+        {
+            // build unique context for each target
             var targetContext = new ElementBehaviorContext
             {
+                targets = new Queue<GameObject>(new[] { target }),
                 instigator = context.instigator,
-                target = target,
-                position = target.transform.position,
                 sourceBullet = context.sourceBullet,
+                position = target.transform.position
             };
 
-            if (target == context.target)
+            if (target == context.Target)
             {
                 // primary target uses the existing behavior instance
-                ApplyToTarget(targetContext);
+                // this is the context passed through the gun pipeline
+                ApplyToTarget(context);
                 continue;
             }
 
             // ensure aoe targets have their own behavior instance + status tracking
-            if (!target.TryGetComponent<ElementStatus>(out var elementStatus))
-            {
-                elementStatus = target.AddComponent<ElementStatus>();
-            }
+            var elementStatus = ElementStatus.GetOrCreateElementStatus(target);
             elementStatus.AddElement(targetContext.sourceBullet.element);
 
-            var behaviorInstance = Instantiate(this);
-            behaviorInstance.SetOwnerElement(targetContext.sourceBullet.element);
-            behaviorInstance.MarkRuntimeInstance();
-            elementStatus.RegisterBehaviorInstance(targetContext.sourceBullet.element, behaviorInstance);
+            // each target needs a unique behavior instance 
+            var behaviorInstance = CreateRuntimeBehavior(this, targetContext, elementStatus);
             behaviorInstance.ApplyToTarget(targetContext);
         }
     }
 
     private void ApplyToTarget(ElementBehaviorContext context)
     {
-        if (context.target == null)
-        {
-            return;
-        }
-
-        // gather  
-        if (!context.target.TryGetComponent(out NavMeshAgent agent))
-        {
-            return;
-        }
-        if (!context.target.TryGetComponent(out ZombieTargeting targeting))
-        {
-            return;
-        }
-        if (!context.target.TryGetComponent<Rigidbody>(out var rigidbody))
-        {
-            return;
-        }
-
-        // store refs for reversion
-        agentRef = agent;
-        targetingRef = targeting;
-        rigidbodyRef = rigidbody;
-        originalIsKinematic = rigidbodyRef.isKinematic;
-
         // get agent 
-        agentRef.enabled = false; // needs to be disabled to leave the navmesh
+        if (!context.Target.TryGetComponent(out agentRef))
+        {
+            return;
+        }
 
         // get targeting
+        if (!context.Target.TryGetComponent(out targetingRef))
+        {
+            return;
+        }
+        targetingRef.enabled = false; // disable targeting becuase now the agent is disabled
+
+        // throw enemy into the air
+        if (!context.Target.TryGetComponent(out rigidbodyRef))
+        {
+            return;
+        }
+        originalIsKinematic = rigidbodyRef.isKinematic;
+
+        agentRef.enabled = false; // needs to be disabled to leave the navmesh
+
         targetingRef.enabled = false; // disable targeting 
 
         // make sure physics can move it 
@@ -147,15 +136,12 @@ public class VaporizeBehavior : ElementBehavior
         rigidbodyRef.AddForce(Vector3.up * defaultIntensity + lateral * lateralImpulse, ForceMode.Impulse); // default intensity is used as the jump strength
 
         // piggyback on fire tag with recontextualization
-        if (!context.target.TryGetComponent<FireBehavior.FireDOTTag>(out var fireTag))
-        {
-            fireTag = context.target.AddComponent<FireBehavior.FireDOTTag>();
-        }
+        fireTagRef = ElementTag.GetOrAddTag<FireBehavior.FireDOTTag>(context.Target);
         // no tracking fire tag
 
-        originalFireIntensity = fireTag.Intensity; // save for reversion
+        originalFireIntensity = fireTagRef.Intensity; // save for reversion
 
-        fireTag.Apply( // reapply fire tag to recontextualize it with the plasma's context
+        fireTagRef.Apply( // reapply fire tag to recontextualize it with the vaporize context
             fireDuration, // will expire and auto clean up
             fireTickInterval,
             fireDefaultIntensity,
@@ -164,15 +150,9 @@ public class VaporizeBehavior : ElementBehavior
             context.instigator,
             fireLogTicks);
 
-        if (!context.target.TryGetComponent<VaporizeTag>(out var vaporizeTag))
-        {
-            vaporizeTag = context.target.AddComponent<VaporizeTag>();
-        }
-
+        var vaporizeTag = ElementTag.GetOrAddTag<VaporizeTag>(context.Target);
         vaporizeTag.enabled = true;
         vaporizeTag.SetContext(floorMask);
-
-        // TrackTag! 
         TrackTag(vaporizeTag, context);
 
         vaporizeTag.Apply(
@@ -187,27 +167,27 @@ public class VaporizeBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
         // revert fire tag if it exists
-        if (context.target.TryGetComponent<FireBehavior.FireDOTTag>(out var fireTag))
+        if (fireTagRef != null)
         {
-            fireTag.Intensity = originalFireIntensity;
+            fireTagRef.Intensity = originalFireIntensity;
         }
 
         // revert agent and targeting
-        if (context.target.TryGetComponent<Rigidbody>(out var rigidbody))
+        if (rigidbodyRef != null)
         {
-            rigidbody.velocity = Vector3.zero;
-            rigidbody.angularVelocity = Vector3.zero;
+            rigidbodyRef.velocity = Vector3.zero;
+            rigidbodyRef.angularVelocity = Vector3.zero;
             // handle kinematic to make sure not fighting physics
-            rigidbody.isKinematic = true;
+            rigidbodyRef.isKinematic = originalIsKinematic;
         }
 
-        if (context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (agentRef != null)
         {
             // snap onto navmesh before enabling movement/targeting again
             // if (NavMesh.SamplePosition(agent.transform.position, out var hit, 2f, NavMesh.AllAreas))
@@ -215,13 +195,13 @@ public class VaporizeBehavior : ElementBehavior
             //     agent.Warp(hit.position);
             // }
 
-            agent.enabled = true;
-            agent.ResetPath();
+            agentRef.enabled = true;
+            agentRef.ResetPath();
         }
 
-        if (context.target.TryGetComponent<ZombieTargeting>(out var targeting))
+        if (targetingRef != null)
         {
-            targeting.enabled = true;
+            targetingRef.enabled = true;
         }
 
         
@@ -234,11 +214,6 @@ public class VaporizeBehavior : ElementBehavior
         private float groundedRayDistance = 2.5f;
         private LayerMask raycastMask;
 
-        //  ElementTag
-        private float interval;
-        private float intensity;
-        private bool logTicks;
-        private GameObject instigator;
 
         private bool isConfigured;
 
@@ -262,20 +237,6 @@ public class VaporizeBehavior : ElementBehavior
             bool logTicks)
         {
             groundedCheckDelay = 0.15f;
-
-            
-            this.interval = interval;
-            this.logTicks = logTicks;
-            this.instigator = instigator;
-
-            if (stackIntensity)
-            {
-                this.intensity += intensity;
-            }
-            else
-            {
-                this.intensity = intensity;
-            }
 
             // refresh duration for vaporize 
             durationRemaining = duration;
@@ -304,9 +265,8 @@ public class VaporizeBehavior : ElementBehavior
             {
                 return;
             }
-
-             
-            // Ignoring mask for now
+  
+            // TODO Ignoring mask for now
             if (Physics.Raycast(transform.position, Vector3.down, out var _, groundedRayDistance, ~0, QueryTriggerInteraction.Ignore))
             {
                 Debug.Log($"[Vaporize] Tag grounded on {gameObject.name}, calling RemoveOwners()");

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -16,15 +15,12 @@ public class WaterBehavior : ElementBehavior
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (!context.target.TryGetComponent<WaterDOTTag>(out var tag))
-        {
-            tag = context.target.AddComponent<WaterDOTTag>();
-        }
+        var tag = ElementTag.GetOrAddTag<WaterDOTTag>(context.Target);
         TrackTag(tag, context);
 
         tag.Apply(duration, tickInterval, defaultIntensity, refreshDuration, stackIntensity, context.instigator, logTicks);
@@ -32,13 +28,13 @@ public class WaterBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (context.target.TryGetComponent<WaterDOTTag>(out var tag)
-            && context.target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (context.Target.TryGetComponent<WaterDOTTag>(out var tag)
+            && context.Target.TryGetComponent<NavMeshAgent>(out var agent))
         {
             var appliedMultiplier = tag.GetAppliedSpeedMultiplier();
             if (appliedMultiplier != 0f && appliedMultiplier != 1f)

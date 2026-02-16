@@ -15,15 +15,12 @@ public class EarthBehavior : ElementBehavior
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (!context.target.TryGetComponent<EarthTag>(out var tag))
-        {
-            tag = context.target.AddComponent<EarthTag>();
-        }
+        var tag = ElementTag.GetOrAddTag<EarthTag>(context.Target);
         TrackTag(tag, context);
 
         tag.Apply(
@@ -34,21 +31,21 @@ public class EarthBehavior : ElementBehavior
             stackIntensity, 
             context.instigator, 
             logTicks);
-            Debug.Log($"earth applied on {context.target.name} duration={duration} tick={tickInterval} logTicks={logTicks}");
+            Debug.Log($"earth applied on {context.Target.name} duration={duration} tick={tickInterval} logTicks={logTicks}");
 
     }
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        Debug.Log($"revert {nameof(EarthBehavior)} on {context.target.name}");
+        Debug.Log($"revert {nameof(EarthBehavior)} on {context.Target.name}");
 
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (context.target.TryGetComponent<EarthTag>(out var tag)
-            && context.target.TryGetComponent<Health>(out var health))
+        if (context.Target.TryGetComponent<EarthTag>(out var tag)
+            && context.Target.TryGetComponent<Health>(out var health))
         {
             var appliedWeakness = tag.GetAppliedWeakness();
             if (appliedWeakness != 0f)

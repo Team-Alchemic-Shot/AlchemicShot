@@ -1,16 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
 /// Struct to pass relevant context information to behaviors when applying or removing them, to allow for more complex and reactive behavior logic based on the context of application and removal.
 /// </summary>
 [Serializable]
-public struct ElementBehaviorContext
+public class ElementBehaviorContext
 {
     public GameObject instigator;
-    public GameObject target; // TODO with AOE can affect multiple targets, may need to change this to a list
+    public GameObject Target => targets.Count > 0 ? targets.First() : null;
+    public Queue<GameObject> targets;
     public Vector3 position;
     public BulletData sourceBullet;
 }
@@ -48,7 +50,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     {
         RevertEffects(context);
         RemoveOwnedTags();
-        if (context.target != null && context.target.TryGetComponent<ElementStatus>(out var elementStatus))
+        if (context.Target != null && context.Target.TryGetComponent<ElementStatus>(out var elementStatus))
         {
             elementStatus.UnregisterBehaviorInstance(OwnerElement, this);
         }
@@ -78,17 +80,11 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
         {
             return;
         }
-        if (!context.target.TryGetComponent<ElementStatus>(out var elementStatus))
-        {
-            elementStatus = context.target.AddComponent<ElementStatus>();
-        }
+        var elementStatus = ElementStatus.GetOrCreateElementStatus(context.Target);
         elementStatus.AddElement(context.sourceBullet.element); // track applied element
         foreach (var behavior in context.sourceBullet.element.behaviors)
         {
-            var behaviorInstance = Instantiate(behavior); // scriptableobjects stored on disk
-            behaviorInstance.SetOwnerElement(context.sourceBullet.element);
-            behaviorInstance.MarkRuntimeInstance();
-            elementStatus.RegisterBehaviorInstance(context.sourceBullet.element, behaviorInstance);
+            var behaviorInstance = CreateRuntimeBehavior(behavior, context, elementStatus);
             behaviorInstance.Apply(context);
         }
     }
@@ -180,7 +176,7 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     /// <param name="delay"></param>
     public void RemoveBehavior(ElementBehaviorContext context, float delay)
     {
-        if (context.target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
+        if (context.Target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
         {
             monoBehaviour.StartCoroutine(RemoveBehaviorAfterDelay(context, delay));
         }
@@ -193,9 +189,30 @@ public abstract class ElementBehavior : ScriptableObject // no TOUCHY
     /// <param name="context"></param>
     public void CancelRemoveBehavior(ElementBehaviorContext context)
     {
-        if (context.target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
+        if (context.Target.TryGetComponent<MonoBehaviour>(out var monoBehaviour))
         {
             monoBehaviour.StopCoroutine(RemoveBehaviorAfterDelay(context, duration));
         }
+    }
+
+    /// <summary>
+    /// Utility method to create a runtime instance of a behavior for application to a target, 
+    /// with proper registration in the ElementStatus, ownership, and flagging for tracking and cleanup on removal.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="behavior"></param>
+    /// <param name="targetContext"></param>
+    /// <param name="elementStatus"></param>
+    /// <returns></returns>
+    public static T CreateRuntimeBehavior<T>(
+        T behavior, 
+        ElementBehaviorContext targetContext, 
+        ElementStatus elementStatus) where T : ElementBehavior
+    {
+        var behaviorInstance = GameObject.Instantiate(behavior);
+        behaviorInstance.SetOwnerElement(targetContext.sourceBullet.element);
+        behaviorInstance.MarkRuntimeInstance();
+        elementStatus.RegisterBehaviorInstance(targetContext.sourceBullet.element, behaviorInstance);
+        return behaviorInstance;
     }
 }

@@ -115,4 +115,26 @@ public class ElementStatus : MonoBehaviour
     {
         return TryGetComponent(out tag);
     }
+
+
+    /// <summary>
+    /// Utility method to get or create an ElementStatus component on a target GameObject. 
+    /// Used by behaviors and reactions to ensure the target has an ElementStatus for tracking elements and behaviors.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    public static ElementStatus GetOrCreateElementStatus(GameObject target)
+    {
+        if (target == null)
+        {
+            return null;
+        }
+
+        if (!target.TryGetComponent<ElementStatus>(out var elementStatus))
+        {
+            elementStatus = target.AddComponent<ElementStatus>();
+        }
+
+        return elementStatus;
+    }
 }

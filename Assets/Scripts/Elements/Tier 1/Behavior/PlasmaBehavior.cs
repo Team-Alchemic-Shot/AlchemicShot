@@ -14,29 +14,37 @@ public class PlasmaBehavior : ElementBehavior
     private bool logTicks = true;
 
     [Header("Fire DOT Interaction")]
-    // TODO fire stuff here
+    [SerializeField]
+    private float fireTickInterval = 0.5f;
+    [SerializeField]
+    private bool fireRefreshDuration = true;
+    [SerializeField]
+    private bool fireStackIntensity = false;
+    [SerializeField]
+    private bool fireLogTicks = true;
+    [SerializeField]
+    private float fireDuration = 3f;
+    [SerializeField]
+    private float fireDefaultIntensity = 15f;
 
     private float existingIntensity;
 
     public override void Apply(ElementBehaviorContext context)
     {
         // get fire tag instance
-        if (!context.target.TryGetComponent<ElementStatus>(out var status))
-        {
-            return;
-        }
-        if (!status.TryGetTag<FireBehavior.FireDOTTag>(out var fireTag))
-        {
-            return;
-        }
+        var fireTag = ElementTag.GetOrAddTag<FireBehavior.FireDOTTag>(context.Target);
         existingIntensity = fireTag.Intensity; // save for reverting later
-        // TODO reapply fire tag with unique plasma context
+        fireTag.Apply( // reapply fire tag to recontextualize it with the plasma's context
+            fireDuration, // will expire and auto clean up
+            fireTickInterval,
+            fireDefaultIntensity,
+            fireRefreshDuration,
+            fireStackIntensity,
+            context.instigator,
+            fireLogTicks);
 
         // find or create tag instance
-        if (!context.target.TryGetComponent<PlasmaTag>(out var plasmaTag))
-        {
-            plasmaTag = context.target.AddComponent<PlasmaTag>();
-        }
+        var plasmaTag = ElementTag.GetOrAddTag<PlasmaTag>(context.Target);
         TrackTag(plasmaTag, context);
 
         // set context and apply tag
@@ -54,7 +62,7 @@ public class PlasmaBehavior : ElementBehavior
     public override void RevertEffects(ElementBehaviorContext context)
     {
         // get fire tag instance
-        if (!context.target.TryGetComponent<ElementStatus>(out var status))
+        if (!context.Target.TryGetComponent<ElementStatus>(out var status))
         {
             return;
         }

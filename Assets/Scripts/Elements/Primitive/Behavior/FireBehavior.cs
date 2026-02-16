@@ -14,15 +14,12 @@ public class FireBehavior : ElementBehavior
 
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (!context.target.TryGetComponent<FireDOTTag>(out var tag))
-        {
-            tag = context.target.AddComponent<FireDOTTag>();
-        }
+        var tag = ElementTag.GetOrAddTag<FireDOTTag>(context.Target);
         TrackTag(tag, context);
 
         tag.Apply(

@@ -9,22 +9,22 @@ public class SandyBehavior : ElementBehavior
     private LayerMask enemyMask = 1;
     [SerializeField]
     private float range = 5f;
-    [SerializeField]
-    private WaterBehavior waterBehaviorTemplate;
 
-    [Header("Water DOT Interaction")]
+    [Header("Earth DOT Interaction")]
+    [SerializeField]    
+    private float earthTickInterval = 0.5f;
     [SerializeField]
-    private float waterTickInterval = 0.5f;
+    private float earthDuration = 10f;
     [SerializeField]
-    private bool waterRefreshDuration = true;
+    private float earthDefaultIntensity = 10f;
     [SerializeField]
-    private bool waterStackIntensity = false;
+    private bool earthRefreshDuration = true;
     [SerializeField]
-    private bool waterLogTicks = true;
+    private bool earthStackIntensity = false;
     [SerializeField]
-    private float waterDuration = 10f;
+    private bool earthLogTicks = true;
     [SerializeField]
-    private float waterDefaultIntensity = 10f;
+    private EarthBehavior earthBehaviorTemplate;
 
     public override void Apply(ElementBehaviorContext context)
     {
@@ -87,18 +87,18 @@ public class SandyBehavior : ElementBehavior
             return;
         }
 
-        // apply water tag
-        var waterTag = ElementTag.GetOrAddTag<WaterBehavior.WaterDOTTag>(context.Target);
-        waterTag.Apply(
-            waterDuration,
-            waterTickInterval,
-            waterDefaultIntensity,
-            waterRefreshDuration,
-            waterStackIntensity,
+        // apply earth tag
+        var earthTag = ElementTag.GetOrAddTag<EarthBehavior.EarthTag>(context.Target);
+        earthTag.Apply(
+            earthDuration,
+            earthTickInterval,
+            earthDefaultIntensity,
+            earthRefreshDuration,
+            earthStackIntensity,
             context.instigator,
-            waterLogTicks);
+            earthLogTicks);
 
-        // has secondary residual effect: track tag ownership with behavior template for cleanup on water tag removal
-        EnsureTagOwner(context, waterTag, waterBehaviorTemplate); 
+        // has secondary residual effect: track tag ownership with behavior template for cleanup on earth tag removal
+        EnsureTagOwner(context, earthTag, earthBehaviorTemplate); 
     }
 }

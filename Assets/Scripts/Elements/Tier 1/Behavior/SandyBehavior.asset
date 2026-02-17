@@ -19,11 +19,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   range: 5
-  waterBehaviorTemplate: {fileID: 11400000, guid: ed3212d0afa5dbae4bb162ee91248a4d,
+  earthTickInterval: 0.5
+  earthDuration: 10
+  earthDefaultIntensity: 10
+  earthRefreshDuration: 1
+  earthStackIntensity: 0
+  earthLogTicks: 0
+  earthBehaviorTemplate: {fileID: 11400000, guid: 233a1bb05adb9a0b78db745f3c2cabe4,
     type: 2}
-  waterTickInterval: 0.5
-  waterRefreshDuration: 1
-  waterStackIntensity: 0
-  waterLogTicks: 0
-  waterDuration: 10
-  waterDefaultIntensity: 10

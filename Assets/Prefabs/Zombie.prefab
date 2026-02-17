@@ -97,14 +97,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442207e135f1e5708be91be85920d0df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRadius: 30
+  detectionRadius: 20
   targetMask:
     serializedVersion: 2
     m_Bits: 64
-  refreshInterval: 2
+  refreshInterval: 0.5
   maxTargetColliders: 16
   baseSpeed: 2
-  chaseSpeed: 5
+  chaseSpeed: 6
   wanderRadius: 50
   wanderInterval: 2
   animator: {fileID: 0}

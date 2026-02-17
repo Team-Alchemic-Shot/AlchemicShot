@@ -74,7 +74,14 @@ public class Gun : MonoBehaviour
 
     private void Update()
     {
-        if (fireAction.triggered)
+        if (gunDefinition.fireMode == FireMode.FullAuto)
+        {
+            if (fireAction.IsPressed())
+            {
+                Fire();
+            }
+        }
+        else if (fireAction.triggered)
         {
             Fire();
         }

@@ -9,9 +9,16 @@ public class GunDefinition : ScriptableObject
 {
     public string gunName = "New Gun";
     public LoadFireMechanism loadFireMechanism;
+    public FireMode fireMode = FireMode.SemiAuto;
     public GunStats stats;
     public GunFX fx;
     public GameObject bulletPrefab;
+}
+
+public enum FireMode
+{
+    SemiAuto,
+    FullAuto
 }
 
 /// <summary>

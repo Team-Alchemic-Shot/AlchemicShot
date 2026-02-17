@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SingleShot", menuName = "Gun/LoadFireMechanism/SingleShot")]
-public class SingleShot : LoadFireMechanism
+[CreateAssetMenu(fileName = "FullAuto", menuName = "Gun/LoadFireMechanism/FullAuto")]
+public class FullAuto : LoadFireMechanism
 {
     [SerializeField]
     private LayerMask zombieMask;

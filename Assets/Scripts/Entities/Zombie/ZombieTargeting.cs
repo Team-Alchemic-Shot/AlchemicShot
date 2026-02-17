@@ -23,6 +23,12 @@ public class ZombieTargeting : MonoBehaviour
     [SerializeField]
     private float wanderInterval = 2f;
 
+    [SerializeField]
+    private Animator animator;
+
+    private int walkHash;
+    private int runHash;
+
     public Transform CurrentTarget { get; private set; }
 
     private float refreshTimer;
@@ -36,6 +42,8 @@ public class ZombieTargeting : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         targetBuffer = new Collider[Mathf.Max(1, maxTargetColliders)];
+        walkHash = Animator.StringToHash("IsWalking");
+        runHash = Animator.StringToHash("IsRunning");
     }
 
     private void Update()
@@ -56,7 +64,7 @@ public class ZombieTargeting : MonoBehaviour
             float dist = Vector3.Distance(transform.position, CurrentTarget.position);
 
             // Lose target if too far
-            if (dist > detectionRadius * 1.5f)
+            if (dist > detectionRadius * 3f)
             {
                 CurrentTarget = null;
                 return;
@@ -65,12 +73,22 @@ public class ZombieTargeting : MonoBehaviour
             agent.isStopped = false;
             agent.speed = chaseSpeed;
             agent.SetDestination(CurrentTarget.position);
+            if (animator.GetBool(runHash) == false)
+            {
+                animator.SetBool(walkHash, false);
+                animator.SetBool(runHash, true);
+            }
         }
         else
         {
             agent.speed = baseSpeed;
             agent.isStopped = false;
-
+            if (animator.GetBool(walkHash) == false)
+            {
+                animator.SetBool(walkHash, true);
+                animator.SetBool(runHash, false);
+            }
+           
             wanderTimer -= Time.deltaTime;
             if (wanderTimer <= 0f)
             {

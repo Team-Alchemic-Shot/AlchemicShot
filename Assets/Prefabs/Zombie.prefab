@@ -107,6 +107,7 @@ MonoBehaviour:
   chaseSpeed: 5
   wanderRadius: 50
   wanderInterval: 2
+  animator: {fileID: 0}
 --- !u!114 &9039623588025776597
 MonoBehaviour:
   m_ObjectHideFlags: 0

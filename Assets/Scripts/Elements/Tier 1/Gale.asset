@@ -20,4 +20,5 @@ MonoBehaviour:
   vfxPrefab: {fileID: 0}
   sfxClip: {fileID: 0}
   sfxVolume: 1
-  behaviors: []
+  behaviors:
+  - {fileID: 11400000, guid: 68094350c2442324fab7e3c5c8233afe, type: 2}

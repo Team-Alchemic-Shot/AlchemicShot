@@ -35,15 +35,17 @@ public class FullAuto : LoadFireMechanism
             bullet = magazineState.Pop();
         }
 
-        var bulletObj = Instantiate(bulletPrefab, Camera.main.transform.position, source.transform.rotation);
+        Camera cam = Camera.main;
+        Vector3 shotDirection = GetShotDirection(cam.transform);
+
+        var bulletObj = Instantiate(bulletPrefab, cam.transform.position, source.transform.rotation);
         var bs = bulletObj.GetComponent<BulletScript>();
-        bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
+        bs.Initialize(gunStats.bulletLifeTime, shotDirection, gunStats.bulletSpeed);
 
         NotifyFiredBullet(bullet);
 
         // raycast (only hits Zombie and Default layer)
-        Camera cam = Camera.main;
-        Ray ray = new(cam.transform.position, cam.transform.forward);
+        Ray ray = new(cam.transform.position, shotDirection);
         if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
         {
             if (hit.collider.TryGetComponent<Health>(out var health))

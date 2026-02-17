@@ -97,16 +97,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 442207e135f1e5708be91be85920d0df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRadius: 10
+  detectionRadius: 30
   targetMask:
     serializedVersion: 2
-    m_Bits: 119
-  refreshInterval: 0.5
+    m_Bits: 64
+  refreshInterval: 2
   maxTargetColliders: 16
   baseSpeed: 2
-  chaseSpeed: 10
-  wanderRadius: 30
-  wanderInterval: 5
+  chaseSpeed: 5
+  wanderRadius: 50
+  wanderInterval: 2
 --- !u!114 &9039623588025776597
 MonoBehaviour:
   m_ObjectHideFlags: 0

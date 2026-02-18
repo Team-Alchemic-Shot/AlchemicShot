@@ -156,7 +156,7 @@ public class ZombieRoundManager : MonoBehaviour
 
         // Calculate zombie count for this round
         CalculateZombieCount();
-    OnZombieCountChanged?.Invoke(GetZombiesLeft());
+        OnZombieCountChanged?.Invoke(GetZombiesLeft());
 
         // Activate valid spawn points for this round
         int activeSpawnPoints = 0;
@@ -283,13 +283,19 @@ public class ZombieRoundManager : MonoBehaviour
             unlockedLocationIds.Add(locationId);
         }
 
+        bool unlockedAny = false;
         foreach (var location in mapLocations)
         {
             if (location.GetLocationId() == locationId)
             {
                 location.Unlock();
-                break;
+                unlockedAny = true;
             }
+        }
+
+        if (!unlockedAny)
+        {
+            OnStatusUpdate?.Invoke($"No map locations found for locationId {locationId}");
         }
     }
 

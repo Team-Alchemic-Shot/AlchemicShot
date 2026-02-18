@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class ElementInventory : MonoBehaviour
@@ -8,11 +9,21 @@ public class ElementInventory : MonoBehaviour
     [SerializeField]
     private ElementStack[] slots = new ElementStack[14];
 
+    [SerializeField]
+    private ElementDatabase elementDatabase;
+
     public int SlotCount => slots.Length;
 
     private void Awake()
     {
         EnsureSlots();
+    }
+
+    private void OnEnable()
+    {
+        // start with a random primitive element for testing purposes
+        // could replace with a proper start screen menu for choosing a starting element
+        GiveRandomPrimitive();
     }
 
     private void OnValidate()
@@ -111,5 +122,17 @@ public class ElementInventory : MonoBehaviour
         }
 
         return 0;
+    }
+
+    public void GiveRandomPrimitive()
+    {
+        var primitiveElements = elementDatabase.elements
+            .Where(e => e.elementTier == ElementTier.Primitive).ToArray();
+        if (primitiveElements.Length == 0)        {
+            Debug.LogWarning("No primitive elements found in database.");
+            return;
+        }
+        var randomElement = primitiveElements[Random.Range(0, primitiveElements.Length)];
+        AddElement(randomElement, 1);
     }
 }

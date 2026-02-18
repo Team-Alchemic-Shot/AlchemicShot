@@ -242,6 +242,8 @@ GameObject:
   - component: {fileID: 2312154784537819894}
   - component: {fileID: 2609807936993125998}
   - component: {fileID: -2362736973004787745}
+  - component: {fileID: 4334565547886057899}
+  - component: {fileID: -6391268580745286462}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -385,6 +387,8 @@ MonoBehaviour:
   jumpActionName: Jump
   sprintActionName: Sprint
   restartActionName: Restart
+  toggleElementSelectorActionName: Inventory
+  elementSelector: {fileID: 0}
   jumpForce: 3
   cameraSensitivity: 0.05
   groundAcceleration: 60
@@ -482,3 +486,34 @@ MonoBehaviour:
   slotCount: 14
   slots: []
   elementDatabase: {fileID: 11400000, guid: 6c2eedd5761ae6e6090684b8092c347c, type: 2}
+--- !u!114 &4334565547886057899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6087074292985838474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84499063343654b188bc8d9b473628a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Document: {fileID: 0}
+  InventoryRef: {fileID: 0}
+  ElementInventoryRef: {fileID: 0}
+--- !u!114 &-6391268580745286462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6087074292985838474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PanelSettings: {fileID: 11400000, guid: 87a8fb88db87b41a7aab1610ea14c1e1, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 0}
+  m_SortingOrder: 0

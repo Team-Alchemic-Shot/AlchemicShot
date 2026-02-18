@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+
+[RequireComponent(typeof(ElementInventory))]
+[RequireComponent(typeof(Inventory))]
+[RequireComponent(typeof(UIDocument))]
 public class ElementSelector : MonoBehaviour
 {
     public UIDocument Document;
@@ -48,6 +52,7 @@ public class ElementSelector : MonoBehaviour
 
     void Awake()
     {
+        Document = Document != null ? Document : GetComponent<UIDocument>();
         if (Document == null)
         {
             Debug.LogError("InventoryUI: UIDocument is not assigned!");
@@ -63,6 +68,10 @@ public class ElementSelector : MonoBehaviour
             enabled = false;
             return;
         }
+
+        // Set up inventory references before building UI
+        InventoryRef = InventoryRef != null ? InventoryRef : GetComponent<Inventory>();
+        ElementInventoryRef = ElementInventoryRef != null ? ElementInventoryRef : GetComponent<ElementInventory>();
 
         // Clear any existing UI elements from the template
         _root.Clear();

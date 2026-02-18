@@ -41,6 +41,19 @@ public class MapLocation : MonoBehaviour
     [SerializeField]
     private bool startUnlocked = false;
 
+    [Header("Door Animation")]
+    [SerializeField]
+    private Transform doorHinge; // Assign the door GameObject or its pivot in Inspector
+
+    [SerializeField]
+    private float openAngle = 90f; // Angle to swing open
+
+    [SerializeField]
+    private float openSpeed = 2f; // How fast the door opens
+
+    private bool isOpening = false;
+    private Quaternion targetRotation;
+
     // State
     private bool isLocked = true;
     private ZombieRoundManager roundManager;
@@ -132,6 +145,13 @@ public class MapLocation : MonoBehaviour
             unlockEffect.Play();
         }
 
+        // Start opening the door
+        if (doorHinge != null)
+        {
+            targetRotation = Quaternion.Euler(0, openAngle, 0) * doorHinge.localRotation;
+            isOpening = true;
+        }
+
         OnLocationUnlocked?.Invoke(locationId);
     }
 
@@ -155,5 +175,17 @@ public class MapLocation : MonoBehaviour
         // Draw location bounds
         Gizmos.color = isLocked ? Color.red : Color.green;
         Gizmos.DrawWireCube(transform.position, Vector3.one * 5f);
+    }
+    private void Update()
+    {
+        if (isOpening && doorHinge != null)
+        {
+            doorHinge.localRotation = Quaternion.Lerp(doorHinge.localRotation, targetRotation, Time.deltaTime * openSpeed);
+            if (Quaternion.Angle(doorHinge.localRotation, targetRotation) < 1f)
+            {
+                doorHinge.localRotation = targetRotation;
+                isOpening = false;
+            }
+        }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "FireBehavior", menuName = "Elements/Behaviors/Primitive/Fire")]
@@ -13,21 +12,17 @@ public class FireBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type TagType { get; } = typeof(FireDotStatus);
-
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (!context.target.TryGetComponent<FireDotStatus>(out var status))
-        {
-            status = context.target.AddComponent<FireDotStatus>();
-        }
+        var tag = ElementTag.GetOrAddTag<FireDOTTag>(context.Target);
+        TrackTag(tag, context);
 
-        status.Apply(
+        tag.Apply(
             duration, 
             tickInterval, 
             defaultIntensity, 
@@ -37,7 +32,7 @@ public class FireBehavior : ElementBehavior
             logTicks);
     }
 
-    public class FireDotStatus : ElementTag
+    public class FireDOTTag : ElementTag
     {
         private float durationRemaining;
         private float tickInterval;
@@ -81,7 +76,7 @@ public class FireBehavior : ElementBehavior
         {
             if (durationRemaining <= 0f)
             {
-                Destroy(this);
+                RemoveOwners();
                 return;
             }
 

@@ -19,7 +19,7 @@ Optional flags:
 - `--require-behaviors` to fail if any element has no behaviors assigned
 - `--database-asset Assets/Scripts/Elements/Database1.asset` to set the ElementDatabase asset path
 - `--skip-database-check` to skip validating that all elements/combos are referenced by the database asset
-- `--require-instant-remove` to fail if any behavior with `TagType == null` does not call `RemoveBehavior()`
+- `--require-instant-remove` to fail if any behavior that does not call `TrackTag()` does not call `RemoveBehavior()`
 
 Recommended command:
 `python tools/check_element_combos.py --max-tier 1 --require-combo-per-element --require-behavior --require-instant-remove`

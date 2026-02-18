@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SingleShot", menuName = "Gun/LoadFireMechanism/SingleShot")]
@@ -49,7 +50,7 @@ public class SingleShot : LoadFireMechanism
                 var context = new ElementBehaviorContext
                 {
                     instigator = source,
-                    target = hit.collider.gameObject,
+                    targets = new Queue<GameObject>(new[] { hit.collider.gameObject }),
                     position = hit.point,
                     sourceBullet = bullet
                 };

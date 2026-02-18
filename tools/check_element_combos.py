@@ -27,7 +27,7 @@ BEHAVIOR_ITEM_RE = re.compile(r"^\s*-\s+")
 DATABASE_ELEMENTS_START_RE = re.compile(r"^\s*elements:\s*$")
 DATABASE_COMBOS_START_RE = re.compile(r"^\s*elementCombos:\s*$")
 DATABASE_LIST_ITEM_RE = re.compile(r"^\s*-\s+")
-BEHAVIOR_TAGTYPE_NULL_RE = re.compile(r"TagType\s*\{[^}]*\}\s*=\s*null|=>\s*null")
+BEHAVIOR_TRACKTAG_RE = re.compile(r"\bTrackTag\s*\(")
 BEHAVIOR_REMOVE_CALL_RE = re.compile(r"\bRemoveBehavior\s*\(")
 
 TIER_LABELS = {0: "Primitive", 1: "Tier1", 2: "Tier2"}
@@ -510,11 +510,13 @@ def check_combos(
                     continue
 
                 script_text = read_text(script_path)
-                if BEHAVIOR_TAGTYPE_NULL_RE.search(script_text) and not BEHAVIOR_REMOVE_CALL_RE.search(script_text):
+                has_tracked_tags = bool(BEHAVIOR_TRACKTAG_RE.search(script_text))
+                has_remove_call = bool(BEHAVIOR_REMOVE_CALL_RE.search(script_text))
+                if not has_tracked_tags and not has_remove_call:
                     missing_remove_calls.append(str(script_path))
 
             if missing_remove_calls:
-                print("Instantaneous behaviors (TagType null) missing RemoveBehavior call:")
+                print("Instantaneous behaviors (no TrackTag usage) missing RemoveBehavior call:")
                 for entry in sorted(missing_remove_calls):
                     print(f"  - {entry}")
                 errors += len(missing_remove_calls)
@@ -568,7 +570,7 @@ def main() -> int:
     parser.add_argument(
         "--require-instant-remove",
         action="store_true",
-        help="Fail if a behavior with TagType == null does not call RemoveBehavior().",
+        help="Fail if a behavior that does not use TrackTag() does not call RemoveBehavior().",
     )
     args = parser.parse_args()
 

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a3f6619a42a8ea0ebf73887920ff9a9, type: 3}
+  m_Name: TidalBehavior
+  m_EditorClassIdentifier: 
+  description: 
+  duration: 3
+  defaultIntensity: 4
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 8
+  range: 5
+  maxAngle: 25
+  waterBehaviorTemplate: {fileID: 11400000, guid: ed3212d0afa5dbae4bb162ee91248a4d,
+    type: 2}
+  waterTickInterval: 0.5
+  waterRefreshDuration: 1
+  waterStackIntensity: 0
+  waterLogTicks: 1
+  waterDuration: 6
+  waterDefaultIntensity: 12

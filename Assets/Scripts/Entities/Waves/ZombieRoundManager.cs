@@ -182,7 +182,7 @@ public class ZombieRoundManager : MonoBehaviour
     /// <summary>
     /// Called by zombies or spawn points when a zombie dies.
     /// </summary>
-    public void OnZombieDied()
+    public void OnZombieDied(Health _)
     {
         zombiesRemaining--;
         OnZombieCountChanged?.Invoke(zombiesRemaining);

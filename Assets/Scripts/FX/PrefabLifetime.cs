@@ -4,11 +4,10 @@ public class PrefabLifetime : MonoBehaviour
 {
     private float lifetime = 1f;
     private float currentTime = 0f;
-    private Animator animator;
 
     void Awake()
     {
-        animator = GetComponentInChildren<Animator>();
+        var animator = GetComponentInChildren<Animator>();
         lifetime = animator.GetCurrentAnimatorStateInfo(0).length;
     }
 

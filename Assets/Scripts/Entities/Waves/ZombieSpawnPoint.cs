@@ -12,6 +12,10 @@ public class ZombieSpawnPoint : MonoBehaviour
     [Header("Spawn Configuration")]
     [SerializeField]
     private int spawnPointId = 0;
+
+    [SerializeField]
+    [Tooltip("The map location ID this spawn point belongs to (0 is always unlocked)")]
+    private int locationId = 0;
     
     [SerializeField]
     private float proximityRange = 40f;
@@ -100,6 +104,11 @@ public class ZombieSpawnPoint : MonoBehaviour
             StartSpawning();
         }
     }
+
+    /// <summary>
+    /// Gets the map location ID this spawn point is associated with.
+    /// </summary>
+    public int GetLocationId() => locationId;
 
     /// <summary>
     /// Deactivates this spawn point (e.g., when map area is locked).

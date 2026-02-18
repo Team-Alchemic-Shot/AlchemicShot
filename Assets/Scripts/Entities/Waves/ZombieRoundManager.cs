@@ -57,6 +57,7 @@ public class ZombieRoundManager : MonoBehaviour
     private List<ZombieSpawnPoint> spawnPoints = new();
     private List<MapLocation> mapLocations = new();
     private Dictionary<int, List<int>> unlocksPerRound = new(); // round -> list of area IDs
+    private HashSet<int> unlockedLocationIds = new() { 0 }; // Start unlocked locations (0 = start area)
 
     private void Awake()
     {
@@ -154,11 +155,19 @@ public class ZombieRoundManager : MonoBehaviour
         // Calculate zombie count for this round
         CalculateZombieCount();
 
-        // Activate all spawn points for this round
+        // Activate valid spawn points for this round
+        int activeSpawnPoints = 0;
         foreach (var spawnPoint in spawnPoints)
         {
-            spawnPoint.ActivateForRound(currentRound);
+            // Only activate if the spawn point is in an unlocked area
+            if (unlockedLocationIds.Contains(spawnPoint.GetLocationId()))
+            {
+                spawnPoint.ActivateForRound(currentRound);
+                activeSpawnPoints++;
+            }
         }
+        
+        OnStatusUpdate?.Invoke($"Round {currentRound} started with {activeSpawnPoints} active spawn points");
     }
 
     /// <summary>
@@ -213,18 +222,26 @@ public class ZombieRoundManager : MonoBehaviour
     /// </summary>
     private void CalculateZombieCount()
     {
+        // Count how many spawn points are currently accessible
+        int activeSpawnPointCount = 0;
+        foreach (var spawnPoint in spawnPoints)
+        {
+            if (unlockedLocationIds.Contains(spawnPoint.GetLocationId()))
+            {
+                activeSpawnPointCount++;
+            }
+        }
+
         if (currentRound > roundConfigs.Length)
         {
             // Use last config and scale difficulty
             var lastConfig = roundConfigs[roundConfigs.Length - 1];
-            int spawnPointCount = spawnPoints.Count;
-            zombiesRemaining = lastConfig.baseZombieCount + (lastConfig.zombiesPerSpawnPoint * spawnPointCount);
+            zombiesRemaining = lastConfig.baseZombieCount + (lastConfig.zombiesPerSpawnPoint * activeSpawnPointCount);
         }
         else
         {
             var config = roundConfigs[currentRound - 1];
-            int spawnPointCount = spawnPoints.Count;
-            zombiesRemaining = config.baseZombieCount + (config.zombiesPerSpawnPoint * spawnPointCount);
+            zombiesRemaining = config.baseZombieCount + (config.zombiesPerSpawnPoint * activeSpawnPointCount);
         }
     }
 
@@ -256,6 +273,11 @@ public class ZombieRoundManager : MonoBehaviour
     /// </summary>
     private void UnlockMapArea(int locationId)
     {
+        if (!unlockedLocationIds.Contains(locationId))
+        {
+            unlockedLocationIds.Add(locationId);
+        }
+
         foreach (var location in mapLocations)
         {
             if (location.GetLocationId() == locationId)

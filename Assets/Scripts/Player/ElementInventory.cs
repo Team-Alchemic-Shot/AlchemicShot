@@ -124,6 +124,16 @@ public class ElementInventory : MonoBehaviour
         return 0;
     }
 
+    public ElementStack GetSlot(int index)
+    {
+        if (slots == null || index < 0 || index >= slots.Length)
+        {
+            return null;
+        }
+
+        return slots[index];
+    }
+
     public void GiveRandomPrimitive()
     {
         var primitiveElements = elementDatabase.elements

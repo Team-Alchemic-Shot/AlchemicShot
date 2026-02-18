@@ -26,6 +26,7 @@ public class Inventory : MonoBehaviour
     public bool SwitchToNewGunOnPickup = true;
 
     public event Action<Gun> OnGunChanged;
+    public event Action OnGunListChanged;
 
     // actions
     private readonly InputAction[] nums = new InputAction[9];
@@ -88,6 +89,7 @@ public class Inventory : MonoBehaviour
         if (gunObj.TryGetComponent<Gun>(out var gun))
         {
             guns.Add(gun);
+            OnGunListChanged?.Invoke();
             if (CurrentGun == null)
             {
                 CurrentGun = gun;

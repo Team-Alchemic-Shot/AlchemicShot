@@ -56,7 +56,7 @@ public class ZombieRoundManager : MonoBehaviour
     private bool roundInProgress = false;
     private List<ZombieSpawnPoint> spawnPoints = new();
     private List<MapLocation> mapLocations = new();
-    private Dictionary<int, int> unlocksPerRound = new(); // round -> area ID
+    private Dictionary<int, List<int>> unlocksPerRound = new(); // round -> list of area IDs
 
     private void Awake()
     {
@@ -125,7 +125,12 @@ public class ZombieRoundManager : MonoBehaviour
     {
         if (!unlocksPerRound.ContainsKey(round))
         {
-            unlocksPerRound[round] = locationId;
+            unlocksPerRound[round] = new List<int>();
+        }
+        
+        if (!unlocksPerRound[round].Contains(locationId))
+        {
+            unlocksPerRound[round].Add(locationId);
         }
     }
 
@@ -145,13 +150,6 @@ public class ZombieRoundManager : MonoBehaviour
 
         OnRoundStarted?.Invoke(currentRound);
         OnStatusUpdate?.Invoke($"Round {currentRound} started!");
-
-        // Unlock map areas if this round has unlocks
-        if (unlocksPerRound.TryGetValue(currentRound, out int locationId))
-        {
-            UnlockMapArea(locationId);
-            OnRoundUnlock?.Invoke(currentRound);
-        }
 
         // Calculate zombie count for this round
         CalculateZombieCount();
@@ -193,6 +191,17 @@ public class ZombieRoundManager : MonoBehaviour
     private void EndRound()
     {
         roundInProgress = false;
+
+        // Unlock map areas for this completed round
+        if (unlocksPerRound.TryGetValue(currentRound, out List<int> locationIds))
+        {
+            foreach (int locationId in locationIds)
+            {
+                UnlockMapArea(locationId);
+            }
+            OnRoundUnlock?.Invoke(currentRound);
+        }
+
         OnRoundEnded?.Invoke(currentRound);
         OnStatusUpdate?.Invoke($"Round {currentRound} complete! Next round in {delayBetweenRounds}s...");
 

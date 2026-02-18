@@ -21,7 +21,7 @@ MonoBehaviour:
     bulletLifeTime: 10
     bulletSpeed: 300
     fireRate: 2
-    magazineSize: 6
+    magazineSize: 8
     reloadTime: 1.5
     spread: 5
   fx:

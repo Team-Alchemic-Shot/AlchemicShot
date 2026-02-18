@@ -120,7 +120,7 @@ public class NBarrel : LoadFireMechanism
 
     private void Reload(int ammoStock)
     {
-        int bulletsToLoad = Mathf.Min(ammoStock, magazineBlueprint.bullets.Length, barrelCount);
+        int bulletsToLoad = Mathf.Min(ammoStock, magazineBlueprint.bullets.Length);
 
         // Stack pops last-in-first-out, so push in reverse to fire in blueprint order.
         for (int i = bulletsToLoad - 1; i >= 0; i--)

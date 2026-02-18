@@ -101,7 +101,31 @@ MonoBehaviour:
   elementDatabase: {fileID: 11400000, guid: 6c2eedd5761ae6e6090684b8092c347c, type: 2}
   player: {fileID: 0}
   magazineBlueprint:
-    bullets: []
+    bullets:
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
+    - element: {fileID: 0}
+      baseDamage: 0
+      isEmpty: 0
 --- !u!114 &799378433476779234
 MonoBehaviour:
   m_ObjectHideFlags: 0

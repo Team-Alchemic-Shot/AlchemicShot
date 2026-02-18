@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
-    public ElementDatabase elementDatabase;
     public MagazineBlueprint magazineBlueprint;
 
     public int AmmoStock { get; private set; } = 100;

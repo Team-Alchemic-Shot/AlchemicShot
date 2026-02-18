@@ -130,7 +130,7 @@ public class RoundUIDisplay : MonoBehaviour
     {
         if (zombieCountText != null && roundManager != null)
         {
-            int zombiesRemaining = roundManager.GetZombiesRemaining();
+            int zombiesRemaining = roundManager.GetZombiesLeft();
             zombieCountText.text = string.Format(zombieFormat, zombiesRemaining);
         }
     }

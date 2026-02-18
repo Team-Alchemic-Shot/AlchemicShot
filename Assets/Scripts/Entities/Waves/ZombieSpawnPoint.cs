@@ -40,7 +40,6 @@ public class ZombieSpawnPoint : MonoBehaviour
     private GameObject player;
     private bool playerInProximity = false;
     private bool isActiveForCurrentRound = false;
-    private int spawnedInCurrentRound = 0;
     private Coroutine spawnCoroutine;
 
     private void Awake()
@@ -94,7 +93,6 @@ public class ZombieSpawnPoint : MonoBehaviour
     public void ActivateForRound(int roundNumber)
     {
         isActiveForCurrentRound = true;
-        spawnedInCurrentRound = 0;
         playerInProximity = false;
 
         // Start spawning if player is already in range
@@ -139,24 +137,14 @@ public class ZombieSpawnPoint : MonoBehaviour
     private IEnumerator SpawnZombiesCoroutine()
     {
         ZombieRoundManager.RoundConfig config = roundManager.GetCurrentRoundConfig();
-        
-        // Calculate how many zombies this spawn point should spawn
-        int zombiesToSpawn = config.zombiesPerSpawnPoint;
 
-        for (int i = 0; i < zombiesToSpawn; i++)
+        while (isActiveForCurrentRound && roundManager.TryRegisterSpawn())
         {
-            if (!isActiveForCurrentRound)
-                break;
-
             Vector3 spawnPos = GetRandomSpawnPosition();
             GameObject zombieInstance = monsterSpawner.Spawn(zombiePrefab, spawnPos, Quaternion.identity);
 
             // Apply difficulty scaling
             ApplyDifficultyToZombie(zombieInstance);
-
-            // Notify round manager
-            roundManager.OnZombieSpawned();
-            spawnedInCurrentRound++;
 
             yield return new WaitForSeconds(config.spawnInterval);
         }
@@ -170,7 +158,7 @@ public class ZombieSpawnPoint : MonoBehaviour
 
         if (spawnRadius > 0f)
         {
-            spawnPos += UnityEngine.Random.insideUnitSphere * spawnRadius;
+            spawnPos += Random.insideUnitSphere * spawnRadius;
         }
 
         return spawnPos;

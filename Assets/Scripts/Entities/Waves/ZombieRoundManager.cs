@@ -9,14 +9,11 @@ using UnityEngine;
 /// </summary>
 public class ZombieRoundManager : MonoBehaviour
 {
-    [System.Serializable]
+    [Serializable]
     public class RoundConfig
     {
         [Tooltip("Base number of zombies for this round")]
-        public int baseZombieCount = 6;
-        
-        [Tooltip("Additional zombies per spawn point")]
-        public int zombiesPerSpawnPoint = 3;
+        public int zombieCount = 6;
         
         [Tooltip("Time between individual zombie spawns")]
         public float spawnInterval = 0.8f;
@@ -52,7 +49,9 @@ public class ZombieRoundManager : MonoBehaviour
 
     // State
     private int currentRound = 0;
-    private int zombiesRemaining = 0;
+    private int zombiesInRound = 0;
+    private int zombiesKilled = 0;
+    private int zombiesSpawned = 0;
     private bool roundInProgress = false;
     private List<ZombieSpawnPoint> spawnPoints = new();
     private List<MapLocation> mapLocations = new();
@@ -83,6 +82,7 @@ public class ZombieRoundManager : MonoBehaviour
 
         // Start the first round
         StartNextRound();
+        OnZombieCountChanged?.Invoke(GetZombiesLeft());
     }
 
     private void FindGameplayElements()
@@ -146,6 +146,8 @@ public class ZombieRoundManager : MonoBehaviour
             return;
         }
 
+        zombiesSpawned = 0;
+        zombiesKilled = 0;
         roundInProgress = true;
         currentRound++;
 
@@ -154,6 +156,7 @@ public class ZombieRoundManager : MonoBehaviour
 
         // Calculate zombie count for this round
         CalculateZombieCount();
+    OnZombieCountChanged?.Invoke(GetZombiesLeft());
 
         // Activate valid spawn points for this round
         int activeSpawnPoints = 0;
@@ -171,12 +174,24 @@ public class ZombieRoundManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by spawn points when they spawn a zombie.
+    /// Attempts to reserve a spawn slot for this round.
+    /// Returns false when no spawns remain.
     /// </summary>
-    public void OnZombieSpawned()
+    public bool TryRegisterSpawn()
     {
-        zombiesRemaining++;
-        OnZombieCountChanged?.Invoke(zombiesRemaining);
+        if (!roundInProgress)
+        {
+            return false;
+        }
+
+        if (zombiesSpawned >= zombiesInRound)
+        {
+            return false;
+        }
+
+        zombiesSpawned++;
+        OnZombieCountChanged?.Invoke(GetZombiesLeft());
+        return true;
     }
 
     /// <summary>
@@ -184,11 +199,11 @@ public class ZombieRoundManager : MonoBehaviour
     /// </summary>
     public void OnZombieDied(Health _)
     {
-        zombiesRemaining--;
-        OnZombieCountChanged?.Invoke(zombiesRemaining);
+        zombiesKilled = Mathf.Min(zombiesKilled + 1, zombiesInRound);
+        OnZombieCountChanged?.Invoke(GetZombiesLeft());
 
         // If all zombies are dead, end the round
-        if (zombiesRemaining <= 0 && roundInProgress)
+        if (roundInProgress && zombiesSpawned >= zombiesInRound && zombiesKilled >= zombiesInRound)
         {
             EndRound();
         }
@@ -222,26 +237,16 @@ public class ZombieRoundManager : MonoBehaviour
     /// </summary>
     private void CalculateZombieCount()
     {
-        // Count how many spawn points are currently accessible
-        int activeSpawnPointCount = 0;
-        foreach (var spawnPoint in spawnPoints)
-        {
-            if (unlockedLocationIds.Contains(spawnPoint.GetLocationId()))
-            {
-                activeSpawnPointCount++;
-            }
-        }
-
         if (currentRound > roundConfigs.Length)
         {
             // Use last config and scale difficulty
-            var lastConfig = roundConfigs[roundConfigs.Length - 1];
-            zombiesRemaining = lastConfig.baseZombieCount + (lastConfig.zombiesPerSpawnPoint * activeSpawnPointCount);
+            var lastConfig = roundConfigs[^1];
+            zombiesInRound = lastConfig.zombieCount;
         }
         else
         {
             var config = roundConfigs[currentRound - 1];
-            zombiesRemaining = config.baseZombieCount + (config.zombiesPerSpawnPoint * activeSpawnPointCount);
+            zombiesInRound = config.zombieCount;
         }
     }
 
@@ -296,7 +301,7 @@ public class ZombieRoundManager : MonoBehaviour
     /// <summary>
     /// Gets zombie count remaining in current round.
     /// </summary>
-    public int GetZombiesRemaining() => zombiesRemaining;
+    public int GetZombiesLeft() => Mathf.Max(0, zombiesInRound - zombiesKilled);
 
     /// <summary>
     /// Checks if round is in progress.

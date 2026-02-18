@@ -481,3 +481,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotCount: 14
   slots: []
+  elementDatabase: {fileID: 11400000, guid: 6c2eedd5761ae6e6090684b8092c347c, type: 2}

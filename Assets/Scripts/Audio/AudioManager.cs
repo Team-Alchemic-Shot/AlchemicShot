@@ -6,10 +6,9 @@ public class AudioManager
     {
         if (definition.fx.shootSound != null)
         {
-            AudioSource.PlayClipAtPoint(
+            SoundManager.Instance.PlaySound3D(
                 definition.fx.shootSound,
-                player.transform.position,
-                definition.fx.shootSoundVolume);
+                player.transform.position);
         }
     }
 
@@ -17,10 +16,9 @@ public class AudioManager
     {
         if (definition.fx.reloadSound != null)
         {
-            AudioSource.PlayClipAtPoint(
+            SoundManager.Instance.PlaySound3D(
                 definition.fx.reloadSound,
-                player.transform.position,
-                definition.fx.reloadSoundVolume);
+                player.transform.position);
         }
     }
 }

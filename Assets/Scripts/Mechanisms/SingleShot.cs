@@ -7,12 +7,22 @@ public class SingleShot : LoadFireMechanism
     [SerializeField]
     private LayerMask zombieMask;
 
+    private float nextFireTime;
+
     public override int Fire(int ammoStock)
     {
         if (magazineState.Count == 0)
         {
             return 0;
         }
+
+        float interval = gunStats.fireRate > 0f ? 1f / gunStats.fireRate : 0f;
+        if (interval > 0f && Time.time < nextFireTime)
+        {
+            return 0;
+        }
+
+        nextFireTime = Time.time + interval;
 
         var bullet = magazineState.Pop();
         while (bullet.isEmpty)
@@ -25,15 +35,17 @@ public class SingleShot : LoadFireMechanism
             bullet = magazineState.Pop();
         }
 
-        var bulletObj = Instantiate(bulletPrefab, Camera.main.transform.position, source.transform.rotation);
+        Camera cam = Camera.main;
+        Vector3 shotDirection = GetShotDirection(cam.transform);
+
+        var bulletObj = Instantiate(bulletPrefab, cam.transform.position, source.transform.rotation);
         var bs = bulletObj.GetComponent<BulletScript>();
-        bs.Initialize(gunStats.bulletLifeTime, Camera.main.transform.forward, gunStats.bulletSpeed);
+        bs.Initialize(gunStats.bulletLifeTime, shotDirection, gunStats.bulletSpeed);
 
         NotifyFiredBullet(bullet);
 
         // raycast (only hits Zombie and Default layer)
-        Camera cam = Camera.main;
-        Ray ray = new(cam.transform.position, cam.transform.forward);
+        Ray ray = new(cam.transform.position, shotDirection);
         if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
         {
             if (hit.collider.TryGetComponent<Health>(out var health))

@@ -8,6 +8,11 @@ public class ElementStatus : MonoBehaviour
 
     public void AddElement(Element element)
     {
+        if (element == null)
+        {
+            return;
+        }
+
         currentElements.Add(element);
         // TODO (design): decide how to represent repeated applications of the same element.
         // Today we append duplicates and use order for reactions (last two elements), which can

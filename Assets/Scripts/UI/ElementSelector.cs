@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ public class ElementSelector : MonoBehaviour
     public UIDocument Document;
     public Inventory InventoryRef; // Reference to gun inventory
     public ElementInventory ElementInventoryRef; // Reference to element inventory for drag-drop operations
+
+    public event Action<Gun> OnMagazineBlueprintChanged;
     
     private VisualElement _root;
     private VisualElement _inventoryContainer; // Separate container for inventory (can be hidden)
@@ -225,6 +228,7 @@ public class ElementSelector : MonoBehaviour
             if (TrySwapMagazineSlots(source, target))
             {
                 RefreshGunSlots(source.GunIndex, target.GunIndex);
+                NotifyMagazineBlueprintChanged(source.GunIndex, target.GunIndex);
             }
         }
         else if (source.Type == SlotType.InventorySlot && target.Type == SlotType.MagazineSlot)
@@ -233,6 +237,7 @@ public class ElementSelector : MonoBehaviour
             {
                 RefreshInventorySlots(source.InventoryIndex, target.InventoryIndex);
                 RefreshGunSlots(target.GunIndex);
+                NotifyMagazineBlueprintChanged(target.GunIndex);
             }
         }
         else if (source.Type == SlotType.MagazineSlot && target.Type == SlotType.InventorySlot)
@@ -241,6 +246,7 @@ public class ElementSelector : MonoBehaviour
             {
                 RefreshGunSlots(source.GunIndex);
                 RefreshInventorySlots(target.InventoryIndex);
+                NotifyMagazineBlueprintChanged(source.GunIndex);
             }
         }
         else if (source.Type == SlotType.InventorySlot && target.Type == SlotType.InventorySlot)
@@ -285,6 +291,7 @@ public class ElementSelector : MonoBehaviour
             {
                 RefreshGunSlots(source.GunIndex);
                 RefreshInventorySlots(targetIndex);
+                NotifyMagazineBlueprintChanged(source.GunIndex);
             }
         }
         else if (source.Type == SlotType.InventorySlot)
@@ -308,6 +315,30 @@ public class ElementSelector : MonoBehaviour
             {
                 RefreshInventorySlots(source.InventoryIndex);
                 RefreshGunSlots(selectedGunIndex);
+                NotifyMagazineBlueprintChanged(selectedGunIndex);
+            }
+        }
+    }
+
+    private void NotifyMagazineBlueprintChanged(params int[] gunIndices)
+    {
+        if (gunIndices == null || gunIndices.Length == 0)
+        {
+            return;
+        }
+
+        var seen = new HashSet<int>();
+        foreach (var index in gunIndices)
+        {
+            if (index < 0 || !seen.Add(index))
+            {
+                continue;
+            }
+
+            var gun = GetGunAtIndex(index);
+            if (gun != null)
+            {
+                OnMagazineBlueprintChanged?.Invoke(gun);
             }
         }
     }

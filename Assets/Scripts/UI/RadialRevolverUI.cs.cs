@@ -8,6 +8,9 @@ public class RadialRevolverUI : MagazineUI
     public Gun playerGun;
     public TextMeshProUGUI magazineText; 
 
+    private Inventory inventoryRef;
+    private ElementSelector elementSelector;
+
     void Start()
     {
         // Auto-find the gun
@@ -17,10 +20,32 @@ public class RadialRevolverUI : MagazineUI
 
         ChangeGun(playerGun);
 
-        if (player.TryGetComponent<Inventory>(out var inventory)) 
-            inventory.OnGunChanged += ChangeGun;
+        if (player != null && player.TryGetComponent<Inventory>(out var inventory)) 
+        {
+            inventoryRef = inventory;
+            inventoryRef.OnGunChanged += ChangeGun;
+        }
+
+        elementSelector = FindObjectOfType<ElementSelector>();
+        if (elementSelector != null)
+        {
+            elementSelector.OnMagazineBlueprintChanged += HandleMagazineBlueprintChanged;
+        }
 
         UpdateUI(playerGun.GetMagazine());
+    }
+
+    private void OnDisable()
+    {
+        if (inventoryRef != null)
+        {
+            inventoryRef.OnGunChanged -= ChangeGun;
+        }
+
+        if (elementSelector != null)
+        {
+            elementSelector.OnMagazineBlueprintChanged -= HandleMagazineBlueprintChanged;
+        }
     }
 
     private void ChangeGun(Gun newGun)
@@ -38,6 +63,19 @@ public class RadialRevolverUI : MagazineUI
             playerGun.FiredBullet += OnFired;
             playerGun.Reloaded += OnReloaded;
             UpdateUI(playerGun.GetMagazine());
+        }
+    }
+
+    private void HandleMagazineBlueprintChanged(Gun gun)
+    {
+        if (gun == null || playerGun == null)
+        {
+            return;
+        }
+
+        if (gun == playerGun)
+        {
+            ChangeGun(gun);
         }
     }
 
@@ -63,11 +101,11 @@ public class RadialRevolverUI : MagazineUI
             if (i < bulletsArray.Length && bulletsArray[i] != null && bulletsArray[i].element != null)
             {
                 string hexColor = ColorUtility.ToHtmlStringRGB(bulletsArray[i].element.elementColor);
-                displayText += $"<color=#{hexColor}>[ {bulletsArray[i].element.elementName} ]</color>}}\n";
+                displayText += $"<color=#{hexColor}>[ {bulletsArray[i].element.elementName} ]</color>\n";
             }
             else
             {
-                displayText += $"<color=#888888><i>[ Empty ]</i></color>\n";
+                displayText += $"<color=#888888><i>[ Unimbued ]</i></color>\n";
             }
         }
         magazineText.text = displayText;

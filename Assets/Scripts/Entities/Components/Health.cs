@@ -60,4 +60,23 @@ public class Health : EntityComponent, IDamageable
     {
         weaknessMultiplier += multiplier;
     } 
+
+    public void ScaleMaxHealth(float multiplier, bool refillToMax = true)
+    {
+        if (multiplier <= 0f)
+        {
+            return;
+        }
+
+        maxHealth = Mathf.Max(1f, maxHealth * multiplier);
+
+        if (refillToMax)
+        {
+            CurrentHealth = maxHealth;
+        }
+        else
+        {
+            CurrentHealth = Mathf.Min(CurrentHealth * multiplier, maxHealth);
+        }
+    }
 }

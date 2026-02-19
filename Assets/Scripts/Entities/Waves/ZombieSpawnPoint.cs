@@ -174,17 +174,13 @@ public class ZombieSpawnPoint : MonoBehaviour
         float difficultyMultiplier = roundManager.GetDifficultyMultiplier();
 
         // Apply scaling to health component if it exists
-        Health health = zombieInstance.GetComponent<Health>();
-        if (health != null)
+        if (zombieInstance.TryGetComponent<Health>(out var health))
         {
-            // Example: scaling max health
-            // You'd need to implement this in your Health class
-            // health.ScaleMaxHealth(difficultyMultiplier);
+            health.ScaleMaxHealth(difficultyMultiplier);
         }
 
         // Apply scaling to damage/attack component if needed
-        ZombieAttack zombieAttack = zombieInstance.GetComponent<ZombieAttack>();
-        if (zombieAttack != null)
+        if (zombieInstance.TryGetComponent<ZombieAttack>(out var zombieAttack))
         {
             // zombieAttack.ScaleDamage(difficultyMultiplier);
         }

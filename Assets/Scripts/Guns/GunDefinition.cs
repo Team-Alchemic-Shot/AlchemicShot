@@ -9,9 +9,16 @@ public class GunDefinition : ScriptableObject
 {
     public string gunName = "New Gun";
     public LoadFireMechanism loadFireMechanism;
+    public FireMode fireMode = FireMode.SemiAuto;
     public GunStats stats;
     public GunFX fx;
     public GameObject bulletPrefab;
+}
+
+public enum FireMode
+{
+    SemiAuto,
+    FullAuto
 }
 
 /// <summary>
@@ -70,6 +77,24 @@ public abstract class LoadFireMechanism : ScriptableObject
     {
         Reloaded?.Invoke(ammoLoaded, state);
     }
+
+    /// <summary>
+    /// Get spread-adjusted shot direction based on the gun's stats.
+    /// </summary>
+    /// <param name="camTransform"></param>
+    /// <returns></returns>
+    protected Vector3 GetShotDirection(Transform camTransform)
+    {
+        if (gunStats.spread <= 0f)
+        {
+            return camTransform.forward;
+        }
+
+        float half = gunStats.spread * 0.5f;
+        float yaw = UnityEngine.Random.Range(-half, half);
+        float pitch = UnityEngine.Random.Range(-half, half);
+        return Quaternion.Euler(pitch, yaw, 0f) * camTransform.forward;
+    }
     
     /// <summary>
     /// Loads ammunition from the given ammo stock into the magazine.
@@ -95,6 +120,7 @@ public struct GunStats
     public float fireRate;
     public int magazineSize;
     public float reloadTime;
+    public float spread;
 }
 
 /// <summary>

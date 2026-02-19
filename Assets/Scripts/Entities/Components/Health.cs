@@ -30,7 +30,10 @@ public class Health : EntityComponent, IDamageable
         }
 
         float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
+        // Debug.Log($"base damage={info.amount} weak={weaknessMultiplier} scaled={scaledDamage}");
+
         CurrentHealth = Mathf.Max(0f, CurrentHealth - scaledDamage);
+        // Debug.Log($"health = {CurrentHealth}");
         OnDamaged?.Invoke(this);
 
         if (CurrentHealth <= 0f)
@@ -57,4 +60,23 @@ public class Health : EntityComponent, IDamageable
     {
         weaknessMultiplier += multiplier;
     } 
+
+    public void ScaleMaxHealth(float multiplier, bool refillToMax = true)
+    {
+        if (multiplier <= 0f)
+        {
+            return;
+        }
+
+        maxHealth = Mathf.Max(1f, maxHealth * multiplier);
+
+        if (refillToMax)
+        {
+            CurrentHealth = maxHealth;
+        }
+        else
+        {
+            CurrentHealth = Mathf.Min(CurrentHealth * multiplier, maxHealth);
+        }
+    }
 }

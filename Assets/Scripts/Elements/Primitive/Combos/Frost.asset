@@ -17,5 +17,5 @@ MonoBehaviour:
     elementB: {fileID: 11400000, guid: 32ee3c0ac376a9a109097c39ee02fe9c, type: 2}
   resultElement: {fileID: 11400000, guid: ba70f382b68a64f698d2aa962eb74cd2, type: 2}
   priority: 1
-  removeE1OldStatusesOnReaction: 1
-  removeE2OldStatusesOnReaction: 1
+  removeE1OldBehaviorsOnReaction: 1
+  removeE2OldBehaviorsOnReaction: 0

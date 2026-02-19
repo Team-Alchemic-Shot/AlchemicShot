@@ -24,6 +24,12 @@ public class PlayerControllerSource : MonoBehaviour
     private string sprintActionName = "Sprint";
     [SerializeField]
     private string restartActionName = "Restart";
+    [SerializeField]
+    private string toggleElementSelectorActionName = "Inventory";
+
+    [Header("UI")]
+    [SerializeField]
+    private ElementSelector elementSelector;
 
     [SerializeField]
     private float jumpForce = 3f;
@@ -81,6 +87,7 @@ public class PlayerControllerSource : MonoBehaviour
     private InputAction jumpAction;
     private InputAction sprintAction;
     private InputAction restartAction;
+    private InputAction toggleElementSelectorAction;
 
     // Cached components
     private Camera playerCamera;
@@ -97,6 +104,11 @@ public class PlayerControllerSource : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
         Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
+
+        if (elementSelector == null)
+        {
+            elementSelector = FindObjectOfType<ElementSelector>();
+        }
     }
 
     void OnEnable()
@@ -111,6 +123,7 @@ public class PlayerControllerSource : MonoBehaviour
         ReadMovementInput();
         ReadSprintInput();
         QueueJump();
+        ReadInventoryInput();
 
         // #if UNITY_EDITOR // strictly debug 'r' restart
         if (restartAction != null && restartAction.WasPressedThisFrame())
@@ -120,6 +133,14 @@ public class PlayerControllerSource : MonoBehaviour
             );
         }
         // #endif
+    }
+
+    private void ReadInventoryInput()
+    {
+        if (toggleElementSelectorAction != null && toggleElementSelectorAction.WasPressedThisFrame())
+        {
+            elementSelector.Toggle();
+        }
     }
 
     private void ReadSprintInput()
@@ -364,6 +385,7 @@ public class PlayerControllerSource : MonoBehaviour
         jumpAction = ControlUtil.FindProjectAction(jumpActionName);
         sprintAction = ControlUtil.FindProjectAction(sprintActionName);
         restartAction = ControlUtil.FindProjectAction(restartActionName);
+        toggleElementSelectorAction = ControlUtil.FindProjectAction(toggleElementSelectorActionName);
     }
 
     private void SetGrounded()

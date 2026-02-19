@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "EarthBehavior", menuName = "Elements/Behaviors/Primitive/Earth")]
@@ -13,22 +12,17 @@ public class EarthBehavior : ElementBehavior
     [SerializeField]
     private bool logTicks = true;
 
-    public override Type TagType { get; } = typeof(EarthStatus);
-
     public override void Apply(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (!context.target.TryGetComponent<EarthStatus>(out var status))
-        {
-            status = context.target.AddComponent<EarthStatus>();
-        }
+        var tag = ElementTag.GetOrAddTag<EarthTag>(context.Target);
+        TrackTag(tag, context);
 
-        status.SetContext(this, context); // sometimes additional context is needed
-        status.Apply(
+        tag.Apply(
             duration, 
             tickInterval, 
             defaultIntensity, 
@@ -40,25 +34,25 @@ public class EarthBehavior : ElementBehavior
 
     public override void RevertEffects(ElementBehaviorContext context)
     {
-        if (context.target == null)
+        if (context.Target == null)
         {
             return;
         }
 
-        if (context.target.TryGetComponent<EarthStatus>(out var status)
-            && context.target.TryGetComponent<Health>(out var health))
+        if (context.Target.TryGetComponent<EarthTag>(out var tag)
+            && context.Target.TryGetComponent<Health>(out var health))
         {
-            var appliedWeakness = status.GetAppliedWeakness();
+            var appliedWeakness = tag.GetAppliedWeakness();
             if (appliedWeakness != 0f)
             {
                 health.ApplyWeakness(-appliedWeakness);
             }
 
-            status.ResetAppliedWeakness();
+            tag.ResetAppliedWeakness();
         }
     }
 
-    private class EarthStatus : ElementTag
+    public class EarthTag : ElementTag // TODO this tag is weird and probably needs redone
     {
         private float durationRemaining;
         private float tickInterval;
@@ -66,14 +60,6 @@ public class EarthBehavior : ElementBehavior
         private float intensity;
         private bool logTicks;
         private float currentAppliedWeakness;
-        private ElementBehavior sourceBehavior;
-        private ElementBehaviorContext lastContext;
-
-        public void SetContext(ElementBehavior behavior, ElementBehaviorContext context)
-        {
-            sourceBehavior = behavior;
-            lastContext = context;
-        }
 
         public override void Apply(
             float duration, 
@@ -127,14 +113,7 @@ public class EarthBehavior : ElementBehavior
         {
             if (durationRemaining <= 0f)
             {
-                if (sourceBehavior != null && lastContext.target != null)
-                {
-                    sourceBehavior.Remove(lastContext);
-                }
-                else
-                {
-                    Destroy(this);
-                }
+                RemoveOwners();
                 return;
             }
 
@@ -146,7 +125,7 @@ public class EarthBehavior : ElementBehavior
                 tickTimer += tickInterval;
                 if (logTicks)
                 {
-                    Debug.Log($"Earth tick on {gameObject.name} (intensity: {intensity:F2})");
+                    Debug.Log($"earth tick on {gameObject.name} (intensity: {intensity:F2})");
                 }
             }
         }

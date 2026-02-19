@@ -6,8 +6,6 @@ using UnityEngine.InputSystem;
 public class Gun : MonoBehaviour
 {
     public GunDefinition gunDefinition;
-    public ElementDatabase elementDatabase;
-    public GameObject player;
     public MagazineBlueprint magazineBlueprint;
 
     public int AmmoStock { get; private set; } = 100;
@@ -21,6 +19,7 @@ public class Gun : MonoBehaviour
     public event Action<Ray, RaycastHit> HitSomething;
     public event Action<int, MagazineState> Reloaded;
 
+    private GameObject player;
     private InputAction fireAction;
     private InputAction reloadAction;
     private MagazineState magazineState;
@@ -28,6 +27,12 @@ public class Gun : MonoBehaviour
 
     private void Awake()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
+        {
+            Debug.LogError("Player object not found in the scene. Please ensure there is a GameObject tagged 'Player'.");
+        }
+
         // get controls
         fireAction = ControlUtil.FindProjectAction("Fire");
         reloadAction = ControlUtil.FindProjectAction("Reload");
@@ -67,6 +72,15 @@ public class Gun : MonoBehaviour
         Mechanism.Reloaded -= OnMechanismReloaded;
     }
 
+    private void OnDisable()
+    {
+        if (isReloading)
+        {
+            StopAllCoroutines();
+            isReloading = false;
+        }
+    }
+
     private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
     private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
     private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
@@ -74,7 +88,14 @@ public class Gun : MonoBehaviour
 
     private void Update()
     {
-        if (fireAction.triggered)
+        if (gunDefinition.fireMode == FireMode.FullAuto)
+        {
+            if (fireAction.IsPressed())
+            {
+                Fire();
+            }
+        }
+        else if (fireAction.triggered)
         {
             Fire();
         }

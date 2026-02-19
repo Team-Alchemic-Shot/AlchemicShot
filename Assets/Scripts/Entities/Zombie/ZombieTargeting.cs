@@ -36,10 +36,18 @@ public class ZombieTargeting : MonoBehaviour
             AcquireTarget();
         }
 
-        if (agent != null && CurrentTarget != null)
+        if (CanSetDestination() && CurrentTarget != null)
         {
             agent.SetDestination(CurrentTarget.position);
         }
+    }
+
+    private bool CanSetDestination()
+    {
+        return agent != null
+            && agent.enabled
+            && agent.isOnNavMesh
+            && agent.gameObject.activeInHierarchy;
     }
 
     private void AcquireTarget()

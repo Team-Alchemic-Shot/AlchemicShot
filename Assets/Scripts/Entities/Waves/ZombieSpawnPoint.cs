@@ -41,6 +41,7 @@ public class ZombieSpawnPoint : MonoBehaviour
     private bool playerInProximity = false;
     private bool isActiveForCurrentRound = false;
     private Coroutine spawnCoroutine;
+    private readonly Collider[] overlapBuffer = new Collider[12];
 
     private void Awake()
     {
@@ -145,6 +146,8 @@ public class ZombieSpawnPoint : MonoBehaviour
             var comp = zombieInstance.AddComponent<MinYRespawn>();
             comp.SetRespawnPoint(transform);
 
+            ResolveSpawnOverlap(zombieInstance);
+
             // Apply difficulty scaling
             ApplyDifficultyToZombie(zombieInstance);
 
@@ -183,6 +186,70 @@ public class ZombieSpawnPoint : MonoBehaviour
         if (zombieInstance.TryGetComponent<ZombieAttack>(out var zombieAttack))
         {
             // zombieAttack.ScaleDamage(difficultyMultiplier);
+        }
+    }
+
+    private void ResolveSpawnOverlap(GameObject zombieInstance)
+    {
+        if (zombieInstance == null)
+        {
+            return;
+        }
+
+        var zombieCollider = zombieInstance.GetComponentInChildren<Collider>();
+        if (zombieCollider == null)
+        {
+            return;
+        }
+
+        const int maxIterations = 6;
+        const float pushPadding = 0.02f;
+
+        for (int iteration = 0; iteration < maxIterations; iteration++)
+        {
+            var bounds = zombieCollider.bounds;
+            int hitCount = Physics.OverlapBoxNonAlloc(
+                bounds.center,
+                bounds.extents,
+                overlapBuffer,
+                zombieCollider.transform.rotation,
+                ~0,
+                QueryTriggerInteraction.Ignore);
+
+            bool moved = false;
+            for (int i = 0; i < hitCount; i++)
+            {
+                var hit = overlapBuffer[i];
+                if (hit == null || hit == zombieCollider)
+                {
+                    continue;
+                }
+
+                if (hit.transform.IsChildOf(zombieInstance.transform))
+                {
+                    continue;
+                }
+
+                if (Physics.ComputePenetration(
+                        zombieCollider,
+                        zombieCollider.transform.position,
+                        zombieCollider.transform.rotation,
+                        hit,
+                        hit.transform.position,
+                        hit.transform.rotation,
+                        out Vector3 direction,
+                        out float distance))
+                {
+                    zombieInstance.transform.position += direction * (distance + pushPadding);
+                    Debug.Log($"Resolved spawn overlap for {zombieInstance.name} by moving {direction * (distance + pushPadding)}");
+                    moved = true;
+                }
+            }
+
+            if (!moved)
+            {
+                break;
+            }
         }
     }
 

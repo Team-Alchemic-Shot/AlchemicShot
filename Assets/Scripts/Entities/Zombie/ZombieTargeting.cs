@@ -41,6 +41,7 @@ public class ZombieTargeting : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
         targetBuffer = new Collider[Mathf.Max(1, maxTargetColliders)];
 
         walkHash = Animator.StringToHash("IsWalking");

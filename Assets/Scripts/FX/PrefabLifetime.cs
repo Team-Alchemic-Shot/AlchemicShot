@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class PrefabLifetime : MonoBehaviour
 {
+    [SerializeField]
     private float lifetime = 1f;
     private float currentTime = 0f;
 
     void Awake()
     {
-        var animator = GetComponentInChildren<Animator>();
-        lifetime = animator.GetCurrentAnimatorStateInfo(0).length;
+        // var animator = GetComponentInChildren<Animator>();
+        // lifetime = animator.GetCurrentAnimatorStateInfo(0).length;
     }
 
     void Update()

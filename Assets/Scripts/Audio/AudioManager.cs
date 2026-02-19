@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AudioManager
+public class AudioManager // TODO no need for this anymore
 {
     public static void PlayGunfire(GunDefinition definition, GameObject player)
     {

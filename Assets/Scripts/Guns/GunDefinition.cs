@@ -25,6 +25,7 @@ public enum FireMode
 /// Abstract base class for load and fire mechanisms of guns.
 /// Implement specific loading and firing behaviors by extending this class.
 /// </summary>
+/// 
 public abstract class LoadFireMechanism : ScriptableObject
 {
     protected MagazineBlueprint magazineBlueprint;
@@ -129,9 +130,7 @@ public struct GunStats
 [Serializable]
 public struct GunFX
 {
-    public AudioClip shootSound;
-    public AudioClip reloadSound;
-    public float shootSoundVolume;
-    public float reloadSoundVolume;
+    public string shootSound;
+    public string reloadSound;
 }
 

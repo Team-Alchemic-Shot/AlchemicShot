@@ -10,15 +10,12 @@ public class MinYRespawn : EntityComponent
     [SerializeField]
     private float minimumY = -20f;
 
-    [Tooltip("Optional transform to use as the spawn center. If null, uses the initial starting position.")]
-    [SerializeField]
-    private Transform spawnPoint;
-
     [Tooltip("Radius around the spawn point to randomly position the entity upon respawn.")]
     [SerializeField]
     private float spawnRadius = 2f;
 
     private Vector3 initialPosition;
+    private Transform spawnPoint;
 
     protected void Start()
     {
@@ -33,25 +30,28 @@ public class MinYRespawn : EntityComponent
         }
     }
 
+    public void SetRespawnPoint(Transform newSpawnPoint)
+    {
+        spawnPoint = newSpawnPoint;
+    }
+
     private void Respawn()
     {
         Vector3 center = spawnPoint != null ? spawnPoint.position : initialPosition;
         
         // Generate a random position within the radius on the XZ plane
         Vector2 randomPoint = Random.insideUnitCircle * spawnRadius;
-        Vector3 newPosition = new Vector3(center.x + randomPoint.x, center.y, center.z + randomPoint.y);
+        Vector3 newPosition = new(center.x + randomPoint.x, center.y, center.z + randomPoint.y);
 
         // Reset velocity if a Rigidbody is present
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        if (TryGetComponent<Rigidbody>(out var rb))
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
 
         // Handle NavMeshAgent if present
-        NavMeshAgent agent = GetComponent<NavMeshAgent>();
-        if (agent != null)
+        if (TryGetComponent<NavMeshAgent>(out var agent))
         {
             agent.Warp(newPosition);
         }

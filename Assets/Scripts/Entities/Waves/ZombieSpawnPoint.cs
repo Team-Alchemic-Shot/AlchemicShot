@@ -142,6 +142,8 @@ public class ZombieSpawnPoint : MonoBehaviour
         {
             Vector3 spawnPos = GetRandomSpawnPosition();
             GameObject zombieInstance = monsterSpawner.Spawn(zombiePrefab, spawnPos, Quaternion.identity);
+            var comp = zombieInstance.AddComponent<MinYRespawn>();
+            comp.SetRespawnPoint(transform);
 
             // Apply difficulty scaling
             ApplyDifficultyToZombie(zombieInstance);

@@ -26,19 +26,19 @@ public class ZombieTargeting : MonoBehaviour
     [SerializeField, HideInInspector]
     private float wanderInterval = 2f;
 
-    // Easy upgrades (minimal change, big feel improvement)
+    
     [SerializeField, HideInInspector]
-    private float repathInterval = 0.25f;
+    private float repathInterval = 0.25f;  //update path
     [SerializeField, HideInInspector]
-    private float orbitRadius = 1.5f;
+    private float orbitRadius = 1.5f; // surround player
     [SerializeField, HideInInspector]
     private float orbitAngularSpeed = 0.8f;
     [SerializeField, HideInInspector]
-    private float chaseStoppingDistance = 1.25f;
+    private float chaseStoppingDistance = 1.25f; // how close to player before stopping
 
     public Transform CurrentTarget { get; private set; }
 
-    // ZombieSpeedController reads this; AI should not directly set agent.speed.
+    // ZombieSpeedController reads this AI should not directly set agent.speed.
     public float DesiredSpeed { get; private set; }
 
     private float refreshTimer;

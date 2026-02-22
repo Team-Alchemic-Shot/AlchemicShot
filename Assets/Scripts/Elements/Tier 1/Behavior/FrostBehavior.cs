@@ -1,11 +1,8 @@
 using UnityEngine;
-using UnityEngine.AI;
 
 [CreateAssetMenu(fileName = "FrostBehavior", menuName = "Elements/Behaviors/Tier 1/Frost")]
 public class FrostBehavior : ElementBehavior
 {
-    private float existingSpeed = 1f;
-
     public override void Apply(ElementBehaviorContext context)
     {
         if (context.Target == null)
@@ -13,14 +10,12 @@ public class FrostBehavior : ElementBehavior
             return;
         }
 
-        // Apply frost effect (e.g., slow down movement)
-        if (!context.Target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (!context.Target.TryGetComponent<ZombieSpeedController>(out var speed))
         {
             return;
         }
 
-        existingSpeed = agent.speed;
-        agent.speed = 0; // freeze movement
+        speed.AddFreeze(this);
 
         // remove since this is an instantaneous effect
         RemoveBehavior(context);
@@ -33,10 +28,9 @@ public class FrostBehavior : ElementBehavior
             return;
         }
 
-        // Revert frost effect
-        if (context.Target.TryGetComponent<NavMeshAgent>(out var agent))
+        if (context.Target.TryGetComponent<ZombieSpeedController>(out var speed))
         {
-            agent.speed = existingSpeed; // reset to original speed
+            speed.RemoveFreeze(this);
         }
     }
 }

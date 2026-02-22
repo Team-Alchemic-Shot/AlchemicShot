@@ -13,12 +13,16 @@ GameObject:
   - component: {fileID: 8007976239687779911}
   - component: {fileID: 1376568414628345809}
   - component: {fileID: 9039623588025776597}
+  - component: {fileID: 1666129094424263072}
   - component: {fileID: 2608780410652859358}
   - component: {fileID: 5938755541642725611}
   - component: {fileID: 1769777790613446695}
   - component: {fileID: 9186386571164479368}
   - component: {fileID: -158631422799525817}
   - component: {fileID: 2528361269897102105}
+  - component: {fileID: -8551088608753738905}
+  - component: {fileID: 1502787037502353524}
+  - component: {fileID: 2279555972070101054}
   m_Layer: 3
   m_Name: Zombie
   m_TagString: Untagged
@@ -40,6 +44,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2789277216934316448}
+  - {fileID: 8043217395728158111}
+  - {fileID: 2203584353663670825}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3269553626782003870
@@ -88,9 +94,13 @@ MonoBehaviour:
   refreshInterval: 5
   maxTargetColliders: 16
   baseSpeed: 2
-  chaseSpeed: 5
+  chaseSpeed: 4.75
   wanderRadius: 50
   wanderInterval: 5
+  repathInterval: 0.2
+  orbitRadius: 2.5
+  orbitAngularSpeed: 0.8
+  chaseStoppingDistance: 1.25
 --- !u!114 &9039623588025776597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,6 +115,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   destroyOnDeath: 1
+--- !u!114 &1666129094424263072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2972907501231071446}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30a1470cf436db04193921ece3369832, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitboxRoot: {fileID: 2604554555306057299}
+  enabledByDefault: 1
+  chance: 0.95
+  height: 2.36
+  duration: 1.57
+  cooldown: 2.5
+  minChaseTimeBeforeClimb: 0.15
+  blockedVelocityThreshold: 2
+  blockedCheckInterval: 0.25
+  nearbyClimberRadius: 1.25
 --- !u!195 &2608780410652859358
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -239,6 +271,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28d226142a714fd4da6a21ceb56b8cd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-8551088608753738905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2972907501231071446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d5e46b9943c86944b653d01dadf556d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1502787037502353524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2972907501231071446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22038a51f70b03b4e8f3b20d93fdf4ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logEverySecond: 0
+  interval: 1
+--- !u!114 &2279555972070101054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2972907501231071446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62a4dfab7d0553a40a198e8a42067e55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  archetype: {fileID: 11400000, guid: 28a76b90c75968340960209ec1bfea55, type: 2}
 --- !u!1 &5720738376190767407
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +411,93 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &6617430428139066868
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2203584353663670825}
+  m_Layer: 3
+  m_Name: visuals
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2203584353663670825
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617430428139066868}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2604554555306057299}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9192408313725916461
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8043217395728158111}
+  - component: {fileID: 5370031882548041946}
+  m_Layer: 3
+  m_Name: hitbox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &8043217395728158111
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9192408313725916461}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2604554555306057299}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &5370031882548041946
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9192408313725916461}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}

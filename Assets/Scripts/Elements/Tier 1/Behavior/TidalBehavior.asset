@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TidalBehavior
   m_EditorClassIdentifier: 
   description: 
-  duration: 3
+  duration: 5
   defaultIntensity: 4
   enemyMask:
     serializedVersion: 2

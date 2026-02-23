@@ -1,12 +1,9 @@
 using UnityEngine;
-using System.Collections.Generic;
 
+[RequireComponent(typeof(AudioSource))]
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
-
-    [SerializeField] private Sound[] sounds;
-    private Dictionary<string, Sound> soundDictionary;
 
     void Awake()
     {
@@ -21,87 +18,38 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // Initialize Dictionary for fast lookup
-        soundDictionary = new Dictionary<string, Sound>();
-        foreach (Sound s in sounds)
-        {
-            if (!soundDictionary.ContainsKey(s.name))
-            {
-                soundDictionary.Add(s.name, s);
-            }
-            else
-            {
-                Debug.LogWarning($"Duplicate sound name found: {s.name}");
-            }
-        }
     }
 
-    /// <summary>
-    /// Plays a sound at a specific 3D position. Creates a temporary GameObject.
-    /// </summary>
-    public void PlaySound3D(string soundName, Vector3 position)
+    public static void PlayGunfire(GunDefinition definition, GameObject source)
     {
-        if (!soundDictionary.ContainsKey(soundName))
+        PlaySound(definition.fx.shootSound, source);
+    }
+
+    public static void PlayReload(GunDefinition definition, GameObject source)
+    {
+        PlaySound(definition.fx.reloadSound, source);
+    }
+
+    public static void PlaySound(Sound sound, GameObject source, AudioSource audioSource = null)
+    {
+        if (sound.clip == null)
         {
-            Debug.LogWarning($"Sound: {soundName} not found!");
             return;
         }
 
-        Sound s = soundDictionary[soundName];
-        
-        // 1. Create a temporary GameObject
-        GameObject soundObj = new GameObject("TempAudio_" + soundName);
-        soundObj.transform.position = position;
-
-        // 2. Add and configure AudioSource
-        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
-        audioSource.clip = s.clip;
-        audioSource.volume = s.volume;
-        audioSource.spatialBlend = s.spatialBlend; // 1.0 is fully 3D
-        audioSource.minDistance = s.minDistance;
-        audioSource.maxDistance = s.maxDistance;
-        audioSource.rolloffMode = AudioRolloffMode.Linear; // or Logarithmic
-        
-        // 3. Handle Pitch
-        if (s.enableRandomPitch)
+        if (audioSource == null)
         {
-            audioSource.pitch = s.pitch * (1f + Random.Range(-s.randomPitchModifier, s.randomPitchModifier));
-        }
-        else
-        {
-            audioSource.pitch = s.pitch;
+            audioSource = source.AddComponent<AudioSource>();
         }
 
-        // 4. Play and Destroy
+        var pitch = sound.randomPitchModifier > 0f ? sound.pitch + Random.Range(-sound.randomPitchModifier, sound.randomPitchModifier) : sound.pitch;
+        audioSource.clip = sound.clip;
+        audioSource.volume = sound.volume;
+        audioSource.pitch = pitch;
+        audioSource.loop = sound.isLoop;
+        audioSource.spatialBlend = sound.spatialBlend;
+        audioSource.minDistance = sound.minDistance;
+        audioSource.maxDistance = sound.maxDistance;
         audioSource.Play();
-        
-        // Destroy the object after the clip finishes
-        Destroy(soundObj, s.clip.length + 0.1f);
-    }
-
-    /// <summary>
-    /// Plays a 2D sound (UI, Music) that is not attached to a position.
-    /// </summary>
-    public void PlaySound2D(string soundName)
-    {
-        if (!soundDictionary.ContainsKey(soundName)) return;
-
-        Sound s = soundDictionary[soundName];
-        
-        // For 2D sounds, we can create a temporary object parented to the manager
-        // Or reuse a centralized AudioSource if overlap isn't an issue.
-        // Here creates a temp object for consistency:
-        GameObject soundObj = new GameObject("TempAudio2D_" + soundName);
-        soundObj.transform.parent = this.transform;
-        
-        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
-        audioSource.clip = s.clip;
-        audioSource.volume = s.volume;
-        audioSource.pitch = s.pitch;
-        audioSource.spatialBlend = 0f; // 2D Sound
-
-        audioSource.Play();
-        Destroy(soundObj, s.clip.length + 0.1f);
     }
 }

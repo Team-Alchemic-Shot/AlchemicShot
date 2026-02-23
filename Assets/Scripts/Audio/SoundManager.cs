@@ -49,6 +49,7 @@ public class SoundManager : MonoBehaviour
         audioSource.spatialBlend = sound.spatialBlend;
         audioSource.minDistance = sound.minDistance;
         audioSource.maxDistance = sound.maxDistance;
+        sound.source = audioSource;
         audioSource.Play();
     }
 }

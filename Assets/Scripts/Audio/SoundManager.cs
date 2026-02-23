@@ -41,7 +41,7 @@ public class SoundManager : MonoBehaviour
             audioSource = source.AddComponent<AudioSource>();
         }
 
-        var pitch = sound.randomPitchModifier > 0f ? sound.pitch + Random.Range(-sound.randomPitchModifier, sound.randomPitchModifier) : sound.pitch;
+        var pitch = sound.enableRandomPitch ? sound.pitch + Random.Range(-sound.randomPitchModifier, sound.randomPitchModifier) : sound.pitch;
         audioSource.clip = sound.clip;
         audioSource.volume = sound.volume;
         audioSource.pitch = pitch;

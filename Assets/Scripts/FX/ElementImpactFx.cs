@@ -33,12 +33,9 @@ public static class ElementImpactFx
             // Apply mesh color shift based on element
             ApplyMeshColorShift(target, element);
 
-            if (element.sfxClip != null)
+            if (element.impactSound != null && element.impactSound.clip != null)
             {
-                AudioSource.PlayClipAtPoint(
-                    element.sfxClip,
-                    context.position,
-                    element.sfxVolume);
+                SoundManager.PlaySound(element.impactSound, target);
             }
         }
     }

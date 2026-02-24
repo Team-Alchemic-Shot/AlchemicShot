@@ -27,7 +27,7 @@ MonoBehaviour:
   fx:
     shootSound:
       name: revolverShoot
-      clip: {fileID: 8300000, guid: b79bda10e65b6e641aac885910a41021, type: 3}
+      clip: {fileID: 8300000, guid: cc0a09a0cb6ff6e4799de6e03fdd60d8, type: 3}
       volume: 0.36
       pitch: 1
       enableRandomPitch: 0

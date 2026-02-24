@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+
 public class Health : EntityComponent, IDamageable
 {
     [SerializeField]
@@ -34,6 +35,11 @@ public class Health : EntityComponent, IDamageable
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - scaledDamage);
         // Debug.Log($"health = {CurrentHealth}");
+        var audioComponent = Entity.GetEntityComponent<EntityAudio>();
+            if (audioComponent != null)
+            {
+                audioComponent.PlayHurtSound();
+            }
         OnDamaged?.Invoke(this);
 
         if (CurrentHealth <= 0f)

@@ -18,7 +18,17 @@ MonoBehaviour:
   elementIcon: {fileID: 0}
   elementTier: 0
   vfxPrefab: {fileID: 0}
-  sfxClip: {fileID: 0}
-  sfxVolume: 1
+  impactSound:
+    name: WaterImpact
+    clip: {fileID: 8300000, guid: 098122671f296fe4d900b84e1b27533e, type: 3}
+    volume: 0.7
+    pitch: 1
+    enableRandomPitch: 0
+    randomPitchModifier: 0.1
+    isLoop: 0
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 20
+    source: {fileID: 0}
   behaviors:
   - {fileID: 11400000, guid: ed3212d0afa5dbae4bb162ee91248a4d, type: 2}

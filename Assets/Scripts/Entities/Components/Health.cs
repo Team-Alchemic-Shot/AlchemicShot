@@ -38,7 +38,7 @@ public class Health : EntityComponent, IDamageable
         var audioComponent = Entity.GetEntityComponent<EntityAudio>();
             if (audioComponent != null)
             {
-                audioComponent.PlayHurtSound();
+                audioComponent.PlayHurtSound(this);
             }
         OnDamaged?.Invoke(this);
 

@@ -36,9 +36,9 @@ using UnityEngine;
             {
                 SoundManager.PlaySound(footstepSound, Entity.gameObject);
             }
-        }
+        } 
 
-        public void PlayHurtSound(Health _)
+        public void PlayHurtSound(Health a)
         {
             if (hurtSound != null && hurtSound.clip != null)
             {

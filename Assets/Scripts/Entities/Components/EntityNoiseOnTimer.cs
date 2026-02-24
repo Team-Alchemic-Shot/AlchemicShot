@@ -4,7 +4,7 @@ public class EntityNoiseOnTimer : EntityComponent
 {
     [Header("Noise Settings")]
     public Sound sound;
-    public float noiseInterval = 5f; // Time in seconds between noises
+    public float noiseInterval = 7f; // Time in seconds between noises
 
     private float noiseTimer;
 

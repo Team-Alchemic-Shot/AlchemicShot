@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerControllerSource : MonoBehaviour
+public class PlayerControllerSource : MovementBase
 {
     [Header("General Settings")]
     [SerializeField]
@@ -146,6 +146,10 @@ public class PlayerControllerSource : MonoBehaviour
     private void ReadSprintInput()
     {
         sprintHeld = sprintAction != null && sprintAction.IsPressed();
+        if (sprintHeld)
+        {
+            NotifyRun();
+        }
     }
 
     void FixedUpdate() // Unity physics updates here at a fixed interval
@@ -187,6 +191,10 @@ public class PlayerControllerSource : MonoBehaviour
         }
 
         desiredMoveDirection = moveDirection;
+        if (desiredMoveDirection.sqrMagnitude > 0.0001f && !sprintHeld)
+        {
+            NotifyWalk();
+        }
     }
 
     private void QueueJump()
@@ -269,6 +277,7 @@ public class PlayerControllerSource : MonoBehaviour
             newY = jumpForce;
             jumpQueued = false;
             jumpedSinceGrounded = true;
+            NotifyJump();
         }
         else if (jumpQueued && (Time.time - jumpQueuedAt) > jumpBufferTime)
         {
@@ -399,5 +408,9 @@ public class PlayerControllerSource : MonoBehaviour
             Physics.DefaultRaycastLayers,
             QueryTriggerInteraction.Ignore
         );
+        if (isGrounded && !wasGrounded)
+        {
+            NotifyLand();
+        }
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 
-
+    [RequireComponent(typeof(MovementBase))]
+    [RequireComponent(typeof(Health))]
     public class EntityAudio : EntityComponent
     {
         [Header("Audio Profiles")]
@@ -9,7 +10,27 @@ using UnityEngine;
 
         public Sound hurtSound;
 
-        public void PlayFootstep()
+
+    protected override void Awake()
+    {
+        if (!TryGetComponent<MovementBase>(out var movement))
+        {
+            Debug.LogWarning("EntityAudio requires a MovementBase component to function properly.");
+            return;
+        }
+
+        if (!TryGetComponent<Health>(out var health))
+        {
+            Debug.LogWarning("EntityAudio requires a HealthBase component to function properly.");
+            return;
+        }
+
+        movement.OnWalk += PlayFootstep;
+        movement.OnRun += PlayFootstep;
+        health.OnDamaged += PlayHurtSound;
+    }
+
+    public void PlayFootstep()
         {
             if (footstepSound != null && footstepSound.clip != null)
             {
@@ -17,7 +38,7 @@ using UnityEngine;
             }
         }
 
-        public void PlayHurtSound()
+        public void PlayHurtSound(Health _)
         {
             if (hurtSound != null && hurtSound.clip != null)
             {

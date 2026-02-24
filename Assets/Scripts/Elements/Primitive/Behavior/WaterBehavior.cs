@@ -34,14 +34,9 @@ public class WaterBehavior : ElementBehavior
         }
 
         if (context.Target.TryGetComponent<WaterDOTTag>(out var tag)
-            && context.Target.TryGetComponent<NavMeshAgent>(out var agent))
+             && context.Target.TryGetComponent<ZombieSpeedController>(out var speed))
         {
-            var appliedMultiplier = tag.GetAppliedSpeedMultiplier();
-            if (appliedMultiplier != 0f && appliedMultiplier != 1f)
-            {
-                agent.speed /= appliedMultiplier;
-            }
-
+            speed.ClearSpeedMultiplier(tag);
             tag.ResetAppliedSpeedMultiplier();
         }
     }
@@ -64,7 +59,7 @@ public class WaterBehavior : ElementBehavior
             GameObject instigator, 
             bool logTicks)
         {
-            if (!TryGetComponent<NavMeshAgent>(out var agent))
+            if (!TryGetComponent<ZombieSpeedController>(out var speed))
             {
                 return;
             }
@@ -88,29 +83,24 @@ public class WaterBehavior : ElementBehavior
 
             tickTimer = tickInterval;
 
-            if (!hasAppliedSlowness)
-            {
-                var desiredMultiplier = 1 / intensity; // intensity is inverse of speed multiplier
-                appliedSpeedMultiplier = desiredMultiplier;
-                agent.speed *= appliedSpeedMultiplier;
-                hasAppliedSlowness = true;
+           
+                
+            //  update slow multiplier via ZombieSpeedController
 
-                if (logTicks)
-                {
-                    Debug.Log($"Water slow applied to {gameObject.name} ({(1 - (1 / intensity)) * 100}% speed reduction)");
-                }
-            }
-            else
-            {
-                var desiredMultiplier = 1 / intensity;
-                if (appliedSpeedMultiplier != 0f)
-                {
-                    var ratio = desiredMultiplier / appliedSpeedMultiplier;
-                    agent.speed *= ratio;
-                    appliedSpeedMultiplier = desiredMultiplier;
-                }
-            }
-        }
+            var desiredMultiplier = 1f / intensity;
+
+            // clamp 
+            desiredMultiplier = Mathf.Clamp(desiredMultiplier, 0f, 1f);
+
+            appliedSpeedMultiplier = desiredMultiplier;
+
+            
+            //  recompute final speed every frame.
+            speed.SetSpeedMultiplier(this, appliedSpeedMultiplier);
+
+            hasAppliedSlowness = true;
+        }     
+            
 
         public float GetAppliedSpeedMultiplier()
         {

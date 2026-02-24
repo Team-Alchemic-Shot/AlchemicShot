@@ -42,18 +42,22 @@ public class MinYRespawn : EntityComponent
         // Generate a random position within the radius on the XZ plane
         Vector2 randomPoint = Random.insideUnitCircle * spawnRadius;
         Vector3 newPosition = new(center.x + randomPoint.x, center.y, center.z + randomPoint.y);
-
+        Debug.Log($"[MinYRespawn] Respawning {name} from {transform.position} to {newPosition}", gameObject);
         // Reset velocity if a Rigidbody is present
-        if (TryGetComponent<Rigidbody>(out var rb))
-        {
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
-
-        // Handle NavMeshAgent if present
         if (TryGetComponent<NavMeshAgent>(out var agent))
         {
-            agent.Warp(newPosition);
+            float maxDistance = spawnRadius + 3f;
+
+            if (NavMesh.SamplePosition(newPosition, out var hit, maxDistance, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+            else
+            {
+                agent.Warp(center);
+            }
+
+            
         }
         else
         {
@@ -61,4 +65,6 @@ public class MinYRespawn : EntityComponent
             transform.position = newPosition;
         }
     }
+
+    
 }

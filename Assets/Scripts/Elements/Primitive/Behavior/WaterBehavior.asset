@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WaterBehavior
   m_EditorClassIdentifier: 
   description: Water
-  duration: 10
-  defaultIntensity: 5
+  duration: 3
+  defaultIntensity: 2
   tickInterval: 0.5
   refreshDuration: 1
   stackIntensity: 0

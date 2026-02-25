@@ -1,14 +1,14 @@
 using UnityEngine;
 
-    [RequireComponent(typeof(MovementBase))]
-    [RequireComponent(typeof(Health))]
-    public class EntityAudio : EntityComponent
-    {
-        [Header("Audio Profiles")]
-        [Tooltip("Enable 'Random Pitch' to prevent repetitive footsetp noises.")]
-        public Sound footstepSound;
+[RequireComponent(typeof(MovementBase))]
+[RequireComponent(typeof(Health))]
+public class EntityAudio : EntityComponent
+{
+    [Header("Audio Profiles")]
+    [Tooltip("Enable 'Random Pitch' to prevent repetitive footsetp noises.")]
+    public Sound footstepSound;
 
-        public Sound hurtSound;
+    public Sound hurtSound;
 
 
     protected override void Awake()
@@ -31,18 +31,18 @@ using UnityEngine;
     }
 
     public void PlayFootstep()
+    {
+        if (footstepSound != null && footstepSound.clip != null)
         {
-            if (footstepSound != null && footstepSound.clip != null)
-            {
-                SoundManager.PlaySound(footstepSound, Entity.gameObject);
-            }
-        } 
-
-        public void PlayHurtSound(Health a)
-        {
-            if (hurtSound != null && hurtSound.clip != null)
-            {
-                SoundManager.PlaySound(hurtSound, Entity.gameObject);
-            }
+            SoundManager.PlaySound(footstepSound, gameObject, playOverwrite: false);
         }
     }
+
+    public void PlayHurtSound(Health a)
+    {
+        if (hurtSound != null && hurtSound.clip != null)
+        {
+            SoundManager.PlaySound(hurtSound, gameObject);
+        }
+    }
+}

@@ -29,16 +29,26 @@ public class SoundManager : MonoBehaviour
         PlaySound(definition.fx.reloadSound, source);
     }
 
-    public static void PlaySound(Sound sound, GameObject source, AudioSource audioSource = null)
+    public static void PlaySound(Sound sound, GameObject source, AudioSource audioSource = null, bool playOverwrite = true)
     {
         if (sound.clip == null)
         {
             return;
         }
 
-        if (audioSource == null)
+        if (audioSource == null && !source.TryGetComponent(out audioSource))
         {
             audioSource = source.AddComponent<AudioSource>();
+        }
+
+        if (!playOverwrite && audioSource.isPlaying)
+        {
+            return;
+        }
+
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
         }
 
         var pitch = sound.enableRandomPitch ? sound.pitch + Random.Range(-sound.randomPitchModifier, sound.randomPitchModifier) : sound.pitch;

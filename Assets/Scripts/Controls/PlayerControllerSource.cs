@@ -193,7 +193,7 @@ public class PlayerControllerSource : MovementBase
         desiredMoveDirection = moveDirection;
         if (desiredMoveDirection.sqrMagnitude > 0.0001f && !sprintHeld)
         {
-            // NotifyWalk();
+            NotifyWalk();
         }
     }
 

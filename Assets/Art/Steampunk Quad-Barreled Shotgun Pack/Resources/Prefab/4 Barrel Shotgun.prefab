@@ -138,4 +138,5 @@ MonoBehaviour:
   pitchOffset: 90
   followYaw: 0
   followPosition: 1
-  cameraLocalOffset: {x: 0.2, y: -0.2, z: 0.5}
+  cameraLocalOffset: {x: 0.25, y: -0.25, z: 0.16}
+  gunRotationOffset: {x: -90, y: 0, z: 0}

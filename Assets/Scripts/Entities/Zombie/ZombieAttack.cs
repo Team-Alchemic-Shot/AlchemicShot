@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(ZombieTargeting))]
@@ -12,6 +14,8 @@ public class ZombieAttack : MonoBehaviour
 
     private float attackTimer;
     private ZombieTargeting targeting;
+
+    public event Action attacking;
 
     private void Awake()
     {
@@ -45,5 +49,7 @@ public class ZombieAttack : MonoBehaviour
 
         attackTimer = attackInterval;
         damageable.ApplyDamage(new DamageInfo(damageAmount, gameObject, targeting.CurrentTarget.position));
+
+        attacking?.Invoke();
     }
 }

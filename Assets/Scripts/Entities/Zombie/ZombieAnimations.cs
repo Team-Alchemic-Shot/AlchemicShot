@@ -7,6 +7,7 @@ public class NewBehaviourScript : MonoBehaviour
     private Animator animator;
     private Animation anim;
     private bool attacking;
+    private float attackAnimLength = 1.667f;
 
     // Start is called before the first frame update
     void Start()
@@ -54,6 +55,14 @@ public class NewBehaviourScript : MonoBehaviour
 
     void OnAttack()
     {
+        if (!attacking)
+        {
+            StartCoroutine(PlayAttackAnimation(attackAnimLength));
+        }
+    }
+
+    private IEnumerator PlayAttackAnimation(float timeActive)
+    {
         attacking = true;
         int rand = Random.Range(0, 2);
         if (rand == 0)
@@ -64,6 +73,7 @@ public class NewBehaviourScript : MonoBehaviour
         {
             anim.Play("Attack2");
         }
+        yield return new WaitForSeconds(timeActive);
         attacking = false;
     }
 }

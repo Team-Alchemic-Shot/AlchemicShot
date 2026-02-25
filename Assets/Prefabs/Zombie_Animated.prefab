@@ -608,7 +608,7 @@ GameObject:
   - component: {fileID: 3175977648603697900}
   m_Layer: 3
   m_Name: Zombie_Animated
-  m_TagString: Untagged
+  m_TagString: Zombie
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -906,6 +906,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec502315502937f4d9c6135110da9e4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackAnimLength: 1.667
+  deathAnimLength: 1.042
 --- !u!1 &1457946352335224961
 GameObject:
   m_ObjectHideFlags: 0

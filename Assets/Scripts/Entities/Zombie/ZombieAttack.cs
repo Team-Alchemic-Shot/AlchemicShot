@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(ZombieTargeting))]
@@ -10,13 +12,36 @@ public class ZombieAttack : MonoBehaviour
     [SerializeField]
     private float damageAmount = 10f;
 
+    [SerializeField]
+    private float knockbackForce = 2f;
+    [SerializeField]
+    private float knockbackUpwardForce = 0.25f;
+
+    public float KnockbackForce => knockbackForce;
+    public float KnockbackUpwardForce => knockbackUpwardForce;
     private float attackTimer;
     private ZombieTargeting targeting;
+
+    public event Action attacking;
 
     private void Awake()
     {
         targeting = GetComponent<ZombieTargeting>();
     }
+
+
+    public void ApplyArchetype(ZombieArchetype archetype)
+    {
+        if (archetype == null)
+        {
+            return;
+        }
+
+        knockbackForce = archetype.knockbackForce;
+        knockbackUpwardForce = archetype.knockbackUpwardForce;
+    }
+
+    
 
     private void Update()
     {
@@ -45,5 +70,7 @@ public class ZombieAttack : MonoBehaviour
 
         attackTimer = attackInterval;
         damageable.ApplyDamage(new DamageInfo(damageAmount, gameObject, targeting.CurrentTarget.position));
+
+        attacking?.Invoke();
     }
 }

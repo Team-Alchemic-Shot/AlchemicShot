@@ -175,7 +175,7 @@ public class Gun : MonoBehaviour
         {
             if (magazineBlueprint.bullets[i] != null)
             {
-                magazineState.Push(magazineBlueprint.bullets[i]);
+                magazineState.Push(magazineBlueprint.bullets[i].Clone());
             }
         }
     }

@@ -23,6 +23,8 @@ MonoBehaviour:
   orbitRadius: 1.5
   orbitAngularSpeed: 0.8
   chaseStoppingDistance: 1.25
+  knockbackForce: 5
+  knockbackUpwardForce: 0.5
   canclimb: 0
   climbChance: 0.355
   climbHeight: 2.03

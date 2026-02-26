@@ -50,6 +50,9 @@ public class ZombieTargeting : MonoBehaviour
 
     private float orbitSeed;
 
+    public event Action walking;
+    public event Action running;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -101,6 +104,8 @@ public class ZombieTargeting : MonoBehaviour
                 agent.SetDestination(targetPos);
             }
 
+            running?.Invoke();
+
             return;
         }
 
@@ -113,6 +118,8 @@ public class ZombieTargeting : MonoBehaviour
             wanderTimer = wanderInterval;
             SetRandomWanderDestination();
         }
+
+        walking?.Invoke();
     }
 
     private void AcquireTarget()

@@ -93,10 +93,13 @@ public class PlayerControllerSource : MovementBase
     private Camera playerCamera;
     private Rigidbody rb;
 
+    private Stamina stamina;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerCamera = Camera.main;
+        stamina = GetComponent<Stamina>();
         
         // Smooth visual motion between physics ticks.
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -145,7 +148,15 @@ public class PlayerControllerSource : MovementBase
 
     private void ReadSprintInput()
     {
-        sprintHeld = sprintAction != null && sprintAction.IsPressed();
+        bool wantsSprint = sprintAction != null && sprintAction.IsPressed();
+
+        if (stamina == null)
+        {
+            sprintHeld = wantsSprint;
+            return;
+        }
+
+        sprintHeld = wantsSprint && stamina.CanSprint();
         if (sprintHeld)
         {
             NotifyRun();
@@ -226,6 +237,13 @@ public class PlayerControllerSource : MovementBase
         {
             currentMoveSpeed *= sprintMultiplier;
         }
+
+        if (stamina != null && sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            stamina.DrainSprint(dt);
+        }
+
+
 
         float wishSpeed = currentMoveSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;

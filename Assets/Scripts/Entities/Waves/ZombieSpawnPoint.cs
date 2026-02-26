@@ -22,6 +22,9 @@ public class ZombieSpawnPoint : MonoBehaviour
     
     [SerializeField]
     private GameObject zombiePrefab;
+
+    [SerializeField]
+    private GameObject bigZombiePrefab;
     
     [SerializeField]
     private float spawnRadius = 5f;
@@ -143,10 +146,22 @@ public class ZombieSpawnPoint : MonoBehaviour
     {
         ZombieRoundManager.RoundConfig config = roundManager.GetCurrentRoundConfig();
 
-        while (isActiveForCurrentRound && roundManager.TryRegisterSpawn())
+        while (isActiveForCurrentRound)
         {
+            bool spawnBigZombie;
+            if (!roundManager.TryRegisterSpawn(out spawnBigZombie))
+            {
+                break;
+            }
+
             Vector3 spawnPos = GetRandomSpawnPosition();
-            GameObject zombieInstance = monsterSpawner.Spawn(zombiePrefab, spawnPos, Quaternion.identity);
+
+            GameObject prefabToSpawn = (spawnBigZombie && bigZombiePrefab != null)
+                ? bigZombiePrefab
+                : zombiePrefab;
+
+            GameObject zombieInstance = monsterSpawner.Spawn(prefabToSpawn, spawnPos, Quaternion.identity);
+
             var comp = zombieInstance.AddComponent<MinYRespawn>();
             comp.SetRespawnPoint(spawnLocation != null ? spawnLocation : transform);
 

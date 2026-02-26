@@ -110,6 +110,8 @@ public class Health : EntityComponent, IDamageable
         CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
     }
 
+
+    
     public void ApplyWeakness(float multiplier)
     {
         weaknessMultiplier += multiplier;

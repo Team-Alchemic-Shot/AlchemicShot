@@ -12,7 +12,6 @@ public class GunDefinition : ScriptableObject
     public FireMode fireMode = FireMode.SemiAuto;
     public GunStats stats;
     public GunFX fx;
-    public MuzzleFlashFX muzzleFlashFX;
     public GameObject bulletPrefab;
 }
 
@@ -134,9 +133,11 @@ public struct GunFX
     // TODO go back to direct references
     public string shootSound;
     public string reloadSound;
+
+    public MuzzleFlashFX muzzleFlash;
 }
 
-[SerializeField]
+[Serializable]
 public struct MuzzleFlashFX
 {
     public GameObject prefab;

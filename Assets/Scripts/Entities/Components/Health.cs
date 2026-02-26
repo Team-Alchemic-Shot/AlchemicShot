@@ -8,8 +8,8 @@ public class Health : EntityComponent, IDamageable
     [SerializeField]
     private bool destroyOnDeath = true;
 
-    [SerializeField] private float knockbackForce = 10f;
-    [SerializeField] private float knockbackUpwardForce = 0.5f;
+    [SerializeField, HideInInspector] private float knockbackForce = 10f;
+    [SerializeField, HideInInspector] private float knockbackUpwardForce = 0.5f;
 
     private float weaknessMultiplier = 0f;
 

@@ -133,5 +133,14 @@ public struct GunFX
     // TODO go back to direct references
     public string shootSound;
     public string reloadSound;
+
+    public MuzzleFlashFX muzzleFlash;
 }
 
+[SerializeField]
+public struct MuzzleFlashFX
+{
+    public GameObject prefab;
+    public float duration;
+    public Vector3 muzzleOffset;
+}

@@ -62,6 +62,7 @@ public class GunEventBinder : MonoBehaviour
         }
 
         subscribedGun.Fired += AudioManager.PlayGunfire; // TODO use new SoundManager
+        subscribedGun.Fired += MuzzleFlashAnimator.PlayMuzzleFlash;
         subscribedGun.ReloadStarted += AudioManager.PlayReload;
         subscribedGun.HitTarget += ElementBehavior.ApplyBehaviors;
         subscribedGun.HitTarget += Reactions.TryApplyReaction; // do reactions after applying behaviors
@@ -79,6 +80,7 @@ public class GunEventBinder : MonoBehaviour
         }
 
         subscribedGun.Fired -= AudioManager.PlayGunfire;
+        subscribedGun.Fired -= MuzzleFlashAnimator.PlayMuzzleFlash;
         subscribedGun.ReloadStarted -= AudioManager.PlayReload;
         subscribedGun.HitTarget -= ElementImpactFx.TryPlayOnHit;
         subscribedGun.HitTarget -= Reactions.TryApplyReaction;

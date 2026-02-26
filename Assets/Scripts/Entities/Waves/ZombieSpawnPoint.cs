@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 /// <summary>
 /// Individual zombie spawn point with proximity detection.
@@ -26,10 +25,12 @@ public class ZombieSpawnPoint : MonoBehaviour
     
     [SerializeField]
     private float spawnRadius = 5f;
-    [SerializeField]
-    private float navMeshSnapDistance = 5f; 
     
-    [Tooltip("Offset from this transform for spawn position")]
+    [Tooltip("Optional: If set, zombies will spawn around this transform instead of the spawn point's transform")]
+    [SerializeField]
+    private Transform spawnLocation;
+
+    [Tooltip("Offset from the spawn location for spawn position")]
     [SerializeField]
     private Vector3 spawnCenterOffset = Vector3.zero;
 
@@ -67,8 +68,6 @@ public class ZombieSpawnPoint : MonoBehaviour
             Debug.LogWarning($"ZombieSpawnPoint {spawnPointId}: No zombie prefab assigned!", gameObject);
         }
     }
-
-
 
     private void Update()
     {
@@ -148,36 +147,28 @@ public class ZombieSpawnPoint : MonoBehaviour
         {
             Vector3 spawnPos = GetRandomSpawnPosition();
             GameObject zombieInstance = monsterSpawner.Spawn(zombiePrefab, spawnPos, Quaternion.identity);
-            // var comp = zombieInstance.AddComponent<MinYRespawn>();
-            // comp.SetRespawnPoint(transform);
+            var comp = zombieInstance.AddComponent<MinYRespawn>();
+            comp.SetRespawnPoint(spawnLocation != null ? spawnLocation : transform);
 
             ResolveSpawnOverlap(zombieInstance);
-            PlaceOnNavMesh(zombieInstance);
 
             // Apply difficulty scaling
             ApplyDifficultyToZombie(zombieInstance);
 
             yield return new WaitForSeconds(config.spawnInterval);
-            
         }
+
         spawnCoroutine = null;
     }
 
     private Vector3 GetRandomSpawnPosition()
     {
-        Vector3 spawnPos = transform.position + spawnCenterOffset;
+        Vector3 basePos = spawnLocation != null ? spawnLocation.position : transform.position;
+        Vector3 spawnPos = basePos + spawnCenterOffset;
 
         if (spawnRadius > 0f)
         {
-            // XZ only (do NOT randomize Y)
-            Vector2 offset2 = Random.insideUnitCircle * spawnRadius;
-            spawnPos += new Vector3(offset2.x, 0f, offset2.y);
-        }
-
-        // try to snap the chosen point onto the NavMesh before spawning.
-        if (NavMesh.SamplePosition(spawnPos, out var hit, navMeshSnapDistance, NavMesh.AllAreas))
-        {
-            spawnPos = hit.position;
+            spawnPos += Random.insideUnitSphere * spawnRadius;
         }
 
         return spawnPos;
@@ -196,7 +187,7 @@ public class ZombieSpawnPoint : MonoBehaviour
             health.ScaleMaxHealth(difficultyMultiplier);
         }
 
-        // Apply scaling to damage/attack component if needed DISABLED
+        // Apply scaling to damage/attack component if needed
         if (zombieInstance.TryGetComponent<ZombieAttack>(out var zombieAttack))
         {
             // zombieAttack.ScaleDamage(difficultyMultiplier);
@@ -267,34 +258,6 @@ public class ZombieSpawnPoint : MonoBehaviour
         }
     }
 
-
-    private void PlaceOnNavMesh(GameObject zombieInstance)
-    {
-        if (zombieInstance == null)
-        {
-            return;
-        }
-
-        if (!zombieInstance.TryGetComponent<NavMeshAgent>(out var agent))
-        {
-            return;
-        }
-
-        if (agent.isOnNavMesh)
-        {
-            return;
-        }
-
-        // snap to nearest point on the navmesh
-        if (NavMesh.SamplePosition(zombieInstance.transform.position, out var hit, navMeshSnapDistance, NavMesh.AllAreas))
-        {
-            agent.Warp(hit.position);
-            return;
-        }
-
-        Debug.LogWarning($"ZombieSpawnPoint {spawnPointId}: Spawned zombie off NavMesh and could not find NavMesh within {navMeshSnapDistance} units.", zombieInstance);
-    }
-
     /// <summary>
     /// Gets the ID of this spawn point.
     /// </summary>
@@ -316,7 +279,15 @@ public class ZombieSpawnPoint : MonoBehaviour
 
         // Draw spawn radius
         Gizmos.color = Color.yellow;
-        DrawCircle(transform.position + spawnCenterOffset, spawnRadius, 16);
+        Vector3 basePos = spawnLocation != null ? spawnLocation.position : transform.position;
+        DrawCircle(basePos + spawnCenterOffset, spawnRadius, 16);
+        
+        // Draw line connecting proximity center to spawn location
+        if (spawnLocation != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, basePos);
+        }
     }
 
     private void DrawCircle(Vector3 center, float radius, int segments)

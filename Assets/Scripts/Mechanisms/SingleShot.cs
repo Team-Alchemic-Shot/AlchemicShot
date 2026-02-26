@@ -40,7 +40,7 @@ public class SingleShot : LoadFireMechanism
 
         var bulletObj = Instantiate(bulletPrefab, cam.transform.position, source.transform.rotation);
         var bs = bulletObj.GetComponent<BulletScript>();
-        bs.Initialize(gunStats.bulletLifeTime, shotDirection, gunStats.bulletSpeed);
+        bs.Initialize(gunStats.bulletLifeTime, shotDirection, gunStats.bulletSpeed, bullet);
 
         NotifyFiredBullet(bullet);
 

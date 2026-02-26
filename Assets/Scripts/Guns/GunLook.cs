@@ -14,6 +14,8 @@ public class GunLook : MonoBehaviour
 	private bool followPosition = true;
 	[SerializeField]
 	private Vector3 cameraLocalOffset = new(0.2f, -0.2f, 0.5f);
+	[SerializeField]
+	private Vector3 gunRotationOffset = Vector3.zero;
 
 	private Camera mainCamera;
 
@@ -41,7 +43,7 @@ public class GunLook : MonoBehaviour
 		pitch += pitchOffset;
 
 		float yaw = followYaw ? mainCamera.transform.eulerAngles.y : 0f;
-		Quaternion targetRotation = Quaternion.Euler(pitch, yaw, 0f);
+		Quaternion targetRotation = Quaternion.Euler(pitch, yaw, 0f) * Quaternion.Euler(gunRotationOffset);
 
 		if (useLocalRotation)
 		{

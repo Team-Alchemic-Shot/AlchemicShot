@@ -18,6 +18,8 @@ MonoBehaviour:
   elementIcon: {fileID: 0}
   elementTier: 0
   vfxPrefab: {fileID: 0}
+  projectileVfxPrefab: {fileID: 8223105634549180041, guid: 9ff9698dca2f3d34a8144b5f81f388a5,
+    type: 3}
   sfxClip: {fileID: 0}
   sfxVolume: 1
   behaviors:

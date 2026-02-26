@@ -121,8 +121,12 @@ public class PlayerControllerSource : MovementBase
 
     void Update()
     {
-        Look();
-        ApplyLookRotation();
+        bool inventoryOpen = elementSelector != null && elementSelector.IsOpen;
+        if (!inventoryOpen)
+        {
+            Look();
+            ApplyLookRotation();
+        }
         ReadMovementInput();
         ReadSprintInput();
         QueueJump();

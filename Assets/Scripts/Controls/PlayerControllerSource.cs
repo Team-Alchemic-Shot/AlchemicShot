@@ -93,10 +93,13 @@ public class PlayerControllerSource : MonoBehaviour
     private Camera playerCamera;
     private Rigidbody rb;
 
+    private Stamina stamina;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerCamera = Camera.main;
+        stamina = GetComponent<Stamina>();
         
         // Smooth visual motion between physics ticks.
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -145,7 +148,15 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void ReadSprintInput()
     {
-        sprintHeld = sprintAction != null && sprintAction.IsPressed();
+       bool wantsSprint = sprintAction != null && sprintAction.IsPressed();
+
+        if (stamina == null)
+        {
+            sprintHeld = wantsSprint;
+            return;
+        }
+
+        sprintHeld = wantsSprint && stamina.CanSprint();
     }
 
     void FixedUpdate() // Unity physics updates here at a fixed interval
@@ -218,6 +229,13 @@ public class PlayerControllerSource : MonoBehaviour
         {
             currentMoveSpeed *= sprintMultiplier;
         }
+
+        if (stamina != null && sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            stamina.DrainSprint(dt);
+        }
+
+
 
         float wishSpeed = currentMoveSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;

@@ -21,5 +21,11 @@ public class ZombieApplier : MonoBehaviour
         {
             climb.ApplyArchetype(archetype);
         }
+
+
+        if (TryGetComponent<ZombieAttack>(out var attack))
+        {
+            attack.ApplyArchetype(archetype);
+        }
     }
 }

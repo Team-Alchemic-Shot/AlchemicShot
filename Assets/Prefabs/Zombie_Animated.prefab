@@ -606,6 +606,7 @@ GameObject:
   - component: {fileID: 3752087154677381989}
   - component: {fileID: 158816579954336167}
   - component: {fileID: 3175977648603697900}
+  - component: {fileID: 1069577042549501049}
   m_Layer: 3
   m_Name: Zombie_Animated
   m_TagString: Zombie
@@ -659,6 +660,8 @@ MonoBehaviour:
   attackRange: 1.5
   attackInterval: 1
   damageAmount: 10
+  knockbackForce: 2
+  knockbackUpwardForce: 0.25
 --- !u!114 &947830965172578880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -699,6 +702,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   destroyOnDeath: 1
+  knockbackForce: 10
+  knockbackUpwardForce: 0.5
 --- !u!114 &1419975157702693885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -908,6 +913,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackAnimLength: 1.667
   deathAnimLength: 1.042
+--- !u!114 &1069577042549501049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131329478212537111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3c2dcaa3432dc74698118caef122ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthPickupPrefab: {fileID: 0}
+  dropChance: 0.15
 --- !u!1 &1457946352335224961
 GameObject:
   m_ObjectHideFlags: 0

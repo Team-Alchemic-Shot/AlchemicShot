@@ -250,9 +250,9 @@ MonoBehaviour:
   sound:
     name: 
     clip: {fileID: 8300000, guid: 5c52f43a5a5dddd41bb34a1010b04f03, type: 3}
-    volume: 0.7
+    volume: 0.786
     pitch: 1
-    enableRandomPitch: 0
+    enableRandomPitch: 1
     randomPitchModifier: 0.1
     isLoop: 0
     spatialBlend: 1

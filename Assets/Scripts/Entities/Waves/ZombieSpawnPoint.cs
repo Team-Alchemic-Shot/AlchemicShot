@@ -26,7 +26,11 @@ public class ZombieSpawnPoint : MonoBehaviour
     [SerializeField]
     private float spawnRadius = 5f;
     
-    [Tooltip("Offset from this transform for spawn position")]
+    [Tooltip("Optional: If set, zombies will spawn around this transform instead of the spawn point's transform")]
+    [SerializeField]
+    private Transform spawnLocation;
+
+    [Tooltip("Offset from the spawn location for spawn position")]
     [SerializeField]
     private Vector3 spawnCenterOffset = Vector3.zero;
 
@@ -144,7 +148,7 @@ public class ZombieSpawnPoint : MonoBehaviour
             Vector3 spawnPos = GetRandomSpawnPosition();
             GameObject zombieInstance = monsterSpawner.Spawn(zombiePrefab, spawnPos, Quaternion.identity);
             var comp = zombieInstance.AddComponent<MinYRespawn>();
-            comp.SetRespawnPoint(transform);
+            comp.SetRespawnPoint(spawnLocation != null ? spawnLocation : transform);
 
             ResolveSpawnOverlap(zombieInstance);
 
@@ -159,7 +163,8 @@ public class ZombieSpawnPoint : MonoBehaviour
 
     private Vector3 GetRandomSpawnPosition()
     {
-        Vector3 spawnPos = transform.position + spawnCenterOffset;
+        Vector3 basePos = spawnLocation != null ? spawnLocation.position : transform.position;
+        Vector3 spawnPos = basePos + spawnCenterOffset;
 
         if (spawnRadius > 0f)
         {
@@ -274,7 +279,15 @@ public class ZombieSpawnPoint : MonoBehaviour
 
         // Draw spawn radius
         Gizmos.color = Color.yellow;
-        DrawCircle(transform.position + spawnCenterOffset, spawnRadius, 16);
+        Vector3 basePos = spawnLocation != null ? spawnLocation.position : transform.position;
+        DrawCircle(basePos + spawnCenterOffset, spawnRadius, 16);
+        
+        // Draw line connecting proximity center to spawn location
+        if (spawnLocation != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawLine(transform.position, basePos);
+        }
     }
 
     private void DrawCircle(Vector3 center, float radius, int segments)

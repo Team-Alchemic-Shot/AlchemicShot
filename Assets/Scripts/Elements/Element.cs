@@ -11,6 +11,7 @@ public class Element : ScriptableObject
     public ElementTier elementTier;
     public GameObject vfxPrefab;
     public Sound impactSound;
+    public GameObject projectileVfxPrefab;
 
     public List<ElementBehavior> behaviors = new();
 }

@@ -29,8 +29,7 @@ public class Health : EntityComponent, IDamageable
         {
             return;
         }
-
-        float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
+        Debug.Log($"[Damage] {name} took {info.amount} from {(info.source ? info.source.name : "NULL")} at {info.position}\n{Environment.StackTrace}", gameObject);        float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
         // Debug.Log($"base damage={info.amount} weak={weaknessMultiplier} scaled={scaledDamage}");
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - scaledDamage);

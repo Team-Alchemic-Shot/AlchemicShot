@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// Individual zombie spawn point with proximity detection.
@@ -16,19 +17,23 @@ public class ZombieSpawnPoint : MonoBehaviour
     [SerializeField]
     [Tooltip("The map location ID this spawn point belongs to (0 is always unlocked)")]
     private int locationId = 0;
-    
+
     [SerializeField]
     private float proximityRange = 40f;
-    
+
     [SerializeField]
     private GameObject zombiePrefab;
 
     [SerializeField]
     private GameObject bigZombiePrefab;
-    
+
     [SerializeField]
     private float spawnRadius = 5f;
-    
+
+    [SerializeField]
+    [Tooltip("How far to search when snapping spawn positions to the NavMesh")]
+    private float navMeshSnapDistance = 5f;
+
     [Tooltip("Optional: If set, zombies will spawn around this transform instead of the spawn point's transform")]
     [SerializeField]
     private Transform spawnLocation;
@@ -167,6 +172,9 @@ public class ZombieSpawnPoint : MonoBehaviour
 
             ResolveSpawnOverlap(zombieInstance);
 
+            // Overlap resolution can push the zombie off-mesh; re-snap to keep agents valid.
+            PlaceOnNavMesh(zombieInstance);
+
             // Apply difficulty scaling
             ApplyDifficultyToZombie(zombieInstance);
 
@@ -183,7 +191,15 @@ public class ZombieSpawnPoint : MonoBehaviour
 
         if (spawnRadius > 0f)
         {
-            spawnPos += Random.insideUnitSphere * spawnRadius;
+            // XZ only NOT  Y) - prevents air spawn
+            Vector2 offset2 = Random.insideUnitCircle * spawnRadius;
+            spawnPos += new Vector3(offset2.x, 0f, offset2.y);
+        }
+
+        // snap to the NavMesh before spawning
+        if (NavMesh.SamplePosition(spawnPos, out var hit, navMeshSnapDistance, NavMesh.AllAreas))
+        {
+            spawnPos = hit.position;
         }
 
         return spawnPos;
@@ -273,6 +289,33 @@ public class ZombieSpawnPoint : MonoBehaviour
         }
     }
 
+    private void PlaceOnNavMesh(GameObject zombieInstance)
+    {
+        if (zombieInstance == null)
+        {
+            return;
+        }
+
+        if (!zombieInstance.TryGetComponent<NavMeshAgent>(out var agent))
+        {
+            return;
+        }
+
+        if (agent.isOnNavMesh)
+        {
+            return;
+        }
+
+        // snap to nearest point on the navmesh
+        if (NavMesh.SamplePosition(zombieInstance.transform.position, out var hit, navMeshSnapDistance, NavMesh.AllAreas))
+        {
+            agent.Warp(hit.position);
+            return;
+        }
+
+        Debug.LogWarning($"ZombieSpawnPoint {spawnPointId}: Spawned zombie off NavMesh and could not find NavMesh within {navMeshSnapDistance} units.", zombieInstance);
+    }
+
     /// <summary>
     /// Gets the ID of this spawn point.
     /// </summary>
@@ -296,7 +339,7 @@ public class ZombieSpawnPoint : MonoBehaviour
         Gizmos.color = Color.yellow;
         Vector3 basePos = spawnLocation != null ? spawnLocation.position : transform.position;
         DrawCircle(basePos + spawnCenterOffset, spawnRadius, 16);
-        
+
         // Draw line connecting proximity center to spawn location
         if (spawnLocation != null)
         {

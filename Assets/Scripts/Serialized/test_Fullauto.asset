@@ -25,7 +25,29 @@ MonoBehaviour:
     reloadTime: 1
     spread: 0
   fx:
-    shootSound: shootSound
-    reloadSound: reloadSound
+    shootSound:
+      name: test_pew
+      clip: {fileID: 8300000, guid: 42ecc8dad998351fd9cd84b197f20432, type: 3}
+      volume: 0.51
+      pitch: 1
+      enableRandomPitch: 0
+      randomPitchModifier: 0.1
+      isLoop: 0
+      spatialBlend: 1
+      minDistance: 1
+      maxDistance: 20
+      source: {fileID: 0}
+    reloadSound:
+      name: test_reload
+      clip: {fileID: 8300000, guid: bd83678e92b540580a5d3f8d0621aeaf, type: 3}
+      volume: 0.7
+      pitch: 1
+      enableRandomPitch: 0
+      randomPitchModifier: 0.1
+      isLoop: 0
+      spatialBlend: 1
+      minDistance: 1
+      maxDistance: 20
+      source: {fileID: 0}
   bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
     type: 3}

@@ -130,8 +130,7 @@ public struct GunStats
 [Serializable]
 public struct GunFX
 {
-    // TODO go back to direct references
-    public string shootSound;
-    public string reloadSound;
+    public Sound shootSound;
+    public Sound reloadSound;
 }
 

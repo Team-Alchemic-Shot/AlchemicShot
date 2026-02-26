@@ -1,12 +1,15 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
+    [SerializeField] private int initialPoolSize = 2;
+    [SerializeField] private int maxSourcesPerObject = 8;
+    [SerializeField] private bool allowPoolGrowth = true;
 
-    [SerializeField] private Sound[] sounds;
-    private Dictionary<string, Sound> soundDictionary;
+    private readonly Dictionary<GameObject, List<AudioSource>> sourcePools = new();
+    private readonly Dictionary<AudioSource, Dictionary<AudioClip, float>> oneShotEndTimes = new();
 
     void Awake()
     {
@@ -21,87 +24,257 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // Initialize Dictionary for fast lookup
-        soundDictionary = new Dictionary<string, Sound>();
-        foreach (Sound s in sounds)
-        {
-            if (!soundDictionary.ContainsKey(s.name))
-            {
-                soundDictionary.Add(s.name, s);
-            }
-            else
-            {
-                Debug.LogWarning($"Duplicate sound name found: {s.name}");
-            }
-        }
     }
 
-    /// <summary>
-    /// Plays a sound at a specific 3D position. Creates a temporary GameObject.
-    /// </summary>
-    public void PlaySound3D(string soundName, Vector3 position)
+    public static void PlayGunfire(GunDefinition definition, GameObject source)
     {
-        if (!soundDictionary.ContainsKey(soundName))
+        PlaySound(definition.fx.shootSound, source);
+    }
+
+    public static void PlayReload(GunDefinition definition, GameObject source)
+    {
+        PlaySound(definition.fx.reloadSound, source);
+    }
+    
+    /// <summary>
+    /// Plays the given sound from the specified source GameObject. 
+    /// If an AudioSource is provided, it will be used; otherwise, 
+    /// an available AudioSource from the pool will be used or created if necessary. 
+    /// The playOverwrite flag determines whether to stop any currently playing instance
+    /// of the same clip before playing the new sound. 
+    /// This method handles both one-shot and looping sounds, 
+    /// as well as random pitch variation if enabled in the Sound definition.
+    /// </summary>
+    /// <param name="sound"></param>
+    /// <param name="source"></param>
+    /// <param name="audioSource"></param>
+    /// <param name="playOverwrite">Whether to stop any currently playing instance of the same clip before playing the new sound</param>
+    public static void PlaySound(Sound sound, GameObject source, AudioSource audioSource = null, bool playOverwrite = true)
+    {
+        if (Instance == null)
         {
-            Debug.LogWarning($"Sound: {soundName} not found!");
             return;
         }
 
-        Sound s = soundDictionary[soundName];
-        
-        // 1. Create a temporary GameObject
-        GameObject soundObj = new GameObject("TempAudio_" + soundName);
-        soundObj.transform.position = position;
-
-        // 2. Add and configure AudioSource
-        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
-        audioSource.clip = s.clip;
-        audioSource.volume = s.volume;
-        audioSource.spatialBlend = s.spatialBlend; // 1.0 is fully 3D
-        audioSource.minDistance = s.minDistance;
-        audioSource.maxDistance = s.maxDistance;
-        audioSource.rolloffMode = AudioRolloffMode.Linear; // or Logarithmic
-        
-        // 3. Handle Pitch
-        if (s.enableRandomPitch)
+        if (sound.clip == null)
         {
-            audioSource.pitch = s.pitch * (1f + Random.Range(-s.randomPitchModifier, s.randomPitchModifier));
+            return;
+        }
+
+        var pool = Instance.GetPool(source);
+        if (!playOverwrite && Instance.IsClipPlaying(pool, sound.clip))
+        {
+            return;
+        }
+
+        if (playOverwrite)
+        {
+            Instance.StopClipInPool(pool, sound.clip);
+        }
+
+        var chosenSource = audioSource != null ? audioSource : Instance.GetAvailableSource(pool, playOverwrite);
+        if (chosenSource == null)
+        {
+            return;
+        }
+
+        var pitch = sound.enableRandomPitch ? sound.pitch + Random.Range(-sound.randomPitchModifier, sound.randomPitchModifier) : sound.pitch;
+        chosenSource.clip = sound.clip;
+        chosenSource.volume = sound.volume;
+        chosenSource.pitch = pitch;
+        chosenSource.loop = sound.isLoop;
+        chosenSource.spatialBlend = sound.spatialBlend;
+        chosenSource.minDistance = sound.minDistance;
+        chosenSource.maxDistance = sound.maxDistance;
+        sound.source = chosenSource;
+
+        if (sound.isLoop)
+        {
+            chosenSource.Play();
         }
         else
         {
-            audioSource.pitch = s.pitch;
+            chosenSource.loop = false;
+            chosenSource.PlayOneShot(sound.clip);
+            Instance.SetOneShotEndTime(chosenSource, sound.clip, pitch);
         }
-
-        // 4. Play and Destroy
-        audioSource.Play();
-        
-        // Destroy the object after the clip finishes
-        Destroy(soundObj, s.clip.length + 0.1f);
     }
 
-    /// <summary>
-    /// Plays a 2D sound (UI, Music) that is not attached to a position.
-    /// </summary>
-    public void PlaySound2D(string soundName)
+    private List<AudioSource> GetPool(GameObject source)
     {
-        if (!soundDictionary.ContainsKey(soundName)) return;
+        if (!sourcePools.TryGetValue(source, out var pool))
+        {
+            pool = new List<AudioSource>(initialPoolSize);
+            sourcePools[source] = pool;
 
-        Sound s = soundDictionary[soundName];
-        
-        // For 2D sounds, we can create a temporary object parented to the manager
-        // Or reuse a centralized AudioSource if overlap isn't an issue.
-        // Here creates a temp object for consistency:
-        GameObject soundObj = new GameObject("TempAudio2D_" + soundName);
-        soundObj.transform.parent = this.transform;
-        
-        AudioSource audioSource = soundObj.AddComponent<AudioSource>();
-        audioSource.clip = s.clip;
-        audioSource.volume = s.volume;
-        audioSource.pitch = s.pitch;
-        audioSource.spatialBlend = 0f; // 2D Sound
+            for (var i = 0; i < initialPoolSize; i++)
+            {
+                pool.Add(CreatePooledSource(source));
+            }
+        }
 
-        audioSource.Play();
-        Destroy(soundObj, s.clip.length + 0.1f);
+        return pool;
+    }
+
+    private AudioSource CreatePooledSource(GameObject source)
+    {
+        var created = source.AddComponent<AudioSource>();
+        created.playOnAwake = false;
+        return created;
+    }
+
+    private AudioSource GetAvailableSource(List<AudioSource> pool, bool playOverwrite)
+    {
+        for (var i = 0; i < pool.Count; i++)
+        {
+            var candidate = pool[i];
+            if (!IsSourceBusy(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        if (allowPoolGrowth && pool.Count < maxSourcesPerObject)
+        {
+            var created = CreatePooledSource(pool[0].gameObject);
+            pool.Add(created);
+            return created;
+        }
+
+        if (playOverwrite && pool.Count > 0)
+        {
+            pool[0].Stop();
+            return pool[0];
+        }
+
+        return null;
+    }
+
+    private bool IsSourceBusy(AudioSource source)
+    {
+        if (source.isPlaying)
+        {
+            return true;
+        }
+
+        return IsAnyOneShotPlaying(source);
+    }
+
+    private bool IsAnyOneShotPlaying(AudioSource source)
+    {
+        if (!oneShotEndTimes.TryGetValue(source, out var clipEndTimes))
+        {
+            return false;
+        }
+
+        var now = Time.time;
+        var stillPlaying = false;
+        var expired = new List<AudioClip>();
+        foreach (var entry in clipEndTimes)
+        {
+            if (entry.Value <= now)
+            {
+                expired.Add(entry.Key);
+            }
+            else
+            {
+                stillPlaying = true;
+            }
+        }
+
+        for (var i = 0; i < expired.Count; i++)
+        {
+            clipEndTimes.Remove(expired[i]);
+        }
+
+        if (clipEndTimes.Count == 0)
+        {
+            oneShotEndTimes.Remove(source);
+        }
+
+        return stillPlaying;
+    }
+
+    private bool IsClipPlaying(List<AudioSource> pool, AudioClip clip)
+    {
+        for (var i = 0; i < pool.Count; i++)
+        {
+            var candidate = pool[i];
+            if (candidate.isPlaying && candidate.clip == clip)
+            {
+                return true;
+            }
+
+            if (IsOneShotPlaying(candidate, clip))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void StopClipInPool(List<AudioSource> pool, AudioClip clip)
+    {
+        for (var i = 0; i < pool.Count; i++)
+        {
+            var candidate = pool[i];
+            if (candidate.isPlaying && candidate.clip == clip)
+            {
+                candidate.Stop();
+            }
+
+            ClearOneShot(candidate, clip);
+        }
+    }
+
+    private bool IsOneShotPlaying(AudioSource audioSource, AudioClip clip)
+    {
+        if (!oneShotEndTimes.TryGetValue(audioSource, out var clipEndTimes))
+        {
+            return false;
+        }
+
+        if (!clipEndTimes.TryGetValue(clip, out var endTime))
+        {
+            return false;
+        }
+
+        if (endTime <= Time.time)
+        {
+            clipEndTimes.Remove(clip);
+            if (clipEndTimes.Count == 0)
+            {
+                oneShotEndTimes.Remove(audioSource);
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ClearOneShot(AudioSource audioSource, AudioClip clip)
+    {
+        if (!oneShotEndTimes.TryGetValue(audioSource, out var clipEndTimes))
+        {
+            return;
+        }
+
+        if (clipEndTimes.Remove(clip) && clipEndTimes.Count == 0)
+        {
+            oneShotEndTimes.Remove(audioSource);
+        }
+    }
+
+    private void SetOneShotEndTime(AudioSource audioSource, AudioClip clip, float pitch)
+    {
+        if (!oneShotEndTimes.TryGetValue(audioSource, out var clipEndTimes))
+        {
+            clipEndTimes = new Dictionary<AudioClip, float>();
+            oneShotEndTimes[audioSource] = clipEndTimes;
+        }
+
+        var absPitch = Mathf.Max(0.0001f, Mathf.Abs(pitch));
+        clipEndTimes[clip] = Time.time + (clip.length / absPitch);
     }
 }

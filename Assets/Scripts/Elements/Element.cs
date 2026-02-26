@@ -10,9 +10,8 @@ public class Element : ScriptableObject
     public Sprite elementIcon;
     public ElementTier elementTier;
     public GameObject vfxPrefab;
+    public Sound impactSound;
     public GameObject projectileVfxPrefab;
-    public AudioClip sfxClip;
-    public float sfxVolume = 1.0f;
 
     public List<ElementBehavior> behaviors = new();
 }

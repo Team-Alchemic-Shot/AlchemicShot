@@ -589,8 +589,8 @@ MonoBehaviour:
   pitchOffset: 90
   followYaw: 0
   followPosition: 1
-  cameraLocalOffset: {x: 0.2, y: -0.2, z: 0.5}
-  gunRotationOffset: {x: 0, y: 0, z: 0}
+  cameraLocalOffset: {x: 0.2, y: -0.23, z: 0.5}
+  gunRotationOffset: {x: -90, y: 0, z: 0}
 --- !u!1 &1473863401288948816
 GameObject:
   m_ObjectHideFlags: 0

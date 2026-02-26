@@ -22,6 +22,11 @@ public class ZombieArchetype : ScriptableObject
     public float orbitAngularSpeed = 0.8f;
     public float chaseStoppingDistance = 1.25f; // stop distance, breathing room.
 
+
+    [Header("Damage Knockback")]
+    public float knockbackForce = 2f;
+    public float knockbackUpwardForce = 0.25f;
+
     //TODO: maybe? in zombieclimb, kind of works
     [Header("Climb")]
     public bool canclimb = false;

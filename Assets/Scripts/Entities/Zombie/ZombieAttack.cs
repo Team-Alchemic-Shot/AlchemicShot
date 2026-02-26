@@ -12,6 +12,13 @@ public class ZombieAttack : MonoBehaviour
     [SerializeField]
     private float damageAmount = 10f;
 
+    [SerializeField]
+    private float knockbackForce = 2f;
+    [SerializeField]
+    private float knockbackUpwardForce = 0.25f;
+
+    public float KnockbackForce => knockbackForce;
+    public float KnockbackUpwardForce => knockbackUpwardForce;
     private float attackTimer;
     private ZombieTargeting targeting;
 
@@ -21,6 +28,20 @@ public class ZombieAttack : MonoBehaviour
     {
         targeting = GetComponent<ZombieTargeting>();
     }
+
+
+    public void ApplyArchetype(ZombieArchetype archetype)
+    {
+        if (archetype == null)
+        {
+            return;
+        }
+
+        knockbackForce = archetype.knockbackForce;
+        knockbackUpwardForce = archetype.knockbackUpwardForce;
+    }
+
+    
 
     private void Update()
     {

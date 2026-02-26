@@ -20,7 +20,6 @@ GameObject:
   - component: {fileID: 9186386571164479368}
   - component: {fileID: -158631422799525817}
   - component: {fileID: 2528361269897102105}
-  - component: {fileID: 1384331517967948392}
   - component: {fileID: -8551088608753738905}
   - component: {fileID: 1502787037502353524}
   - component: {fileID: 2279555972070101054}
@@ -287,7 +286,7 @@ MonoBehaviour:
   sound:
     name: 
     clip: {fileID: 8300000, guid: 5c52f43a5a5dddd41bb34a1010b04f03, type: 3}
-    volume: 0.786
+    volume: 0.5
     pitch: 1
     enableRandomPitch: 1
     randomPitchModifier: 0.1
@@ -297,9 +296,6 @@ MonoBehaviour:
     maxDistance: 20
     source: {fileID: 0}
   noiseInterval: 7
-  m_Script: {fileID: 11500000, guid: 7d5e46b9943c86944b653d01dadf556d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1502787037502353524
 MonoBehaviour:
   m_ObjectHideFlags: 0

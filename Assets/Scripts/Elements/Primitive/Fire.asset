@@ -21,7 +21,7 @@ MonoBehaviour:
   impactSound:
     name: FireImpact
     clip: {fileID: 8300000, guid: eb866f42c8b105a4da6239ccf3108bbb, type: 3}
-    volume: 0.7
+    volume: 1
     pitch: 1
     enableRandomPitch: 0
     randomPitchModifier: 0.1
@@ -30,5 +30,6 @@ MonoBehaviour:
     minDistance: 1
     maxDistance: 20
     source: {fileID: 0}
+  projectileVfxPrefab: {fileID: 0}
   behaviors:
   - {fileID: 11400000, guid: 7ca607b9b1b445220b902b84443e5d94, type: 2}

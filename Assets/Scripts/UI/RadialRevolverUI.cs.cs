@@ -79,7 +79,7 @@ public class RadialRevolverUI : MagazineUI
         }
     }
 
-    public override void OnFired(BulletData data = null)
+    public override void OnFired(BulletData data, GunDefinition definition, GameObject source)
     {
         UpdateUI(playerGun.GetMagazine());
     }

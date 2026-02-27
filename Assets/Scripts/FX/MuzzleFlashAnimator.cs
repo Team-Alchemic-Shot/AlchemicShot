@@ -47,12 +47,14 @@ public static class MuzzleFlashAnimator
         return true;
     }
 
-    public static void PlayMuzzleFlash(GunDefinition definition, GameObject player)
+    public static void PlayMuzzleFlash(BulletData data, GunDefinition definition, GameObject player)
     {
         if (!TryGetMuzzleFlashPose(definition, player, out Vector3 worldPos, out Quaternion worldRot))
         {
             return;
         }
+
+        var color = data.element.elementColor;
 
         var fx = definition.fx.muzzleFlash;
 

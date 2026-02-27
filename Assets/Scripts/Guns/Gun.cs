@@ -15,7 +15,7 @@ public class Gun : MonoBehaviour
     public event Action<GunDefinition, GameObject> ReloadStarted;
 
     public event Action<ElementBehaviorContext> HitTarget;
-    public event Action<BulletData> FiredBullet;
+    public event Action<BulletData, GunDefinition, GameObject> FiredBullet;
     public event Action<Ray, RaycastHit> HitSomething;
     public event Action<int, MagazineState> Reloaded;
 
@@ -52,8 +52,7 @@ public class Gun : MonoBehaviour
         Mechanism.Initialize( // set references
             magazineBlueprint, 
             magazineState,
-            gunDefinition.stats,
-            gunDefinition.fx, 
+            gunDefinition,
             player,
             gunDefinition.bulletPrefab);
 
@@ -89,7 +88,7 @@ public class Gun : MonoBehaviour
     }
 
     private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
-    private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
+    private void OnMechanismFiredBullet(BulletData bullet, GunDefinition definition, GameObject source) => FiredBullet?.Invoke(bullet, definition, source);
     private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
     private void OnMechanismReloaded(int ammoLoaded, MagazineState state) => Reloaded?.Invoke(ammoLoaded, state);
 

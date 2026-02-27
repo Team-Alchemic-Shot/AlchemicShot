@@ -17,7 +17,8 @@ MonoBehaviour:
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0
-  vfxPrefab: {fileID: 0}
+  vfxPrefab: {fileID: 6277193578462469054, guid: b6abdc26406fd954fa62bf360c8100dd,
+    type: 3}
   impactSound:
     name: WaterImpact
     clip: {fileID: 8300000, guid: 098122671f296fe4d900b84e1b27533e, type: 3}
@@ -30,6 +31,5 @@ MonoBehaviour:
     minDistance: 1
     maxDistance: 20
     source: {fileID: 0}
-  projectileVfxPrefab: {fileID: 0}
   behaviors:
   - {fileID: 11400000, guid: ed3212d0afa5dbae4bb162ee91248a4d, type: 2}

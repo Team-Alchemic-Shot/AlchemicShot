@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerControllerSource : MonoBehaviour
+public class PlayerControllerSource : MovementBase
 {
     [Header("General Settings")]
     [SerializeField]
@@ -93,10 +93,13 @@ public class PlayerControllerSource : MonoBehaviour
     private Camera playerCamera;
     private Rigidbody rb;
 
+    private Stamina stamina;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         playerCamera = Camera.main;
+        stamina = GetComponent<Stamina>();
         
         // Smooth visual motion between physics ticks.
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -118,8 +121,12 @@ public class PlayerControllerSource : MonoBehaviour
 
     void Update()
     {
-        Look();
-        ApplyLookRotation();
+        bool inventoryOpen = elementSelector != null && elementSelector.IsOpen;
+        if (!inventoryOpen)
+        {
+            Look();
+            ApplyLookRotation();
+        }
         ReadMovementInput();
         ReadSprintInput();
         QueueJump();
@@ -145,7 +152,19 @@ public class PlayerControllerSource : MonoBehaviour
 
     private void ReadSprintInput()
     {
-        sprintHeld = sprintAction != null && sprintAction.IsPressed();
+        bool wantsSprint = sprintAction != null && sprintAction.IsPressed();
+
+        if (stamina == null)
+        {
+            sprintHeld = wantsSprint;
+            return;
+        }
+
+        sprintHeld = wantsSprint && stamina.CanSprint();
+        if (sprintHeld)
+        {
+            NotifyRun();
+        }
     }
 
     void FixedUpdate() // Unity physics updates here at a fixed interval
@@ -187,6 +206,10 @@ public class PlayerControllerSource : MonoBehaviour
         }
 
         desiredMoveDirection = moveDirection;
+        if (desiredMoveDirection.sqrMagnitude > 0.0001f && !sprintHeld)
+        {
+            NotifyWalk();
+        }
     }
 
     private void QueueJump()
@@ -218,6 +241,13 @@ public class PlayerControllerSource : MonoBehaviour
         {
             currentMoveSpeed *= sprintMultiplier;
         }
+
+        if (stamina != null && sprintHeld && (!sprintOnlyOnGround || isGrounded))
+        {
+            stamina.DrainSprint(dt);
+        }
+
+
 
         float wishSpeed = currentMoveSpeed;
         float accel = isGrounded ? groundAcceleration : airAcceleration;
@@ -269,6 +299,7 @@ public class PlayerControllerSource : MonoBehaviour
             newY = jumpForce;
             jumpQueued = false;
             jumpedSinceGrounded = true;
+            NotifyJump();
         }
         else if (jumpQueued && (Time.time - jumpQueuedAt) > jumpBufferTime)
         {
@@ -399,5 +430,9 @@ public class PlayerControllerSource : MonoBehaviour
             Physics.DefaultRaycastLayers,
             QueryTriggerInteraction.Ignore
         );
+        if (isGrounded && !wasGrounded)
+        {
+            NotifyLand();
+        }
     }
 }

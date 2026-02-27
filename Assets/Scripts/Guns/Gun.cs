@@ -15,9 +15,16 @@ public class Gun : MonoBehaviour
     public event Action<GunDefinition, GameObject> ReloadStarted;
 
     public event Action<ElementBehaviorContext> HitTarget;
-    public event Action<BulletData> FiredBullet;
+    public event Action<BulletData, GunDefinition, GameObject> FiredBullet;
     public event Action<Ray, RaycastHit> HitSomething;
     public event Action<int, MagazineState> Reloaded;
+
+    [Header("Debug")]
+    [SerializeField]
+    private bool drawMuzzleFlashGizmo = true;
+
+    [SerializeField]
+    private float muzzleGizmoRadius = 0.04f;
 
     private GameObject player;
     private InputAction fireAction;
@@ -45,8 +52,7 @@ public class Gun : MonoBehaviour
         Mechanism.Initialize( // set references
             magazineBlueprint, 
             magazineState,
-            gunDefinition.stats,
-            gunDefinition.fx, 
+            gunDefinition,
             player,
             gunDefinition.bulletPrefab);
 
@@ -82,7 +88,7 @@ public class Gun : MonoBehaviour
     }
 
     private void OnMechanismHitTarget(ElementBehaviorContext context) => HitTarget?.Invoke(context);
-    private void OnMechanismFiredBullet(BulletData bullet) => FiredBullet?.Invoke(bullet);
+    private void OnMechanismFiredBullet(BulletData bullet, GunDefinition definition, GameObject source) => FiredBullet?.Invoke(bullet, definition, source);
     private void OnMechanismHitSomething(Ray ray, RaycastHit hit) => HitSomething?.Invoke(ray, hit);
     private void OnMechanismReloaded(int ammoLoaded, MagazineState state) => Reloaded?.Invoke(ammoLoaded, state);
 
@@ -175,8 +181,45 @@ public class Gun : MonoBehaviour
         {
             if (magazineBlueprint.bullets[i] != null)
             {
-                magazineState.Push(magazineBlueprint.bullets[i]);
+                magazineState.Push(magazineBlueprint.bullets[i].Clone());
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!drawMuzzleFlashGizmo || gunDefinition == null)
+        {
+            return;
+        }
+
+        GameObject playerRef = player;
+        if (playerRef == null)
+        {
+            playerRef = GameObject.FindGameObjectWithTag("Player");
+        }
+
+        if (!MuzzleFlashAnimator.TryGetMuzzleFlashPose(gunDefinition, playerRef, out Vector3 muzzlePos, out _))
+        {
+            return;
+        }
+
+        Transform anchor = transform;
+        if (playerRef != null)
+        {
+            var gunLook = playerRef.GetComponentInChildren<GunLook>();
+            if (gunLook != null)
+            {
+                anchor = gunLook.transform;
+            }
+            else
+            {
+                anchor = playerRef.transform;
+            }
+        }
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(anchor.position, muzzlePos);
+        Gizmos.DrawSphere(muzzlePos, muzzleGizmoRadius);
     }
 }

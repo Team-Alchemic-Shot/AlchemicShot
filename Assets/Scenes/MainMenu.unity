@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -627,7 +627,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1752806815}
+      - m_Target: {fileID: 1787820237}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
@@ -1104,7 +1104,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1752806815}
+      - m_Target: {fileID: 1787820237}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: LoadGame
         m_Mode: 1
@@ -1233,7 +1233,6 @@ GameObject:
   - component: {fileID: 1752806814}
   - component: {fileID: 1752806817}
   - component: {fileID: 1752806816}
-  - component: {fileID: 1752806815}
   m_Layer: 5
   m_Name: MenuScreen
   m_TagString: Untagged
@@ -1263,24 +1262,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1752806815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1752806813}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 192897b2a4b2e9642a4ad2a98e85ad00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pauseMenuUI: {fileID: 0}
-  deathScreenUI: {fileID: 0}
-  scriptsToDisable: []
-  player: {fileID: 0}
-  mainMenuSceneName: MainMenu
-  gameSceneName: BasicUI
 --- !u!114 &1752806816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1319,6 +1300,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1752806813}
   m_CullTransparentMesh: 1
+--- !u!1 &1787820236
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1787820238}
+  - component: {fileID: 1787820237}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1787820237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787820236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 192897b2a4b2e9642a4ad2a98e85ad00, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenuUI: {fileID: 0}
+  deathScreenUI: {fileID: 0}
+  scriptsToDisable: []
+  player: {fileID: 0}
+  mainMenuSceneName: MainMenu
+  gameSceneName: Scene_A
+--- !u!4 &1787820238
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787820236}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 654.3, y: 22.31, z: 494.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1327,3 +1358,4 @@ SceneRoots:
   - {fileID: 437324361}
   - {fileID: 142157414}
   - {fileID: 1390144703}
+  - {fileID: 1787820238}

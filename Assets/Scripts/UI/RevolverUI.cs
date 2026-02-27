@@ -25,7 +25,7 @@ public class RevolverUI : MagazineUI
 
     // --- THE FIX ---
     // We completely deleted Update() and moved the visual logic here.
-    public override void OnFired(BulletData data = null)
+    public override void OnFired(BulletData data, GunDefinition definition, GameObject source)
     {
         // Step 1: Wipe the UI panel clean so we don't infinitely stack text
         foreach (Transform child in bulletPanel)

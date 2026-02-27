@@ -24,8 +24,36 @@ MonoBehaviour:
     magazineSize: 8
     reloadTime: 1.5
     spread: 5
+    recoil: 10
   fx:
-    shootSound: shootSound
-    reloadSound: reloadSound
+    muzzleFlash:
+      prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
+        type: 3}
+      duration: 0.5
+      muzzleOffset: {x: 0, y: 0.1, z: 1.4}
+    shootSound:
+      name: nBarrelShoot
+      clip: {fileID: 8300000, guid: 756b1c7a93e7d8e4b99ac5dbe0d87807, type: 3}
+      volume: 0.3
+      pitch: 1
+      enableRandomPitch: 0
+      randomPitchModifier: 0.1
+      isLoop: 0
+      spatialBlend: 1
+      minDistance: 1
+      maxDistance: 20
+      source: {fileID: 0}
+    reloadSound:
+      name: nBarrelReload
+      clip: {fileID: 8300000, guid: ea22a43712449d648b9c330417284b4a, type: 3}
+      volume: 0.7
+      pitch: 1
+      enableRandomPitch: 0
+      randomPitchModifier: 0.1
+      isLoop: 0
+      spatialBlend: 1
+      minDistance: 1
+      maxDistance: 20
+      source: {fileID: 0}
   bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
     type: 3}

@@ -6,7 +6,6 @@ public class BulletScript : MonoBehaviour
     private float lifetime = 10f;
     private float lifeTimer = 0f;
     private Rigidbody rb;
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();

@@ -21,6 +21,8 @@ public class ZombieRoundManager : MonoBehaviour
         [Tooltip("Multiplier for zombie health/damage")]
         [Range(1f, 3f)]
         public float difficultyMultiplier = 1f;
+
+        public int bigZombieCount = 0;
     }
 
     public static ZombieRoundManager Instance { get; private set; }
@@ -52,6 +54,10 @@ public class ZombieRoundManager : MonoBehaviour
     private int zombiesInRound = 0;
     private int zombiesKilled = 0;
     private int zombiesSpawned = 0;
+
+    private int bigZombiesInRound = 0;
+    private int bigZombiesSpawned = 0;
+
     private bool roundInProgress = false;
     private List<ZombieSpawnPoint> spawnPoints = new();
     private List<MapLocation> mapLocations = new();
@@ -148,6 +154,7 @@ public class ZombieRoundManager : MonoBehaviour
 
         zombiesSpawned = 0;
         zombiesKilled = 0;
+        bigZombiesSpawned = 0;
         roundInProgress = true;
         currentRound++;
 
@@ -177,8 +184,10 @@ public class ZombieRoundManager : MonoBehaviour
     /// Attempts to reserve a spawn slot for this round.
     /// Returns false when no spawns remain.
     /// </summary>
-    public bool TryRegisterSpawn()
+    public bool TryRegisterSpawn(out bool spawnBigZombie)
     {
+        spawnBigZombie = false;
+
         if (!roundInProgress)
         {
             return false;
@@ -187,6 +196,21 @@ public class ZombieRoundManager : MonoBehaviour
         if (zombiesSpawned >= zombiesInRound)
         {
             return false;
+        }
+
+        int spawnsRemaining = zombiesInRound - zombiesSpawned;
+        int bigRemaining = bigZombiesInRound - bigZombiesSpawned;
+
+        // spread spawns
+        
+        if (bigRemaining > 0 && spawnsRemaining > 0)
+        {
+            float chance = (float)bigRemaining / spawnsRemaining;
+            if (UnityEngine.Random.value <= chance)
+            {
+                spawnBigZombie = true;
+                bigZombiesSpawned++;
+            }
         }
 
         zombiesSpawned++;
@@ -237,17 +261,22 @@ public class ZombieRoundManager : MonoBehaviour
     /// </summary>
     private void CalculateZombieCount()
     {
+        RoundConfig config;
+
         if (currentRound > roundConfigs.Length)
         {
-            // Use last config and scale difficulty
-            var lastConfig = roundConfigs[^1];
-            zombiesInRound = lastConfig.zombieCount;
+            // Use last config for rounds beyond configured list
+            config = roundConfigs[^1];
         }
         else
         {
-            var config = roundConfigs[currentRound - 1];
-            zombiesInRound = config.zombieCount;
+            config = roundConfigs[currentRound - 1];
         }
+
+        bigZombiesInRound = Mathf.Max(0, config.bigZombieCount);
+
+        // Total spawns for round includes both normal + big.
+        zombiesInRound = Mathf.Max(0, config.zombieCount) + bigZombiesInRound;
     }
 
     /// <summary>

@@ -926,8 +926,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3c2dcaa3432dc74698118caef122ff4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthPickupPrefab: {fileID: 0}
-  dropChance: 0.15
+  healthPickupPrefab: {fileID: 5491186631605572178, guid: 51c78608ce5cea4438237c0df934b5f8,
+    type: 3}
+  dropChance: 0.197
 --- !u!114 &2243578872844412077
 MonoBehaviour:
   m_ObjectHideFlags: 0

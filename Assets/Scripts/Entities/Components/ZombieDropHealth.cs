@@ -28,16 +28,18 @@ public class ZombieDropHealth : MonoBehaviour
 
     private void HandleDeath(Health deadHealth)
     {
-        if (healthPickupPrefab == null)
+        if (healthPickupPrefab == null || Random.value > dropChance)
         {
             return;
         }
 
-        if (Random.value > dropChance)
+        Vector3 spawnPos = transform.position;
+
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f))
         {
-            return;
+            spawnPos = hit.point + Vector3.up * 0.15f;
         }
 
-        Instantiate(healthPickupPrefab, transform.position, Quaternion.identity);
+        Instantiate(healthPickupPrefab, spawnPos, Quaternion.identity);
     }
 }

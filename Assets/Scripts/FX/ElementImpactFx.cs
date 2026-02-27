@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -30,43 +28,10 @@ public static class ElementImpactFx
                     target.transform);
             }
 
-            // Apply mesh color shift based on element
-            ApplyMeshColorShift(target, element);
-
-            if (element.sfxClip != null)
+            if (element.impactSound != null && element.impactSound.clip != null)
             {
-                AudioSource.PlayClipAtPoint(
-                    element.sfxClip,
-                    context.position,
-                    element.sfxVolume);
+                SoundManager.PlaySound(element.impactSound, target);
             }
         }
-    }
-
-    private static void ApplyMeshColorShift(GameObject target, Element element)
-    {
-        if (target == null)
-        {
-            return;
-        }
-
-        if (!target.TryGetComponent<MeshRenderer>(out var meshRenderer))
-        {
-            meshRenderer = target.GetComponentInChildren<MeshRenderer>();
-        }
-
-        if (meshRenderer == null)
-        {
-            return;
-        }
-
-        // Calculate duration from behaviors
-        float duration = 3f; // default
-        if (element.behaviors != null && element.behaviors.Count > 0)
-        {
-            duration = element.behaviors.Max(b => b.duration);
-        }
-
-        ElementImpactColorReverter.ApplyColor(target, meshRenderer, element.elementColor, duration);
     }
 }

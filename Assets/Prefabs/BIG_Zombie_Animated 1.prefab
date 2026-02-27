@@ -606,6 +606,8 @@ GameObject:
   - component: {fileID: 3752087154677381989}
   - component: {fileID: 158816579954336167}
   - component: {fileID: 3175977648603697900}
+  - component: {fileID: 9197697109214089660}
+  - component: {fileID: -958347587995308374}
   m_Layer: 3
   m_Name: BIG_Zombie_Animated 1
   m_TagString: Zombie
@@ -912,6 +914,46 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackAnimLength: 1.667
   deathAnimLength: 1.042
+--- !u!114 &9197697109214089660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131329478212537111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3c2dcaa3432dc74698118caef122ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthPickupPrefab: {fileID: 5491186631605572178, guid: 51c78608ce5cea4438237c0df934b5f8,
+    type: 3}
+  dropChance: 0.278
+--- !u!114 &-958347587995308374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1131329478212537111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb0072a6c47e047fc96ed8f38e8437bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sound:
+    name: 
+    clip: {fileID: 8300000, guid: 5c52f43a5a5dddd41bb34a1010b04f03, type: 3}
+    volume: 0.5
+    pitch: 1
+    enableRandomPitch: 0
+    randomPitchModifier: 0.1
+    isLoop: 0
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 20
+    source: {fileID: 0}
+  noiseInterval: 7
 --- !u!1 &1457946352335224961
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static bool GameIsPaused = false;
+    public static bool IsAnyUIOpen = false;
 
     [Header("UI References")]
     public GameObject pauseMenuUI;
@@ -17,6 +18,10 @@ public class GameManager : MonoBehaviour
 
     [Header("Player State")]
     public GameObject player;
+
+    [Header("UI State")]
+    [SerializeField]
+    private ElementSelector elementSelector;
     
     // We only need to read health, not inherit it
     private Health playerHealthComponent;
@@ -30,6 +35,13 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         GameIsPaused = false;
+        IsAnyUIOpen = false;
+
+        if (elementSelector == null)
+        {
+            elementSelector = FindObjectOfType<ElementSelector>();
+        }
+
         // Auto-find player if not assigned
         if (player == null)
         {
@@ -51,6 +63,11 @@ public class GameManager : MonoBehaviour
             {
                 Resume();
             }
+            else if (elementSelector != null && elementSelector.IsOpen)
+            {
+                elementSelector.Toggle();
+                Pause();
+            }
             else
             {
                 Pause();
@@ -70,6 +87,7 @@ public class GameManager : MonoBehaviour
         pauseMenuUI.SetActive(false);
         Time.timeScale = 1f;
         GameIsPaused = false;
+        IsAnyUIOpen = elementSelector != null && elementSelector.IsOpen;
 
         // Re-enable controls
         TogglePlayerScripts(true);
@@ -84,6 +102,7 @@ public class GameManager : MonoBehaviour
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f;
         GameIsPaused = true;
+        IsAnyUIOpen = true;
 
         // Disable controls
         TogglePlayerScripts(false);
@@ -98,6 +117,7 @@ public class GameManager : MonoBehaviour
         deathScreenUI.SetActive(true);
         Time.timeScale = 0f;
         GameIsPaused = true;
+        IsAnyUIOpen = true;
 
         // Disable controls
         TogglePlayerScripts(false);
@@ -125,6 +145,7 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         GameIsPaused = false;
+        IsAnyUIOpen = false;
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
@@ -132,7 +153,13 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         GameIsPaused = false;
+        IsAnyUIOpen = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public static void SetUIOpenState(bool isOpen)
+    {
+        IsAnyUIOpen = isOpen;
     }
 
     public void QuitGame()

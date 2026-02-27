@@ -26,6 +26,8 @@ public class ElementSelector : MonoBehaviour
     private bool _isVisible;
     private DragDrop _dragDropHandler;
     private GunSelectionPanel _gunSelectionPanel; // Top-screen gun selection (always visible)
+
+    public bool IsOpen => _isVisible;
     
     private class GunSlotUI
     {
@@ -975,6 +977,7 @@ public class ElementSelector : MonoBehaviour
         }
         
         _isVisible = !_isVisible;
+        GameManager.SetUIOpenState(_isVisible || GameManager.GameIsPaused);
         _inventoryContainer.style.display = _isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         Debug.Log($"InventoryUI: Toggle called, _isVisible = {_isVisible}, display = {_inventoryContainer.style.display.value}");
         

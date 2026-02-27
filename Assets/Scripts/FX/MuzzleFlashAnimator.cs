@@ -55,6 +55,10 @@ public static class MuzzleFlashAnimator
         }
 
         var color = data.element.elementColor;
+        if (color == null)
+        {
+            color = Color.white;
+        }
 
         var fx = definition.fx.muzzleFlash;
 

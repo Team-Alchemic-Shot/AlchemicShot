@@ -24,7 +24,13 @@ MonoBehaviour:
     magazineSize: 8
     reloadTime: 1.5
     spread: 5
+    recoil: 10
   fx:
+    muzzleFlash:
+      prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
+        type: 3}
+      duration: 0.5
+      muzzleOffset: {x: 0, y: 0.1, z: 1.4}
     shootSound:
       name: nBarrelShoot
       clip: {fileID: 8300000, guid: 756b1c7a93e7d8e4b99ac5dbe0d87807, type: 3}

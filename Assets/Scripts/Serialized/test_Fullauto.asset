@@ -24,7 +24,13 @@ MonoBehaviour:
     magazineSize: 30
     reloadTime: 1
     spread: 0
+    recoil: 5
   fx:
+    muzzleFlash:
+      prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
+        type: 3}
+      duration: 0.5
+      muzzleOffset: {x: 0, y: 0.09, z: 0.55}
     shootSound:
       name: test_pew
       clip: {fileID: 8300000, guid: 42ecc8dad998351fd9cd84b197f20432, type: 3}

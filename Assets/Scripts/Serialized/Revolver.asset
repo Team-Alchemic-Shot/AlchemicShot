@@ -24,6 +24,7 @@ MonoBehaviour:
     magazineSize: 6
     reloadTime: 1
     spread: 0
+    recoil: 5
   fx:
     shootSound:
       name: revolverShoot
@@ -49,5 +50,10 @@ MonoBehaviour:
       minDistance: 1
       maxDistance: 20
       source: {fileID: 0}
+    muzzleFlash:
+      prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
+        type: 3}
+      duration: 0.5
+      muzzleOffset: {x: 0, y: 0.14, z: 1}  
   bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
     type: 3}

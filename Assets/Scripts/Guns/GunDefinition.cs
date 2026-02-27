@@ -30,13 +30,12 @@ public abstract class LoadFireMechanism : ScriptableObject
 {
     protected MagazineBlueprint magazineBlueprint;
     protected MagazineState magazineState;
-    protected GunStats gunStats;
-    protected GunFX gunFX;
+    protected GunDefinition defintion;
     protected GameObject source;
     protected GameObject bulletPrefab;
 
     public event Action<ElementBehaviorContext> HitTarget;
-    public event Action<BulletData> FiredBullet;
+    public event Action<BulletData, GunDefinition, GameObject> FiredBullet;
     public event Action<Ray, RaycastHit> HitSomething;
     public event Action<int, MagazineState> Reloaded;
 
@@ -46,22 +45,20 @@ public abstract class LoadFireMechanism : ScriptableObject
     public void Initialize(
         MagazineBlueprint bp, 
         MagazineState state, 
-        GunStats stats, 
-        GunFX fx, 
+        GunDefinition def,
         GameObject src,
         GameObject bullet)
     {
         magazineBlueprint = bp;
         magazineState = state;
-        gunStats = stats;
-        gunFX = fx;
+        defintion = def;
         source = src;
         bulletPrefab = bullet;
     }
 
-    protected void NotifyFiredBullet(BulletData bullet)
+    protected void NotifyFiredBullet(BulletData bullet, GunDefinition definition, GameObject player)
     {
-        FiredBullet?.Invoke(bullet);
+        FiredBullet?.Invoke(bullet, definition, player);
     }
     
     protected void NotifyHitTarget(ElementBehaviorContext context)
@@ -86,12 +83,12 @@ public abstract class LoadFireMechanism : ScriptableObject
     /// <returns></returns>
     protected Vector3 GetShotDirection(Transform camTransform)
     {
-        if (gunStats.spread <= 0f)
+        if (defintion.stats.spread <= 0f)
         {
             return camTransform.forward;
         }
 
-        float half = gunStats.spread * 0.5f;
+        float half = defintion.stats.spread * 0.5f;
         float yaw = UnityEngine.Random.Range(-half, half);
         float pitch = UnityEngine.Random.Range(-half, half);
         return Quaternion.Euler(pitch, yaw, 0f) * camTransform.forward;
@@ -122,6 +119,7 @@ public struct GunStats
     public int magazineSize;
     public float reloadTime;
     public float spread;
+    public float recoil;
 }
 
 /// <summary>
@@ -130,7 +128,15 @@ public struct GunStats
 [Serializable]
 public struct GunFX
 {
+    public MuzzleFlashFX muzzleFlash;
     public Sound shootSound;
     public Sound reloadSound;
 }
 
+[Serializable]
+public struct MuzzleFlashFX
+{
+    public GameObject prefab;
+    public float duration;
+    public Vector3 muzzleOffset;
+}

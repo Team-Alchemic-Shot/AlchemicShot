@@ -19,7 +19,7 @@ public class NBarrel : LoadFireMechanism
             return 0;
         }
 
-        float interval = gunStats.fireRate > 0f ? 1f / gunStats.fireRate : 0f;
+        float interval = defintion.stats.fireRate > 0f ? 1f / defintion.stats.fireRate : 0f;
         if (interval > 0f && Time.time < nextFireTime)
         {
             return 0;
@@ -57,21 +57,21 @@ public class NBarrel : LoadFireMechanism
 
             var bulletObj = Instantiate(bulletPrefab, cam.transform.position, source.transform.rotation);
             var bs = bulletObj.GetComponent<BulletScript>();
-            bs.Initialize(gunStats.bulletLifeTime, shotDirection, gunStats.bulletSpeed);
+            bs.Initialize(defintion.stats.bulletLifeTime, shotDirection, defintion.stats.bulletSpeed);
 
-            NotifyFiredBullet(bullet);
+            NotifyFiredBullet(bullet, defintion, source);
             firedCount++;
 
             // raycast (only hits Zombie and Default layer)
             Ray ray = new(cam.transform.position, shotDirection);
-            if (Physics.Raycast(ray, out RaycastHit hit, gunStats.range, zombieMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, defintion.stats.range, zombieMask))
             {
                 if (hit.collider.TryGetComponent<Health>(out var health))
                 {
                     // apply bullet damage
                     health.ApplyDamage(new DamageInfo
                     {
-                        amount = bullet.baseDamage + gunStats.damage,
+                        amount = bullet.baseDamage + defintion.stats.damage,
                         source = source,
                         position = hit.point
                     });

@@ -17,7 +17,8 @@ MonoBehaviour:
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0
-  vfxPrefab: {fileID: 0}
+  vfxPrefab: {fileID: 3493381423111240368, guid: 1839ea491cbe3a54d914e0573aa68e43,
+    type: 3}
   impactSound:
     name: AirImpact
     clip: {fileID: 8300000, guid: b93da49fb4dc45349a65986dadbea3d1, type: 3}
@@ -30,7 +31,5 @@ MonoBehaviour:
     minDistance: 1
     maxDistance: 20
     source: {fileID: 0}
-  projectileVfxPrefab: {fileID: 8223105634549180041, guid: 9ff9698dca2f3d34a8144b5f81f388a5,
-    type: 3}
   behaviors:
   - {fileID: 11400000, guid: e34fcdad7b7316cb29ad415bd630074b, type: 2}

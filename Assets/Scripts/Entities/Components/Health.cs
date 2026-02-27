@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+
 public class Health : EntityComponent, IDamageable
 {
     [SerializeField]
@@ -15,8 +16,6 @@ public class Health : EntityComponent, IDamageable
 
     public float CurrentHealth { get; private set; }
     public float MaxHealth => maxHealth;
-
-    
 
     public event Action<Health> OnDamaged;
     public event Action<Health> OnDeath;
@@ -33,20 +32,23 @@ public class Health : EntityComponent, IDamageable
         {
             return;
         }
-        Debug.Log($"[Damage] {name} took {info.amount} from {(info.source ? info.source.name : "NULL")} at {info.position}\n{Environment.StackTrace}", gameObject);        float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
+        Debug.Log($"[Damage] {name} took {info.amount} from {(info.source ? info.source.name : "NULL")} at {info.position}\n{Environment.StackTrace}", gameObject); float scaledDamage = info.amount * (1f + Mathf.Max(0f, weaknessMultiplier));
         // Debug.Log($"base damage={info.amount} weak={weaknessMultiplier} scaled={scaledDamage}");
 
         CurrentHealth = Mathf.Max(0f, CurrentHealth - scaledDamage);
         // Debug.Log($"health = {CurrentHealth}");
+        var audioComponent = Entity.GetEntityComponent<EntityAudio>(); // TODO could extract to event surface
+        if (audioComponent != null)
+        {
+            audioComponent.PlayHurtSound(this);
+        }
 
-        if (CompareTag("Player"))
+        if (CompareTag("Player")) // TODO could extract to event surface
         {
             ApplyKnockback(info);
         }
 
         OnDamaged?.Invoke(this);
-
-        
 
         if (CurrentHealth <= 0f)
         {
@@ -111,11 +113,11 @@ public class Health : EntityComponent, IDamageable
     }
 
 
-    
+
     public void ApplyWeakness(float multiplier)
     {
         weaknessMultiplier += multiplier;
-    } 
+    }
 
     public void ScaleMaxHealth(float multiplier, bool refillToMax = true)
     {

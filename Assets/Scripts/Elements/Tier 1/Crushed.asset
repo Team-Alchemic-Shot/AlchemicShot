@@ -17,7 +17,8 @@ MonoBehaviour:
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 1
-  vfxPrefab: {fileID: 0}
+  vfxPrefab: {fileID: 600239890374287283, guid: 822d1be788d73e949821e666bedba8ca,
+    type: 3}
   sfxClip: {fileID: 0}
   sfxVolume: 1
   behaviors:

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gunName: Revolver
   loadFireMechanism: {fileID: 11400000, guid: 286af61a9922eaedaa2cfda2ba0698ff, type: 2}
+  fireMode: 0
   stats:
     damage: 30
     range: 1000
@@ -22,8 +23,14 @@ MonoBehaviour:
     fireRate: 5
     magazineSize: 6
     reloadTime: 1
+    spread: 0
   fx:
     shootSound: shootSound
     reloadSound: reloadSound
+    muzzleFlash:
+      prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
+        type: 3}
+      duration: 0.5
+      muzzleOffset: {x: 0.4, y: 0.2, z: 1}
   bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
     type: 3}

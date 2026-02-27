@@ -119,6 +119,7 @@ public struct GunStats
     public int magazineSize;
     public float reloadTime;
     public float spread;
+    public float recoil;
 }
 
 /// <summary>

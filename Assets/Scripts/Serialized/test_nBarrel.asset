@@ -24,13 +24,14 @@ MonoBehaviour:
     magazineSize: 8
     reloadTime: 1.5
     spread: 5
+    recoil: 10
   fx:
     shootSound: shootSound
     reloadSound: reloadSound
     muzzleFlash:
       prefab: {fileID: 2705805862114222344, guid: 672e673e23dbac64cafbb537c57b8730,
         type: 3}
-      duration: 0
+      duration: 0.5
       muzzleOffset: {x: 0, y: 0.1, z: 1.4}
   bulletPrefab: {fileID: 8310636828589276295, guid: 7fc6bca43c5d8c9619a3fe50adb15d9a,
     type: 3}

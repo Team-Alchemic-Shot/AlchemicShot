@@ -24,6 +24,7 @@ MonoBehaviour:
     magazineSize: 6
     reloadTime: 1
     spread: 0
+    recoil: 5
   fx:
     shootSound: shootSound
     reloadSound: reloadSound

@@ -17,8 +17,7 @@ MonoBehaviour:
   elementDensity: 1
   elementIcon: {fileID: 0}
   elementTier: 0
-  vfxPrefab: {fileID: 4916497788842903373, guid: fed3b6045f56fcb4c90bf5752494e398,
-    type: 3}
+  vfxPrefab: {fileID: 0}
   impactSound:
     name: EarthImpact
     clip: {fileID: 8300000, guid: ba770cd8aea70b048b205299faf20d40, type: 3}
@@ -31,5 +30,6 @@ MonoBehaviour:
     minDistance: 1
     maxDistance: 20
     source: {fileID: 0}
+  projectileVfxPrefab: {fileID: 0}
   behaviors:
   - {fileID: 11400000, guid: 233a1bb05adb9a0b78db745f3c2cabe4, type: 2}

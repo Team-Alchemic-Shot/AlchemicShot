@@ -55,17 +55,7 @@ public class Health : EntityComponent, IDamageable
             OnDeath?.Invoke(this);
             if (destroyOnDeath)
             {
-                if (CompareTag("Zombie"))
-                {
-                    // if zombie, disable movement and destroy after death animation plays
-                    GetComponent<ZombieTargeting>().enabled = false;
-                    GetComponent<Rigidbody>().freezeRotation = true;
-                    Destroy(gameObject, GetComponent<ZombieAnimations>().deathAnimLength);
-                }
-                else
-                {
-                    Destroy(gameObject);
-                }
+                Destroy(gameObject);
             }
         }
     }

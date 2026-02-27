@@ -9,8 +9,6 @@ public class GunEventBinder : MonoBehaviour
     [SerializeField]
     private GameObject magazineUIObject;
 
-    private MagazineUI magazineUI;
-
     private Gun subscribedGun;
 
     private void Awake()
@@ -18,10 +16,6 @@ public class GunEventBinder : MonoBehaviour
         if (inventory == null)
         {
             inventory = GetComponent<Inventory>();
-        }
-        if (magazineUIObject != null)
-        {
-            magazineUI = magazineUIObject.GetComponent<MagazineUI>();
         }
     }
 
@@ -61,15 +55,13 @@ public class GunEventBinder : MonoBehaviour
             return;
         }
 
-        subscribedGun.Fired += AudioManager.PlayGunfire; // TODO use new SoundManager
+        subscribedGun.Fired += SoundManager.PlayGunfire;
         subscribedGun.FiredBullet += MuzzleFlashAnimator.PlayMuzzleFlash;
         subscribedGun.FiredBullet += GunRecoil.ApplyRecoil;
-        subscribedGun.ReloadStarted += AudioManager.PlayReload;
+        subscribedGun.ReloadStarted += SoundManager.PlayReload;
         subscribedGun.HitTarget += ElementBehavior.ApplyBehaviors;
         subscribedGun.HitTarget += Reactions.TryApplyReaction; // do reactions after applying behaviors
         subscribedGun.HitTarget += ElementImpactFx.TryPlayOnHit; // do VFX/SFX after reactions so result element wins
-        // subscribedGun.FiredBullet += magazineUI.OnFired;
-        // subscribedGun.Reloaded += magazineUI.OnReloaded;
     }
     
 
@@ -80,15 +72,13 @@ public class GunEventBinder : MonoBehaviour
             return;
         }
 
-        subscribedGun.Fired -= AudioManager.PlayGunfire;
+        subscribedGun.Fired -= SoundManager.PlayGunfire;
         subscribedGun.FiredBullet -= MuzzleFlashAnimator.PlayMuzzleFlash;
         subscribedGun.FiredBullet -= GunRecoil.ApplyRecoil;
-        subscribedGun.ReloadStarted -= AudioManager.PlayReload;
+        subscribedGun.ReloadStarted -= SoundManager.PlayReload;
         subscribedGun.HitTarget -= ElementImpactFx.TryPlayOnHit;
         subscribedGun.HitTarget -= Reactions.TryApplyReaction;
         subscribedGun.HitTarget -= ElementBehavior.ApplyBehaviors;
-        // subscribedGun.FiredBullet -= magazineUI.OnFired;
-        // subscribedGun.Reloaded -= magazineUI.OnReloaded;
         subscribedGun = null;
     }
 }

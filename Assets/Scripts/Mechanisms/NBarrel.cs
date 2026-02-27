@@ -57,7 +57,7 @@ public class NBarrel : LoadFireMechanism
 
             var bulletObj = Instantiate(bulletPrefab, cam.transform.position, source.transform.rotation);
             var bs = bulletObj.GetComponent<BulletScript>();
-            bs.Initialize(defintion.stats.bulletLifeTime, shotDirection, defintion.stats.bulletSpeed, bullet);
+            bs.Initialize(defintion.stats.bulletLifeTime, shotDirection, defintion.stats.bulletSpeed);
 
             NotifyFiredBullet(bullet, defintion, source);
             firedCount++;

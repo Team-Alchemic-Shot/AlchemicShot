@@ -19,6 +19,13 @@ public class Gun : MonoBehaviour
     public event Action<Ray, RaycastHit> HitSomething;
     public event Action<int, MagazineState> Reloaded;
 
+    [Header("Debug")]
+    [SerializeField]
+    private bool drawMuzzleFlashGizmo = true;
+
+    [SerializeField]
+    private float muzzleGizmoRadius = 0.04f;
+
     private GameObject player;
     private InputAction fireAction;
     private InputAction reloadAction;
@@ -178,5 +185,42 @@ public class Gun : MonoBehaviour
                 magazineState.Push(magazineBlueprint.bullets[i].Clone());
             }
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (!drawMuzzleFlashGizmo || gunDefinition == null)
+        {
+            return;
+        }
+
+        GameObject playerRef = player;
+        if (playerRef == null)
+        {
+            playerRef = GameObject.FindGameObjectWithTag("Player");
+        }
+
+        if (!MuzzleFlashAnimator.TryGetMuzzleFlashPose(gunDefinition, playerRef, out Vector3 muzzlePos, out _))
+        {
+            return;
+        }
+
+        Transform anchor = transform;
+        if (playerRef != null)
+        {
+            var gunLook = playerRef.GetComponentInChildren<GunLook>();
+            if (gunLook != null)
+            {
+                anchor = gunLook.transform;
+            }
+            else
+            {
+                anchor = playerRef.transform;
+            }
+        }
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(anchor.position, muzzlePos);
+        Gizmos.DrawSphere(muzzlePos, muzzleGizmoRadius);
     }
 }

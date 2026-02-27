@@ -7,24 +7,54 @@ public static class MuzzleFlashAnimator
     /// </summary>
     private const short BurstCount = 8;
 
+    public static bool TryGetMuzzleFlashPose(GunDefinition definition, GameObject player, out Vector3 worldPos, out Quaternion worldRot)
+    {
+        worldPos = Vector3.zero;
+        worldRot = Quaternion.identity;
+
+        if (definition == null || definition.fx.muzzleFlash.prefab == null)
+        {
+            return false;
+        }
+
+        Transform anchor = null;
+        if (player != null)
+        {
+            var gunLook = player.GetComponentInChildren<GunLook>();
+            if (gunLook != null)
+            {
+                anchor = gunLook.transform;
+            }
+        }
+
+        if (anchor == null)
+        {
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                anchor = cam.transform;
+            }
+        }
+
+        if (anchor == null)
+        {
+            return false;
+        }
+
+        var fx = definition.fx.muzzleFlash;
+        worldPos = anchor.TransformPoint(fx.muzzleOffset);
+        worldRot = anchor.rotation;
+        return true;
+    }
+
     public static void PlayMuzzleFlash(GunDefinition definition, GameObject player)
     {
-        if (definition == null || definition.fx.muzzleFlash.prefab == null)
+        if (!TryGetMuzzleFlashPose(definition, player, out Vector3 worldPos, out Quaternion worldRot))
         {
             return;
         }
 
         var fx = definition.fx.muzzleFlash;
-        Camera cam = Camera.main;
-        if (cam == null)
-        {
-            return;
-        }
-
-        // Compute world-space spawn point from camera-local offset
-        Transform camT = cam.transform;
-        Vector3 worldPos = camT.position + camT.TransformDirection(fx.muzzleOffset);
-        Quaternion worldRot = camT.rotation;
 
         // Spawn detached from the camera so it isn't culled by the near plane
         var flash = Object.Instantiate(fx.prefab, worldPos, worldRot);

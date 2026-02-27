@@ -2,7 +2,11 @@ fileFormatVersion: 2
 guid: 92cc5349ed947734f81bf8a63637255c
 NativeFormatImporter:
   externalObjects: {}
+<<<<<<< HEAD
   mainObjectFileID: 0
+=======
+  mainObjectFileID: 11400000
+>>>>>>> parent of ae361a0 (Revert "Merge branch 'merging-into-dev'")
   userData: 
   assetBundleName: 
   assetBundleVariant: 

@@ -84,9 +84,18 @@ public static class MuzzleFlashAnimator
             var main = ps.main;
             main.simulationSpace = ParticleSystemSimulationSpace.Local;
 
+            // Tint particles with the element color
+            main.startColor = new ParticleSystem.MinMaxGradient(color);
+
             // Restart so the new settings take effect immediately
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             ps.Play();
+        }
+
+        // Tint any lights on the flash prefab
+        foreach (var light in flash.GetComponentsInChildren<Light>(true))
+        {
+            light.color = color;
         }
 
         Object.Destroy(flash, fx.duration);
